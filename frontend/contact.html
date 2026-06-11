@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MONARCH SUPERCARS - Contact</title>
+
+  <link rel="stylesheet" href="assets/styles.css" />
+
+  <style>
+    body{
+      background:#050505;
+      color:#fff;
+      font-family:Arial,sans-serif;
+      margin:0;
+    }
+
+    header{
+      background:#000;
+      border-bottom:1px solid #222;
+      padding:15px 30px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:18px;
+    }
+
+    .logo{
+      width:115px;
+      height:115px;
+      border:2px solid #d4af37;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#000;
+      flex-shrink:0;
+    }
+
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      border-radius:50%;
+      display:block;
+    }
+
+    nav{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    nav a{
+      color:white;
+      text-decoration:none;
+      padding:10px 16px;
+      border-radius:10px;
+      border:1px solid transparent;
+      transition:0.3s;
+    }
+
+    nav a:hover{
+      border-color:#d4af37;
+      color:#d4af37;
+    }
+
+    nav a.active{
+      color:#000 !important;
+      background:#d4af37;
+      border-color:#d4af37;
+      font-weight:bold;
+      box-shadow:0 0 12px rgba(212,175,55,0.45);
+    }
+
+    .container{
+      width:90%;
+      max-width:1300px;
+      margin:auto;
+      padding:30px 0;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 0.7fr;
+      gap:25px;
+    }
+
+    .card{
+      background:#111;
+      border:1px solid #333;
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 0 25px rgba(0,0,0,0.4);
+    }
+
+    .card h2,
+    .card h3{
+      margin-top:0;
+      color:#fff;
+    }
+
+    label{
+      display:block;
+      margin-top:16px;
+      margin-bottom:6px;
+      font-weight:bold;
+      font-size:14px;
+    }
+
+    input,
+    textarea{
+      width:100%;
+      padding:13px;
+      border-radius:10px;
+      border:1px solid #333;
+      background:#0b0b0b;
+      color:white;
+      box-sizing:border-box;
+    }
+
+    textarea{
+      min-height:130px;
+      resize:vertical;
+    }
+
+    .muted{
+      color:#aaa;
+      line-height:1.6;
+    }
+
+    .btn{
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:8px;
+      text-decoration:none;
+      border:1px solid #333;
+      cursor:pointer;
+      margin-top:10px;
+      transition:0.3s;
+      font-weight:bold;
+    }
+
+    .btn.primary{
+      background:#d4af37;
+      color:#000;
+      border-color:#d4af37;
+    }
+
+    .btn.secondary{
+      background:#222;
+      color:#fff;
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 0 12px rgba(212,175,55,0.25);
+    }
+
+    .notice{
+      padding:14px;
+      border-radius:10px;
+      margin-top:14px;
+      border:1px solid rgba(212,175,55,0.35);
+      background:rgba(212,175,55,0.1);
+      color:#d4af37;
+    }
+
+    .notice.success{
+      border-color:#2f8f48;
+      background:#102d18;
+      color:#b9ffca;
+    }
+
+    .notice.error{
+      border-color:#7a2a2a;
+      background:#3a1111;
+      color:#ffb3b3;
+    }
+
+    .hide{
+      display:none !important;
+    }
+
+    .footer{
+      padding:30px;
+      text-align:center;
+      border-top:1px solid #222;
+      margin-top:50px;
+      color:#888;
+    }
+
+    .footer a{
+      color:#d4af37;
+      text-decoration:none;
+    }
+
+    .cookie-banner{
+      position:fixed;
+      bottom:0;
+      left:0;
+      right:0;
+      background:#111;
+      border-top:1px solid #333;
+      padding:20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      z-index:999;
+      gap:20px;
+    }
+
+    .inline-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    @media(max-width:900px){
+      .grid-2{
+        grid-template-columns:1fr;
+      }
+
+      nav{
+        flex-wrap:wrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="brand">
+    <div class="logo">
+      <img src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS">
+    </div>
+
+    <div>
+      <h1>MONARCH SUPERCARS</h1>
+      <small>Road trips • Events • Partners</small>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="partners.html">Partenaires</a>
+    <a href="events.html">Event</a>
+    <a href="roadtrip.html">Road Trip</a>
+    <a href="contact.html" class="active">Contact</a>
+    <a href="admin.html">Admin</a>
+  </nav>
+
+  <div class="auth-links">
+    <button id="soundToggle" class="btn secondary">🔊</button>
+    <a class="btn secondary" href="login.html">Connexion</a>
+    <a class="btn primary" href="register.html">Inscription</a>
+  </div>
+
+</header>
+
+<section class="container grid-2">
+
+  <div class="card">
+    <h2>Contact</h2>
+
+    <form id="contactForm">
+      <label>Nom</label>
+      <input name="name" required />
+
+      <label>Email</label>
+      <input name="email" type="email" required />
+
+      <label>Sujet</label>
+      <input name="subject" required />
+
+      <label>Message</label>
+      <textarea name="message" required></textarea>
+
+      <button type="submit" class="btn primary">Envoyer</button>
+    </form>
+
+    <div id="contactResult" class="notice hide"></div>
+  </div>
+
+  <div class="card">
+    <h3>Informations</h3>
+
+    <p class="muted">
+      Les messages sont enregistrés dans MONARCH SUPERCARS.
+      Une notification email pourra être envoyée.
+    </p>
+  </div>
+
+</section>
+
+<div class="footer">
+
+  <div class="container">
+    <p>© MONARCH SUPERCARS — plateforme premium automobile.</p>
+
+    <p>
+      <a href="legal/mentions-legales.html">Mentions légales</a> •
+      <a href="legal/privacy.html">Confidentialité</a> •
+      <a href="legal/cgu-cgv.html">CGU / CGV</a> •
+      <a href="legal/cookies.html">Cookies</a>
+    </p>
+  </div>
+
+</div>
+
+<div id="cookieBanner" class="cookie-banner hide">
+
+  <div>
+    <strong>Cookies & mesure d’audience</strong>
+
+    <div class="muted">
+      Le site prévoit un bandeau de consentement.
+      Les catégories analytiques et marketing doivent rester désactivées par défaut.
+    </div>
+  </div>
+
+  <div class="inline-actions">
+    <button class="btn secondary"
+      onclick="localStorage.setItem('monarch_cookie_choice','essential');document.getElementById('cookieBanner').classList.add('hide')">
+      Essentiels
+    </button>
+
+    <button class="btn primary"
+      onclick="localStorage.setItem('monarch_cookie_choice','all');document.getElementById('cookieBanner').classList.add('hide')">
+      Tout accepter
+    </button>
+  </div>
+
+</div>
+
+<audio id="backgroundMusic" loop preload="metadata">
+  <source src="assets/audio/paulyudin-background-music-478744.mp3" type="audio/mpeg">
+</audio>
+
+<script src="config.runtime.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>

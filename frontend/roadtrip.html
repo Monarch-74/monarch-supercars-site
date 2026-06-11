@@ -1,0 +1,1373 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Road Trip IA - MONARCH SUPERCARS</title>
+
+  <link rel="stylesheet" href="assets/styles.css" />
+
+  <style>
+    :root {
+      --gold:#d4af37;
+      --dark:#050505;
+      --card:#111;
+      --card2:#151515;
+      --line:#333;
+      --muted:#aaa;
+    }
+
+    body {
+      background:var(--dark);
+      color:#fff;
+      font-family:Arial, sans-serif;
+      margin:0;
+    }
+
+    header {
+      background:#000;
+      border-bottom:1px solid #222;
+      padding:15px 30px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:18px;
+    }
+
+    .logo {
+      width:115px;
+      height:115px;
+      border:2px solid var(--gold);
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#000;
+      flex-shrink:0;
+    }
+
+    .logo img {
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      border-radius:50%;
+      display:block;
+    }
+
+    nav {
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    nav a {
+      color:white;
+      text-decoration:none;
+      padding:10px 16px;
+      border-radius:10px;
+      border:1px solid transparent;
+      transition:0.3s;
+    }
+
+    nav a:hover {
+      border-color:var(--gold);
+      color:var(--gold);
+    }
+
+    nav a.active {
+      color:#000 !important;
+      background:var(--gold);
+      border-color:var(--gold);
+      font-weight:bold;
+      box-shadow:0 0 12px rgba(212,175,55,0.45);
+    }
+
+    .btn {
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:8px;
+      text-decoration:none;
+      border:1px solid #333;
+      cursor:pointer;
+      margin-top:10px;
+      transition:0.3s;
+      font-weight:bold;
+      background:#222;
+      color:#fff;
+    }
+
+    .btn.primary {
+      background:var(--gold);
+      color:#000;
+      border-color:var(--gold);
+    }
+
+    .btn.secondary {
+      background:#222;
+      color:#fff;
+    }
+
+    .btn.danger {
+      background:#3a1111;
+      color:#ffb3b3;
+      border-color:#7a2a2a;
+    }
+
+    .btn.success {
+      background:#102d18;
+      color:#b9ffca;
+      border-color:#2f8f48;
+    }
+
+    .container {
+      width:92%;
+      max-width:1450px;
+      margin:auto;
+      padding:30px 0;
+    }
+
+    .hero {
+      min-height:290px;
+      border-bottom:1px solid #222;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.96), rgba(0,0,0,0.62), rgba(0,0,0,0.95)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80");
+      background-size:cover;
+      background-position:center;
+      display:flex;
+      align-items:center;
+    }
+
+    .hero-inner {
+      width:92%;
+      max-width:1450px;
+      margin:auto;
+      display:grid;
+      grid-template-columns:1.3fr 0.7fr;
+      gap:30px;
+      align-items:center;
+    }
+
+    .hero h1 {
+      font-size:54px;
+      letter-spacing:4px;
+      margin:0;
+      text-transform:uppercase;
+    }
+
+    .hero p {
+      color:#ddd;
+      font-size:18px;
+    }
+
+    .hero-panel {
+      background:rgba(10,10,10,0.86);
+      border:1px solid #333;
+      border-radius:18px;
+      padding:24px;
+      box-shadow:0 0 35px rgba(0,0,0,0.5);
+    }
+
+    .hero-stat {
+      display:flex;
+      justify-content:space-between;
+      border-bottom:1px solid #333;
+      padding:10px 0;
+      gap:20px;
+    }
+
+    .hero-stat:last-child {
+      border-bottom:none;
+    }
+
+    .hero-stat span:first-child {
+      color:#aaa;
+    }
+
+    .hero-stat span:last-child {
+      color:#fff;
+      font-weight:bold;
+    }
+
+    .roadtrip-grid {
+      display:grid;
+      grid-template-columns:0.95fr 1.05fr;
+      gap:25px;
+      align-items:start;
+    }
+
+    .card {
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 0 25px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      color:#fff;
+      font-size:28px;
+      margin-top:0;
+    }
+
+    h3, h4 {
+      color:var(--gold);
+      margin-top:0;
+    }
+
+    label {
+      display:block;
+      margin-top:16px;
+      margin-bottom:6px;
+      font-weight:bold;
+      font-size:14px;
+    }
+
+    input, select, textarea {
+      width:100%;
+      padding:13px;
+      border-radius:10px;
+      border:1px solid #333;
+      background:#0b0b0b;
+      color:white;
+      box-sizing:border-box;
+    }
+
+    textarea {
+      min-height:90px;
+      resize:vertical;
+    }
+
+    .separator {
+      height:1px;
+      background:#333;
+      margin:24px 0;
+    }
+
+    .inline-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:15px;
+    }
+
+    .inline-actions {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:15px;
+    }
+
+    .result-box {
+      min-height:500px;
+      background:#0b0b0b;
+      border:1px solid #222;
+      border-radius:14px;
+      padding:20px;
+    }
+
+    .notice {
+      padding:15px;
+      border-radius:10px;
+      margin-top:15px;
+      background:rgba(212,175,55,0.1);
+      color:var(--gold);
+      border:1px solid rgba(212,175,55,0.3);
+    }
+
+    .muted {
+      color:var(--muted);
+    }
+
+    .small {
+      font-size:13px;
+      color:#aaa;
+    }
+
+    .proposal-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+      gap:16px;
+      margin-top:18px;
+    }
+
+    .proposal-card {
+      background:#151515;
+      border:1px solid #333;
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 0 18px rgba(0,0,0,0.35);
+    }
+
+    .proposal-card.validated {
+      border-color:#39b65f;
+      box-shadow:0 0 18px rgba(57,182,95,0.22);
+    }
+
+    .proposal-image {
+      height:160px;
+      background-size:cover;
+      background-position:center;
+    }
+
+    .proposal-body {
+      padding:16px;
+    }
+
+    .badge {
+      display:inline-block;
+      padding:4px 9px;
+      border:1px solid var(--gold);
+      border-radius:999px;
+      color:var(--gold);
+      font-size:12px;
+      margin-bottom:8px;
+      text-transform:uppercase;
+    }
+
+    .proposal-title {
+      font-size:18px;
+      font-weight:bold;
+      margin:6px 0;
+      color:#fff;
+    }
+
+    .proposal-meta {
+      color:#bbb;
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .proposal-meta a {
+      color:var(--gold);
+    }
+
+    .proposal-actions {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .proposal-actions .btn {
+      padding:8px 10px;
+      font-size:12px;
+      margin-top:0;
+    }
+
+    .roadbook-section {
+      background:#151515;
+      border:1px solid #333;
+      border-radius:16px;
+      padding:20px;
+      margin-bottom:18px;
+    }
+
+    .commercial-roadbook {
+      background:
+        linear-gradient(180deg, rgba(10,10,10,0.95), rgba(5,5,5,0.98)),
+        radial-gradient(circle at top right, rgba(212,175,55,0.12), transparent 35%);
+      border:1px solid var(--gold);
+      border-radius:20px;
+      overflow:hidden;
+      margin-top:20px;
+    }
+
+    .commercial-cover {
+      min-height:250px;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.98), rgba(0,0,0,0.35)),
+        url("https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80");
+      background-size:cover;
+      background-position:center;
+      padding:35px;
+      display:flex;
+      flex-direction:column;
+      justify-content:end;
+    }
+
+    .commercial-cover h2 {
+      font-size:44px;
+      letter-spacing:3px;
+      margin:0;
+    }
+
+    .commercial-cover p {
+      color:var(--gold);
+      font-size:18px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+    }
+
+    .commercial-content {
+      padding:28px;
+    }
+
+    .summary-cards {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+      gap:14px;
+      margin-bottom:20px;
+    }
+
+    .summary-card {
+      background:#111;
+      border:1px solid #333;
+      border-radius:14px;
+      padding:16px;
+      text-align:center;
+    }
+
+    .summary-card strong {
+      display:block;
+      color:var(--gold);
+      margin-bottom:6px;
+    }
+
+    .timeline {
+      border-left:2px solid var(--gold);
+      margin-left:15px;
+      padding-left:22px;
+    }
+
+    .timeline-item {
+      margin-bottom:20px;
+      position:relative;
+      background:#111;
+      border:1px solid #333;
+      border-radius:14px;
+      padding:16px;
+    }
+
+    .timeline-item:before {
+      content:"";
+      position:absolute;
+      left:-32px;
+      top:20px;
+      width:16px;
+      height:16px;
+      background:var(--gold);
+      border-radius:50%;
+      box-shadow:0 0 12px rgba(212,175,55,0.5);
+    }
+
+    .timeline-item a {
+      color:var(--gold);
+    }
+
+    .directions-list {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .direction-leg-title {
+      color:var(--gold);
+      font-weight:bold;
+      margin:18px 0 8px;
+      font-size:15px;
+    }
+
+    .direction-leg-title:first-child {
+      margin-top:0;
+    }
+
+    .direction-step {
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      background:#111;
+      border:1px solid #333;
+      border-radius:10px;
+      padding:10px 14px;
+    }
+
+    .direction-icon {
+      font-size:20px;
+      flex-shrink:0;
+      width:28px;
+      text-align:center;
+      line-height:1.4;
+    }
+
+    .direction-text {
+      flex:1;
+      line-height:1.4;
+    }
+
+    .direction-meta {
+      color:#aaa;
+      font-size:12px;
+      margin-top:2px;
+    }
+
+    .final-image {
+      width:100%;
+      height:180px;
+      object-fit:cover;
+      border-radius:12px;
+      margin-bottom:12px;
+      border:1px solid #333;
+    }
+
+    .footer {
+      padding:30px;
+      text-align:center;
+      border-top:1px solid #222;
+      margin-top:50px;
+      color:#888;
+    }
+
+    @media print {
+      @page {
+        size:A4;
+        margin:10mm;
+      }
+
+      * {
+        -webkit-print-color-adjust:exact !important;
+        print-color-adjust:exact !important;
+      }
+
+      body {
+        background:#050505 !important;
+        color:#fff !important;
+      }
+
+      header,
+      .hero,
+      form,
+      .proposal-actions,
+      .inline-actions,
+      .footer,
+      .card:first-child {
+        display:none !important;
+      }
+
+      .container {
+        width:100% !important;
+        max-width:none !important;
+        padding:0 !important;
+      }
+
+      .roadtrip-grid {
+        display:block !important;
+      }
+
+      .card,
+      .result-box {
+        background:#050505 !important;
+        border:none !important;
+        box-shadow:none !important;
+        padding:0 !important;
+      }
+
+      .commercial-roadbook {
+        background:linear-gradient(180deg, rgba(10,10,10,0.98), rgba(5,5,5,1)) !important;
+        color:#fff !important;
+        border:1px solid #d4af37 !important;
+        border-radius:18px !important;
+        overflow:hidden !important;
+      }
+
+      .commercial-cover {
+        min-height:240px !important;
+        color:#fff !important;
+        padding:35px !important;
+      }
+
+      .commercial-cover h2 {
+        color:#fff !important;
+        font-size:42px !important;
+        letter-spacing:3px !important;
+      }
+
+      .commercial-cover p {
+        color:#d4af37 !important;
+      }
+
+      .commercial-content {
+        padding:24px !important;
+      }
+
+      .summary-card,
+      .roadbook-section,
+      .timeline-item,
+      .direction-step {
+        background:#111 !important;
+        color:#fff !important;
+        border:1px solid #333 !important;
+        page-break-inside:avoid !important;
+      }
+
+      .summary-card strong,
+      .roadbook-section h4,
+      .timeline-item h4,
+      .direction-leg-title,
+      h2,h3,h4 {
+        color:#d4af37 !important;
+      }
+
+      .direction-meta {
+        color:#bbb !important;
+      }
+
+      .badge {
+        color:#d4af37 !important;
+        border:1px solid #d4af37 !important;
+      }
+
+      .timeline {
+        border-left:2px solid #d4af37 !important;
+      }
+
+      .timeline-item:before {
+        background:#d4af37 !important;
+      }
+
+      a {
+        color:#d4af37 !important;
+        text-decoration:none !important;
+      }
+
+      .btn {
+        display:none !important;
+      }
+    }
+
+    @media(max-width:1000px) {
+      .hero-inner,
+      .roadtrip-grid {
+        grid-template-columns:1fr;
+      }
+
+      .inline-grid {
+        grid-template-columns:1fr;
+      }
+
+      .hero h1 {
+        font-size:38px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">
+      <img src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS">
+    </div>
+
+    <div>
+      <h1>MONARCH SUPERCARS</h1>
+      <small>Road trips • Events • Partners</small>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="partners.html">Partenaires</a>
+    <a href="events.html">Event</a>
+    <a href="roadtrip.html" class="active">Road Trip</a>
+    <a href="contact.html">Contact</a>
+    <a href="admin.html">Admin</a>
+  </nav>
+
+  <div>
+    <button id="soundToggle" class="btn secondary">🔊</button>
+    <a class="btn secondary" href="login.html">Connexion</a>
+    <a class="btn primary" href="register.html">Inscription</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>Road Book</h1>
+      <p>Votre road trip premium personnalisé par MONARCH SUPERCARS.</p>
+    </div>
+
+    <div class="hero-panel">
+      <div class="hero-stat"><span>Date</span><span id="heroDate">À définir</span></div>
+      <div class="hero-stat"><span>Durée</span><span id="heroDays">À définir</span></div>
+      <div class="hero-stat"><span>Escales</span><span id="heroStops">À définir</span></div>
+      <div class="hero-stat"><span>Personnes</span><span id="heroPeople">À définir</span></div>
+      <div class="hero-stat"><span>Style</span><span>Premium • Luxe • Panoramas</span></div>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+
+  <section class="roadtrip-grid">
+
+    <div class="card">
+      <h2>Road Trip IA</h2>
+      <p class="muted">
+        Créez un itinéraire premium avec escales, points de vue, musées automobiles,
+        restaurants, hôtels, contacts et roadbook imprimable.
+      </p>
+
+      <form id="roadtripForm">
+
+        <h3>Départ</h3>
+
+        <label>Lieu de départ — Pays</label>
+        <select name="start_country" required>
+          <option value="France">France</option>
+          <option value="Suisse">Suisse</option>
+          <option value="Belgique">Belgique</option>
+          <option value="Allemagne">Allemagne</option>
+          <option value="Italie">Italie</option>
+        </select>
+
+        <label>Département / Région de départ</label>
+        <input name="start_region" placeholder="Exemple : Genève, Haute-Savoie, Rhône..." required>
+
+        <label>Adresse détaillée de départ</label>
+        <input name="start_address" placeholder="Exemple : 10 rue..., Genève" required>
+
+        <div class="separator"></div>
+
+        <h3>Arrivée</h3>
+
+        <label>Lieu d’arrivée — Pays</label>
+        <select name="end_country" required>
+          <option value="France">France</option>
+          <option value="Suisse">Suisse</option>
+          <option value="Belgique">Belgique</option>
+          <option value="Allemagne">Allemagne</option>
+          <option value="Italie">Italie</option>
+        </select>
+
+        <label>Département / Région d’arrivée</label>
+        <input name="end_region" placeholder="Exemple : Monaco, Milan, Zurich..." required>
+
+        <label>Adresse détaillée d’arrivée</label>
+        <input name="end_address" placeholder="Adresse ou ville d’arrivée" required>
+
+        <div class="separator"></div>
+
+        <h3>Paramètres du voyage</h3>
+
+        <div class="inline-grid">
+          <div>
+            <label>Date de départ</label>
+            <input type="date" name="start_date" required>
+          </div>
+
+          <div>
+            <label>Nombre de jours</label>
+            <select name="days" required>
+              <option value="">Choisir...</option>
+              <script>
+                for (let i = 1; i <= 30; i++) {
+                  document.write('<option value="' + i + '">' + i + ' jour(s)</option>');
+                }
+              </script>
+            </select>
+          </div>
+        </div>
+
+        <div class="inline-grid">
+          <div>
+            <label>Nombre d’escales / arrêts</label>
+            <select name="stops" required>
+              <option value="">Choisir...</option>
+              <option value="1">1 arrêt</option>
+              <option value="2">2 arrêts</option>
+              <option value="3">3 arrêts</option>
+              <option value="4">4 arrêts</option>
+              <option value="5">5 arrêts</option>
+              <option value="6">6 arrêts</option>
+              <option value="8">8 arrêts</option>
+              <option value="10">10 arrêts</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Nombre de personnes total</label>
+            <select name="people" required>
+              <option value="">Choisir...</option>
+              <script>
+                for (let i = 1; i <= 90; i++) {
+                  document.write('<option value="' + i + '">' + i + ' personne(s)</option>');
+                }
+              </script>
+            </select>
+          </div>
+        </div>
+
+        <label>Préférences du road trip</label>
+        <textarea name="preferences" placeholder="Exemple : passage par Saint-Tropez, Nice, hélicoptère à Monaco, restaurants très bien notés, hôtels 4 étoiles, routes panoramiques..."></textarea>
+
+        <label>Type de recherche IA</label>
+        <select name="mode">
+          <option value="best_rated">IA : meilleurs lieux selon les notes Google</option>
+          <option value="scenic">Routes panoramiques et points de vue</option>
+          <option value="automotive">Musées auto, expositions, circuits</option>
+          <option value="luxury">Premium : hôtels 4 étoiles et restaurants haut de gamme</option>
+        </select>
+
+        <button type="submit" class="btn primary" style="margin-top:22px;">
+          Générer les propositions IA
+        </button>
+
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Résultat</h2>
+
+      <p class="muted">
+        Validez ou supprimez les propositions IA, puis générez votre roadbook final premium.
+      </p>
+
+      <div class="inline-actions">
+        <button class="btn secondary" onclick="window.print()">Imprimer</button>
+        <button class="btn secondary" id="openGoogleMaps">Ouvrir Google Maps</button>
+        <button class="btn secondary" id="openWaze">Ouvrir Waze</button>
+        <button class="btn primary" id="generateFinalRoadbook" type="button">Générer le roadbook final</button>
+      </div>
+
+      <div id="roadtripResult" class="result-box">
+        <div class="notice">
+          En attente de génération IA.
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<div class="footer">
+  <p>© MONARCH SUPERCARS — Road trips premium automobile.</p>
+</div>
+
+<audio id="backgroundMusic" loop preload="metadata">
+  <source src="assets/audio/paulyudin-background-music-478744.mp3" type="audio/mpeg">
+</audio>
+
+<script src="config.runtime.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/main.js"></script>
+
+<script>
+  let lastRoadtripData = null;
+  let lastAiSummary = "";
+  let proposalStops = [];
+  let googleMapsUrl = "";
+  let wazeUrl = "";
+  let isGeneratingRoadtrip = false;
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function buildMapsUrl(startAddress, endAddress) {
+    return "https://www.google.com/maps/dir/?api=1&origin=" +
+      encodeURIComponent(startAddress) +
+      "&destination=" +
+      encodeURIComponent(endAddress) +
+      "&travelmode=driving";
+  }
+
+  function buildWazeUrl(endAddress) {
+    return "https://waze.com/ul?q=" + encodeURIComponent(endAddress) + "&navigate=yes";
+  }
+
+  function imageForType(type) {
+    const t = String(type || "").toLowerCase();
+
+    if (t.includes("restaurant")) {
+      return "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=70";
+    }
+
+    if (t.includes("hotel")) {
+      return "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=70";
+    }
+
+    if (t.includes("museum")) {
+      return "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=900&q=70";
+    }
+
+    if (t.includes("activity")) {
+      return "https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=900&q=70";
+    }
+
+    if (t.includes("viewpoint")) {
+      return "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=70";
+    }
+
+    return "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=70";
+  }
+
+  function labelForType(type) {
+    const t = String(type || "").toLowerCase();
+
+    if (t.includes("restaurant")) return "Restaurant";
+    if (t.includes("hotel")) return "Hôtel";
+    if (t.includes("museum")) return "Musée";
+    if (t.includes("activity")) return "Activité";
+    if (t.includes("viewpoint")) return "Point de vue";
+
+    return "Étape";
+  }
+
+  function updateHero(data) {
+    document.getElementById("heroDate").textContent = data.start_date || "À définir";
+    document.getElementById("heroDays").textContent = data.days ? data.days + " jour(s)" : "À définir";
+    document.getElementById("heroStops").textContent = data.stops ? data.stops + " arrêt(s)" : "À définir";
+    document.getElementById("heroPeople").textContent = data.people ? data.people + " personne(s)" : "À définir";
+  }
+
+  function extractStopsFromSummary(summary) {
+    const lines = String(summary || "").split("\n");
+    const stops = [];
+
+    lines.forEach(function(line) {
+      const clean = line.replace(/^\s*[-•0-9.]+\s*/, "").trim();
+
+      if (!clean) return;
+
+      const lower = clean.toLowerCase();
+
+      const isInteresting =
+        lower.includes("restaurant") ||
+        lower.includes("hôtel") ||
+        lower.includes("hotel") ||
+        lower.includes("musée") ||
+        lower.includes("musee") ||
+        lower.includes("point de vue") ||
+        lower.includes("lac") ||
+        lower.includes("plage") ||
+        lower.includes("monaco") ||
+        lower.includes("saint-tropez") ||
+        lower.includes("nice") ||
+        lower.includes("cannes") ||
+        lower.includes("annecy") ||
+        lower.includes("café") ||
+        lower.includes("cafe") ||
+        lower.includes("hélicoptère") ||
+        lower.includes("helicoptere");
+
+      if (!isInteresting) return;
+
+      let type = "stop";
+
+      if (lower.includes("restaurant") || lower.includes("café") || lower.includes("cafe")) {
+        type = "restaurant";
+      } else if (lower.includes("hôtel") || lower.includes("hotel")) {
+        type = "hotel";
+      } else if (lower.includes("musée") || lower.includes("musee")) {
+        type = "museum";
+      } else if (lower.includes("hélicoptère") || lower.includes("helicoptere")) {
+        type = "activity";
+      } else if (lower.includes("point de vue") || lower.includes("lac") || lower.includes("plage")) {
+        type = "viewpoint";
+      }
+
+      stops.push({
+        name: clean,
+        type: type,
+        address: "",
+        reason: "Proposition extraite du roadbook IA",
+        rating: "",
+        contact: "",
+        phone: "",
+        website: "",
+        image_url: "",
+        status: "pending"
+      });
+    });
+
+    return stops.slice(0, 12);
+  }
+
+  function validateStop(index) {
+    proposalStops[index].status = "validated";
+    renderProposals();
+  }
+
+  function removeStop(index) {
+    proposalStops[index].status = "removed";
+    renderProposals();
+  }
+
+  function replaceStop(index) {
+    proposalStops[index].status = "removed";
+    renderProposals();
+    alert("Proposition supprimée. Relancez l’IA avec une préférence plus précise pour obtenir un remplacement.");
+  }
+
+  function renderProposals() {
+    const result = document.getElementById("roadtripResult");
+
+    const activeStops = proposalStops.filter(s => s.status !== "removed");
+    const validatedStops = proposalStops.filter(s => s.status === "validated");
+
+    let html = "";
+
+    html += '<div class="roadbook-section">';
+    html += '<h4>Résumé IA</h4>';
+    html += '<div style="white-space:pre-wrap;line-height:1.6;">' + escapeHtml(lastAiSummary) + '</div>';
+    html += '</div>';
+
+    html += '<div class="notice">';
+    html += 'Propositions IA : ' + activeStops.length + ' visibles • ' + validatedStops.length + ' validée(s). ';
+    html += 'Validez uniquement les éléments à conserver dans le roadbook final.';
+    html += '</div>';
+
+    html += '<div class="proposal-grid">';
+
+    proposalStops.forEach(function(stop, index) {
+      if (stop.status === "removed") return;
+
+      const img = stop.image_url || imageForType(stop.type);
+      const statusClass = stop.status === "validated" ? " validated" : "";
+
+      html += '<div class="proposal-card' + statusClass + '">';
+      html += '<div class="proposal-image" style="background-image:linear-gradient(120deg, rgba(0,0,0,0.1), rgba(0,0,0,0.75)), url(\'' + escapeHtml(img) + '\');"></div>';
+
+      html += '<div class="proposal-body">';
+      html += '<span class="badge">' + escapeHtml(labelForType(stop.type)) + '</span>';
+      html += '<div class="proposal-title">' + escapeHtml(stop.name || "Proposition") + '</div>';
+
+      html += '<div class="proposal-meta">';
+      html += '<p><strong>Adresse :</strong> ' + escapeHtml(stop.address || "-") + '</p>';
+      html += '<p><strong>Note :</strong> ' + escapeHtml(stop.rating || "-") + '</p>';
+      html += '<p><strong>Pourquoi :</strong> ' + escapeHtml(stop.reason || "-") + '</p>';
+
+      if (stop.contact) {
+        html += '<p><strong>Contact :</strong> ' + escapeHtml(stop.contact) + '</p>';
+      }
+
+      if (stop.phone) {
+        html += '<p><strong>Téléphone :</strong> <a href="tel:' + escapeHtml(stop.phone) + '">' + escapeHtml(stop.phone) + '</a></p>';
+      }
+
+      if (stop.website) {
+        html += '<p><strong>Site web :</strong> <a target="_blank" href="' + escapeHtml(stop.website) + '">Ouvrir</a></p>';
+      }
+
+      if (stop.address) {
+        html += '<p><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(stop.address) + '">Voir sur Google Maps</a></p>';
+      }
+
+      html += '</div>';
+
+      html += '<div class="proposal-actions">';
+
+      if (stop.status === "validated") {
+        html += '<button class="btn success" type="button">Validé</button>';
+      } else {
+        html += '<button class="btn success" type="button" onclick="validateStop(' + index + ')">✓ Valider</button>';
+      }
+
+      html += '<button class="btn danger" type="button" onclick="removeStop(' + index + ')">✕ Supprimer</button>';
+      html += '<button class="btn secondary" type="button" onclick="replaceStop(' + index + ')">🔄 Remplacer</button>';
+      html += '</div>';
+
+      html += '</div>';
+      html += '</div>';
+    });
+
+    html += '</div>';
+
+    result.innerHTML = html;
+  }
+
+  function directionStepsHtml(steps) {
+    return steps.map(function(step) {
+      let html = '<div class="direction-step">';
+      html += '<div class="direction-icon">' + escapeHtml(step.icon || "⬆️") + '</div>';
+      html += '<div class="direction-text">';
+      html += '<div>' + escapeHtml(step.instruction || "") + '</div>';
+
+      const meta = [step.distance, step.duration].filter(Boolean).join(" • ");
+
+      if (meta) {
+        html += '<div class="direction-meta">' + escapeHtml(meta) + '</div>';
+      }
+
+      html += '</div>';
+      html += '</div>';
+      return html;
+    }).join("");
+  }
+
+  async function loadDirections(startFull, endFull, selected) {
+    const container = document.getElementById("directionsSection");
+
+    if (!container) return;
+
+    const waypoints = selected.map(s => s.address).filter(Boolean);
+
+    try {
+      const json = await callEdge("google-directions", {
+        origin: startFull,
+        destination: endFull,
+        waypoints: waypoints
+      });
+
+      if (!json.legs || json.legs.length === 0) {
+        throw new Error("Itinéraire indisponible.");
+      }
+
+      let html = '<h4>Itinéraire détaillé Google Maps</h4>';
+
+      const totalKm = json.total_distance ? (json.total_distance / 1000).toFixed(1) + " km" : "-";
+      const totalMin = json.total_duration ? Math.round(json.total_duration / 60) + " min" : "-";
+
+      html += '<div class="notice">Distance totale : ' + escapeHtml(totalKm) + ' • Durée totale estimée : ' + escapeHtml(totalMin) + '</div>';
+      html += '<div class="directions-list">';
+
+      json.legs.forEach(function(leg, index) {
+        html += '<div class="direction-leg-title">Étape ' + (index + 1) + ' : ' +
+          escapeHtml(leg.start_address) + ' → ' + escapeHtml(leg.end_address) +
+          ' (' + escapeHtml(leg.distance) + ' • ' + escapeHtml(leg.duration) + ')</div>';
+
+        html += directionStepsHtml(leg.steps || []);
+      });
+
+      html += '</div>';
+
+      container.innerHTML = html;
+
+    } catch (err) {
+      container.innerHTML =
+        '<h4>Itinéraire détaillé Google Maps</h4>' +
+        '<div class="notice">Itinéraire détaillé indisponible pour le moment (' + escapeHtml(err.message) + ').</div>';
+    }
+  }
+
+  async function generateFinalRoadbook() {
+    const result = document.getElementById("roadtripResult");
+    const selected = proposalStops.filter(s => s.status === "validated");
+
+    if (!lastRoadtripData) {
+      result.innerHTML = '<div class="notice">Aucun road trip généré.</div>';
+      return;
+    }
+
+    if (selected.length === 0) {
+      result.innerHTML = '<div class="notice">Veuillez valider au moins une proposition avant de générer le roadbook final.</div>';
+      return;
+    }
+
+    const startFull =
+      lastRoadtripData.start_address + ", " +
+      lastRoadtripData.start_region + ", " +
+      lastRoadtripData.start_country;
+
+    const endFull =
+      lastRoadtripData.end_address + ", " +
+      lastRoadtripData.end_region + ", " +
+      lastRoadtripData.end_country;
+
+    let html = "";
+
+    html += '<div class="commercial-roadbook">';
+    html += '<div class="commercial-cover">';
+    html += '<h2>ROAD BOOK</h2>';
+    html += '<p>Votre road trip premium validé</p>';
+    html += '</div>';
+
+    html += '<div class="commercial-content">';
+
+    html += '<div class="summary-cards">';
+    html += '<div class="summary-card"><strong>Départ</strong>' + escapeHtml(startFull) + '</div>';
+    html += '<div class="summary-card"><strong>Arrivée</strong>' + escapeHtml(endFull) + '</div>';
+    html += '<div class="summary-card"><strong>Date</strong>' + escapeHtml(lastRoadtripData.start_date || "-") + '</div>';
+    html += '<div class="summary-card"><strong>Durée</strong>' + escapeHtml(lastRoadtripData.days || "-") + ' jour(s)</div>';
+    html += '<div class="summary-card"><strong>Personnes</strong>' + escapeHtml(lastRoadtripData.people || "-") + '</div>';
+    html += '</div>';
+
+    html += '<div class="roadbook-section">';
+    html += '<h4>Résumé du voyage</h4>';
+    html += '<div style="white-space:pre-wrap;line-height:1.6;">' + escapeHtml(lastAiSummary) + '</div>';
+    html += '</div>';
+
+    html += '<div class="roadbook-section">';
+    html += '<h4>Itinéraire validé</h4>';
+    html += '<div class="timeline">';
+
+    selected.forEach(function(stop, index) {
+      const img = stop.image_url || imageForType(stop.type);
+
+      html += '<div class="timeline-item">';
+      html += '<img class="final-image" src="' + escapeHtml(img) + '" alt="' + escapeHtml(stop.name || "Étape") + '">';
+      html += '<h4>' + (index + 1) + '. ' + escapeHtml(stop.name || "Étape") + '</h4>';
+      html += '<p><span class="badge">' + escapeHtml(labelForType(stop.type)) + '</span></p>';
+      html += '<p><strong>Adresse :</strong> ' + escapeHtml(stop.address || "-") + '</p>';
+      html += '<p><strong>Pourquoi :</strong> ' + escapeHtml(stop.reason || "-") + '</p>';
+      html += '<p><strong>Note :</strong> ' + escapeHtml(stop.rating || "-") + '</p>';
+
+      if (stop.contact) html += '<p><strong>Contact :</strong> ' + escapeHtml(stop.contact) + '</p>';
+      if (stop.phone) html += '<p><strong>Téléphone :</strong> ' + escapeHtml(stop.phone) + '</p>';
+      if (stop.website) html += '<p><strong>Site web :</strong> ' + escapeHtml(stop.website) + '</p>';
+
+      if (stop.address) {
+        html += '<p><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(stop.address) + '">Voir sur Google Maps</a></p>';
+      }
+
+      html += '</div>';
+    });
+
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="roadbook-section" id="directionsSection">';
+    html += '<h4>Itinéraire détaillé Google Maps</h4>';
+    html += '<div class="notice">Chargement de l’itinéraire détaillé...</div>';
+    html += '</div>';
+
+    html += '<div class="roadbook-section">';
+    html += '<h4>Itinéraires</h4>';
+
+    if (googleMapsUrl) {
+      html += '<a class="btn primary" target="_blank" href="' + escapeHtml(googleMapsUrl) + '">Ouvrir Google Maps</a> ';
+    }
+
+    if (wazeUrl) {
+      html += '<a class="btn secondary" target="_blank" href="' + escapeHtml(wazeUrl) + '">Ouvrir Waze</a>';
+    }
+
+    html += '</div>';
+
+    html += '</div>';
+    html += '</div>';
+
+    result.innerHTML = html;
+
+    loadDirections(startFull, endFull, selected);
+  }
+
+  document.getElementById("generateFinalRoadbook").addEventListener("click", generateFinalRoadbook);
+
+  document.getElementById("roadtripForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    if (isGeneratingRoadtrip) {
+      return;
+    }
+
+    isGeneratingRoadtrip = true;
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalBtnLabel = submitBtn ? submitBtn.textContent : "";
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Génération en cours...";
+    }
+
+    const result = document.getElementById("roadtripResult");
+    result.innerHTML = '<div class="notice">Génération des propositions IA en cours... (cela peut prendre jusqu’à une minute)</div>';
+
+    const formData = new FormData(e.target);
+    const data = {};
+
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+
+    lastRoadtripData = data;
+    updateHero(data);
+
+    const startFull = data.start_address + ", " + data.start_region + ", " + data.start_country;
+    const endFull = data.end_address + ", " + data.end_region + ", " + data.end_country;
+
+    document.getElementById("openGoogleMaps").onclick = function() {
+      window.open(googleMapsUrl || buildMapsUrl(startFull, endFull), "_blank");
+    };
+
+    document.getElementById("openWaze").onclick = function() {
+      window.open(wazeUrl || buildWazeUrl(endFull), "_blank");
+    };
+
+    try {
+      const json = await callEdge("ai-roadtrip-plan", data);
+
+      lastAiSummary =
+        json.summary ||
+        json.plan ||
+        json.roadbook ||
+        json.result ||
+        "";
+
+      if (!lastAiSummary) {
+        throw new Error("Roadbook vide.");
+      }
+
+      proposalStops = Array.isArray(json.stops)
+        ? json.stops.map(function(stop) {
+            return {
+              ...stop,
+              status: "pending"
+            };
+          })
+        : [];
+
+      if (proposalStops.length === 0 && lastAiSummary) {
+        proposalStops = extractStopsFromSummary(lastAiSummary);
+      }
+
+      googleMapsUrl = json.google_maps_url || buildMapsUrl(startFull, endFull);
+      wazeUrl = json.waze_url || buildWazeUrl(endFull);
+
+      renderProposals();
+
+    } catch (err) {
+      result.innerHTML =
+        '<div class="notice">Mode démonstration : la fonction IA Road Trip n’est pas encore connectée ou a retourné une erreur.</div>' +
+        '<div class="roadbook-section">' +
+          '<h4>1. Départ</h4>' +
+          '<p><strong>' + escapeHtml(startFull) + '</strong></p>' +
+          '<p>Date : ' + escapeHtml(data.start_date) + '</p>' +
+        '</div>' +
+        '<div class="roadbook-section">' +
+          '<h4>2. Arrivée</h4>' +
+          '<p><strong>' + escapeHtml(endFull) + '</strong></p>' +
+        '</div>' +
+        '<div class="roadbook-section">' +
+          '<h4>3. Proposition IA attendue</h4>' +
+          '<ul>' +
+            '<li>Points de vue avec photos et images satellite</li>' +
+            '<li>Musées automobiles et expositions</li>' +
+            '<li>Restaurants très bien notés</li>' +
+            '<li>Hôtels premium très bien notés</li>' +
+            '<li>Contacts, téléphones et sites web si disponibles</li>' +
+            '<li>Validation / suppression des propositions</li>' +
+            '<li>Itinéraire Google Maps / Waze</li>' +
+          '</ul>' +
+        '</div>' +
+        '<p class="small">Erreur technique : ' + escapeHtml(err.message) + '</p>';
+    } finally {
+      isGeneratingRoadtrip = false;
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnLabel;
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

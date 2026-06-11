@@ -1,0 +1,167 @@
+disfonctionnements observés dans l'application: Acceuil, créer un compte pas be soin de clefs API. pouvoir récupérer son mot de passe et dans la création comme ça se fait de confirmer le mot de passe PARTENAIRE , se connecter = ## Connexion
+EmailMot de passe Se connecter Invalid API key, demande de partenaire il devrair s'agir d'une communication mail et une validation par l'administrateur il manque pour lé compte administrateur uniquement une touche validé, résultat = Invalid Compact JWS, EVENT j'ai fait un test par exemple France, Lyon il y a que 6 potentiels évennement mais rien de concret il devrait rechercher sur facebook, Google Instagram les mots clefs suivants Rassemblement automobile
+Rassemblement voitures
+Rencontre automobile
+Meeting automobile
+Événement automobile
+Salon automobile
+Exposition automobile
+Festival automobile
+Journée automobile
+Cars & Coffee
+Auto Show
+Car Meet
+Car Gathering
+Automotive Event
+Car Festival
+Supercars / Prestige
+Supercar Meeting
+Supercar Event
+Supercar Rally
+Luxury Car Event
+Prestige Auto
+Hypercar Meeting
+Ferrari Meeting
+Lamborghini Meeting
+Porsche Meeting
+Exotic Car Show
+Sports Car Gathering
+Rallyes et Road Trips
+Rallye touristique
+Rallye automobile
+Road Trip Automobile
+Balade automobile
+Sortie automobile
+Driving Experience
+Scenic Drive
+Car Rally
+Touring Rally
+Circuit / Performance
+Track Day
+Journée Circuit
+Pilotage
+Driving Experience
+Open Pit Lane
+Circuit Experience
+Test & Tune
+Track Event
+Véhicules anciens
+Voitures anciennes
+Véhicules de collection
+Classic Cars
+Vintage Cars
+Oldtimer Meeting
+Rétromobile
+Bourse Auto
+Tuning et Sportives
+Tuning Show
+Modified Cars
+Performance Cars
+JDM Meet
+Stance Meeting
+Drift Event
+Motorsport Event
+Marques spécifiques
+Ferrari Club
+Porsche Club
+Mustang Meeting
+Corvette Meeting
+BMW M Meeting
+AMG Meeting
+Alpine Meeting
+Abarth Meeting
+Associations et événements caritatifs
+Rallye du Cœur
+Baptêmes automobiles
+Association automobile
+Charity Car Event
+Charity Rally
+Caritative automobile
+Mots-clés pour les réseaux sociaux
+Rechercher avec les hashtags :
+#CarsAndCoffee
+#CarMeet
+#Supercars
+#SupercarEvent
+#AutomotiveEvent
+#CarShow
+#LuxuryCars
+#ExoticCars
+#RoadTrip
+#TrackDay
+#CarsOfInstagram
+#DreamCars
+#FerrariLife
+#PorscheLife
+#Lamborghini #Koeningseg, #Pagani #Bugati #Ferrari #Porsche l'onglet admin jedevris avoir que moi qui ai accès a me confirmer et top pour valider les demandes de partenaires après payement et dans Admin onglet message je devrait voir les mails de l'adresse admin@monarch-apps.com et comment s'assurer qu'il y ai que moi qui ai admin? dans Road Trip les recherche IA sont très longue controler qu'on ne lance pas en même temps plusieurs API. quand je fais imprimer c'est très joli top je souhaite que l'impression reprenne par éxemple le détail de google map qui indique quelle route prendre a une certaine distance tourner a droite etc exemple : # 20 h 47 min (1 610 km)
+
+via Rte de Saint-Julien
+Voici l'itinéraire le plus rapide actuellement, ce qui évite une fermeture de route sur Voie Centrale
+
+
+ 
+
+Itinéraire avec péages.
+
+ 
+
+Cet itinéraire traverse plusieurs pays/régions.
+
+ 
+
+Cet itinéraire traverse une frontière nationale/régionale.
+Lamborghini Genève
+Rte de Saint-Julien 184, 1228 Plan-les-Ouates, Suisse
+
+Prendre Rte de Saint-Julien et Rte des Jeunes en direction de Rue Viguet à Centre-Plainpalais-Acacias, Genève
+9 min (3,8 km)
+
+<img src="https://maps.gstatic.com/consumer/images/icons/2x/straight_grey800_18dp.png">
+
+Prendre la direction de Chem. du Pont-du-Centenaire
+
+ 
+
+Traverser le rond-point
+<img src="https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=f3O5eezIDjOW8_CGbMW4ug&amp;cb_client=maps_sv.tactile.gps&amp;yaw=59.65198&amp;pitch=0&amp;thumbfov=100&amp;w=40&amp;h=40">
+
+
+1,7 km
+
+<img src="https://maps.gstatic.com/consumer/images/icons/2x/turn_left_grey800_18dp.png">
+
+Prendre à gauche sur Rte des Jeunes
+
+ 
+
+Traverser le rond-point
+<img src="https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=tTzj8U4hLCU9q2uEZuo3dw&amp;cb_client=maps_sv.tactile.gps&amp;yaw=232.46434&amp;pitch=0&amp;thumbfov=100&amp;w=40&amp;h=40">
+
+
+1,2 km
+
+<img src="https://maps.gstatic.com/consumer/images/icons/2x/merge_grey800_18dp.png">
+
+Utiliser la voie de gauche pour prendre la bretelle en direction de Lancy/Onex
+
+<img src="https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=Jigf3gK-GOLXQ1VC1holnw&amp;cb_client=maps_sv.tactile.gps&amp;yaw=176.66113&amp;pitch=0&amp;thumbfov=100&amp;w=40&amp;h=40">
+
+
+75 m
+
+<img src="https://maps.gstatic.com/consumer/images/icons/2x/merge_grey800_18dp.png">
+
+Rejoindre Voie Centrale
+
+<img src="https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=XNoqsm0r0ZSQYRG2Ren-UQ&amp;cb_client=maps_sv.tactile.gps&amp;yaw=72.03868&amp;pitch=0&amp;thumbfov=100&amp;w=40&amp;h=40">
+
+
+400 m
+
+<img src="https://maps.gstatic.com/consumer/images/icons/2x/merge_grey800_18dp.png">
+
+Utiliser la voie de droite pour prendre la bretelle sur Rte des Jeunes
+
+Optimized tool selection
+
+Je vais d’abord identifier les points de logique d’authentification, d’admin et de recherche d’événements afin de corriger les dysfonctionnements observés puis valider les changements avec les tests disponibles.

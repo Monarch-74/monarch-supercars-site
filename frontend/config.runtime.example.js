@@ -1,0 +1,8 @@
+window.MONARCH_CONFIG = {
+  SUPABASE_URL: "https://YOUR_PROJECT.supabase.co",
+  SUPABASE_ANON_KEY: "YOUR_SUPABASE_ANON_KEY",
+  EDGE_BASE_URL: "https://YOUR_PROJECT.functions.supabase.co",
+  GOOGLE_MAPS_BROWSER_KEY: "YOUR_BROWSER_KEY_IF_YOU_ENABLE_EMBEDS",
+  STRIPE_PUBLISHABLE_KEY: "pk_live_or_test_xxx",
+  APP_ENV: "production"
+};

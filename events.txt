@@ -1,0 +1,396 @@
+monarch-v5-complete-main-2
+events.html 
+
+
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Events - MONARCH SUPERCARS</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+
+  <style>
+    /* GLOBAL */
+    * { box-sizing: border-box; }
+
+    body {
+      background: #050505;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+
+    /* HEADER */
+    header {
+      background: #000;
+      border-bottom: 1px solid #222;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo {
+      width: 115px;
+      height: 115px;
+      border: 2px solid #d4af37;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    /* NAVIGATION */
+    nav {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+    }
+
+    nav a:hover {
+      border-color: #d4af37;
+      color: #d4af37;
+    }
+
+    nav a.active {
+      color: #000 !important;
+      background: #d4af37;
+      border-color: #d4af37;
+      font-weight: bold;
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      border: 1px solid #333;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .btn.primary {
+      background: #d4af37;
+      color: #000;
+      border-color: #d4af37;
+    }
+
+    .btn.secondary {
+      background: #222;
+      color: #fff;
+    }
+
+    /* LAYOUT */
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: auto;
+      padding: 30px 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* CARDS */
+    .card {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    /* FORMS */
+    select, input {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      background: #0b0b0b;
+      color: white;
+      margin: 8px 0 18px;
+    }
+
+    label { font-weight: bold; }
+
+    /* NOTICES */
+    .notice {
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      background: rgba(212,175,55,.1);
+      color: #d4af37;
+      border: 1px solid rgba(212,175,55,.3);
+    }
+
+    .notice.error {
+      background: rgba(220,53,69,.1);
+      color: #ff6b6b;
+      border-color: #7a2a2a;
+    }
+
+    /* TITLES */
+    .region-title {
+      color: #d4af37;
+      margin-top: 30px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+    }
+
+    .date-title {
+      color: #fff;
+      margin-top: 20px;
+    }
+
+    /* EVENT CARDS */
+    .event-card {
+      background: #151515;
+      border: 1px solid #333;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .event-card img.poster {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .event-card h3 {
+      color: #d4af37;
+      margin-top: 0;
+    }
+
+    .event-meta {
+      color: #ccc;
+      margin: 8px 0;
+      line-height: 1.6;
+    }
+
+    .event-link {
+      color: #d4af37;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 30px;
+      text-align: center;
+      border-top: 1px solid #222;
+      margin-top: 50px;
+      color: #888;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">
+      <img src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS">
+    </div>
+    <div>
+      <h1>MONARCH SUPERCARS</h1>
+      <small>Road trips • Events • Partners</small>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="partners.html">Partenaires</a>
+    <a href="events.html" class="active">Event</a>
+    <a href="roadtrip.html">Road Trip</a>
+    <a href="contact.html">Contact</a>
+    <a href="admin.html">Admin</a>
+  </nav>
+
+  <div>
+    <button id="soundToggle" class="btn secondary">🔊</button>
+    <a class="btn secondary" href="login.html">Connexion</a>
+    <a class="btn primary" href="register.html">Inscription</a>
+  </div>
+</header>
+
+<section class="container grid-2">
+  <div class="card">
+    <h2>Recherche d'événements</h2>
+
+    <form id="eventSearchForm">
+      <label for="countrySelect">Pays</label>
+      <select name="country" id="countrySelect" required>
+        <option value="">Sélectionner un pays</option>
+        <option value="France">France</option>
+        <option value="Belgique">Belgique</option>
+        <option value="Suisse">Suisse</option>
+        <option value="Allemagne">Allemagne</option>
+        <option value="Italie">Italie</option>
+      </select>
+
+      <label for="departmentSelect">Département / Région</label>
+      <select name="department" id="departmentSelect" required>
+        <option value="">Choisir...</option>
+      </select>
+
+      <button type="submit" class="btn primary">Rechercher</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Publier un événement</h3>
+    <p>Les associations ou organisateurs peuvent soumettre un événement avec paiement de 5 €.</p>
+    <a class="btn primary" href="event-submit.html">Soumettre un événement</a>
+  </div>
+</section>
+
+<section class="container">
+  <div id="eventsResults"></div>
+</section>
+
+<div class="footer">
+  <p>© MONARCH SUPERCARS — plateforme premium automobile.</p>
+</div>
+
+<audio id="backgroundMusic" loop preload="metadata">
+  <source src="assets/audio/paulyudin-background-music-478744.mp3" type="audio/mpeg">
+</audio>
+
+<script src="config.runtime.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/main.js"></script>
+
+<script>
+  const regionsByCountry = {
+    France: ["Ain","Aisne","Allier","Alpes-de-Haute-Provence","Hautes-Alpes","Alpes-Maritimes","Ardèche","Ardennes","Ariège","Aube","Aude","Aveyron","Bas-Rhin","Bouches-du-Rhône","Calvados","Cantal","Charente","Charente-Maritime","Cher","Corrèze","Corse-du-Sud","Haute-Corse","Côte-d'Or","Côtes-d'Armor","Creuse","Deux-Sèvres","Dordogne","Doubs","Drôme","Essonne","Eure","Eure-et-Loir","Finistère","Gard","Gers","Gironde","Guadeloupe","Guyane","Haute-Garonne","Hautes-Pyrénées","Hauts-de-Seine","Hérault","Ille-et-Vilaine","Indre","Indre-et-Loire","Isère","Jura","Landes","Loir-et-Cher","Loire","Haute-Loire","Loire-Atlantique","Loiret","Lot","Lot-et-Garonne","Lozère","Maine-et-Loire","Manche","Marne","Haute-Marne","Mayenne","Mayotte","Meurthe-et-Moselle","Meuse","Morbihan","Moselle","Nièvre","Nord","Oise","Orne","Paris","Pas-de-Calais","Puy-de-Dôme","Pyrénées-Atlantiques","Pyrénées-Orientales","Réunion","Rhône","Haute-Saône","Saône-et-Loire","Sarthe","Savoie","Haute-Savoie","Seine-et-Marne","Seine-Maritime","Seine-Saint-Denis","Somme","Tarn","Tarn-et-Garonne","Territoire de Belfort","Val-d'Oise","Val-de-Marne","Var","Vaucluse","Vendée","Vienne","Haute-Vienne","Vosges","Yonne","Yvelines"],
+    Suisse: ["Genève","Vaud","Valais","Fribourg","Neuchâtel","Jura","Berne","Zurich","Bâle-Ville","Bâle-Campagne","Lucerne","Argovie","Tessin","Saint-Gall"],
+    Belgique: ["Bruxelles","Liège","Namur","Hainaut","Brabant wallon","Luxembourg","Anvers","Flandre orientale","Flandre occidentale","Limbourg","Brabant flamand"],
+    Allemagne: ["Bade-Wurtemberg","Bavière","Berlin","Brandebourg","Brême","Hambourg","Hesse","Mecklembourg-Poméranie-Occidentale","Basse-Saxe","Rhénanie-du-Nord-Westphalie","Rhénanie-Palatinat","Sarre","Saxe","Saxe-Anhalt","Schleswig-Holstein","Thuringe"],
+    Italie: ["Piémont","Lombardie","Liguria","Vallée d'Aoste","Toscane","Latium","Vénétie","Émilie-Romagne","Sardaigne","Sicile","Campanie"]
+  };
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function fillDepartments(country) {
+    const departmentSelect = document.getElementById("departmentSelect");
+    const regions = regionsByCountry[country] || [];
+    departmentSelect.innerHTML = '<option value="">Choisir...</option>';
+    regions.forEach(region => {
+      const option = document.createElement("option");
+      option.value = region;
+      option.textContent = region;
+      departmentSelect.appendChild(option);
+    });
+  }
+
+  function renderEvents(events) {
+    const results = document.getElementById("eventsResults");
+
+    if (!events || events.length === 0) {
+      results.innerHTML = '<div class="notice">Aucun événement trouvé.</div>';
+      return;
+    }
+
+    results.innerHTML = events.map(event => `
+      <div class="event-card">
+        ${event.posterurl ? `<img class="poster" src="${escapeHtml(event.posterurl)}" alt="${escapeHtml(event.title || "Affiche événement")}">` : ""}
+        <h3>${escapeHtml(event.title || "Événement automobile")}</h3>
+        <div class="event-meta"><strong>Date :</strong> ${escapeHtml(event.eventdate || "Non précisée")}</div>
+        <div class="event-meta"><strong>Lieu :</strong> ${escapeHtml(event.venuename || "Non précisé")}</div>
+        <div class="event-meta">${escapeHtml(event.summary || "")}</div>
+        ${event.sourceurl ? `<p><a class="event-link" href="${escapeHtml(event.sourceurl)}" target="_blank" rel="noopener noreferrer">Voir la source</a></p>` : ""}
+      </div>
+    `).join("");
+  }
+
+  document.getElementById("countrySelect").addEventListener("change", function() {
+    fillDepartments(this.value);
+  });
+
+  document.getElementById("eventSearchForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const results = document.getElementById("eventsResults");
+    const country = document.getElementById("countrySelect").value;
+    const department = document.getElementById("departmentSelect").value;
+
+    results.innerHTML = '<div class="notice">Recherche IA en cours...</div>';
+
+    try {
+      const edgeBase = window.MONARCH_CONFIG?.EDGE_BASE_URL || "";
+      if (!edgeBase) {
+        throw new Error("EDGE_BASE_URL non configuré.");
+      }
+
+      const functionUrl = `${edgeBase.replace(/\/$/, "")}/ai-events-search`;
+
+      const response = await fetch(functionUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ country, department })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erreur lors de la recherche.");
+      }
+
+      renderEvents(data.events || []);
+
+    } catch (err) {
+      results.innerHTML = `<div class="notice error">${escapeHtml(err.message || "Erreur inconnue.")}</div>`;
+      console.error(err);
+    }
+  });
+</script>
+
+</body>
+</html>

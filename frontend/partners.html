@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MONARCH SUPERCARS - Partenaires</title>
+
+  <link rel="stylesheet" href="assets/styles.css" />
+
+  <style>
+    body{
+      background:#050505;
+      color:#fff;
+      font-family:Arial,sans-serif;
+      margin:0;
+    }
+
+    header{
+      background:#000;
+      border-bottom:1px solid #222;
+      padding:15px 30px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:18px;
+    }
+
+    .logo{
+      width:115px;
+      height:115px;
+      border:2px solid #d4af37;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#000;
+      flex-shrink:0;
+    }
+
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      border-radius:50%;
+      display:block;
+    }
+
+    nav{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    nav a{
+      color:white;
+      text-decoration:none;
+      padding:10px 16px;
+      border-radius:10px;
+      border:1px solid transparent;
+      transition:0.3s;
+    }
+
+    nav a:hover{
+      border-color:#d4af37;
+      color:#d4af37;
+    }
+
+    nav a.active{
+      color:#000 !important;
+      background:#d4af37;
+      border-color:#d4af37;
+      font-weight:bold;
+      box-shadow:0 0 12px rgba(212,175,55,0.45);
+    }
+
+    .container{
+      width:90%;
+      max-width:1300px;
+      margin:auto;
+      padding:30px 0;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 0.8fr;
+      gap:25px;
+    }
+
+    .card{
+      background:#111;
+      border:1px solid #333;
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 0 25px rgba(0,0,0,0.4);
+    }
+
+    .card h2,
+    .card h3{
+      margin-top:0;
+      color:#fff;
+    }
+
+    .muted{
+      color:#aaa;
+      line-height:1.6;
+    }
+
+    .btn{
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:8px;
+      text-decoration:none;
+      border:1px solid #333;
+      cursor:pointer;
+      margin-top:10px;
+      transition:0.3s;
+      font-weight:bold;
+    }
+
+    .btn.primary{
+      background:#d4af37;
+      color:#000;
+      border-color:#d4af37;
+    }
+
+    .btn.secondary{
+      background:#222;
+      color:#fff;
+    }
+
+    .partners-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:18px;
+      margin-top:22px;
+    }
+
+    .partner-card{
+      background:#151515;
+      border:1px solid #333;
+      border-radius:18px;
+      padding:22px;
+      min-height:230px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      box-shadow:0 0 18px rgba(0,0,0,0.35);
+    }
+
+    .partner-logo{
+      width:110px;
+      height:110px;
+      border-radius:16px;
+      border:1px solid #d4af37;
+      background:#000;
+      object-fit:contain;
+      padding:8px;
+      margin-bottom:15px;
+    }
+
+    .partner-card h3{
+      color:#d4af37;
+      margin-bottom:8px;
+    }
+
+    .partner-card p{
+      color:#ccc;
+      line-height:1.5;
+    }
+
+    .partner-links{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .notice{
+      padding:15px;
+      border-radius:10px;
+      margin-top:15px;
+      background:rgba(212,175,55,.1);
+      color:#d4af37;
+      border:1px solid rgba(212,175,55,.3);
+    }
+
+    .footer{
+      padding:30px;
+      text-align:center;
+      border-top:1px solid #222;
+      margin-top:50px;
+      color:#888;
+    }
+
+    .footer a{
+      color:#d4af37;
+      text-decoration:none;
+    }
+
+    @media(max-width:900px){
+      .grid-2{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="brand">
+    <div class="logo">
+      <img src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS">
+    </div>
+
+    <div>
+      <h1>MONARCH SUPERCARS</h1>
+      <small>Road trips • Events • Partners</small>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="partners.html" class="active">Partenaires</a>
+    <a href="events.html">Event</a>
+    <a href="roadtrip.html">Road Trip</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <div class="auth-links">
+    <button id="soundToggle" class="btn secondary">🔊</button>
+    <a class="btn secondary" href="login.html">Connexion</a>
+    <a class="btn primary" href="register.html">Inscription</a>
+  </div>
+
+</header>
+
+<section class="container grid-2">
+
+  <div class="card">
+    <h2>Partenaires MONARCH SUPERCARS</h2>
+
+    <p class="muted">
+      Découvrez les partenaires qui accompagnent la plateforme MONARCH SUPERCARS :
+      garages, hôtels, restaurants, événements, services premium et marques automobiles.
+    </p>
+
+    <div id="partnerList" class="partners-grid">
+      <div class="notice">Chargement des partenaires...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Rejoindre MONARCH SUPERCARS</h3>
+
+    <p class="muted">
+      Formule partenaire avec logo, lien site web, email de contact,
+      visibilité et gestion autonome depuis l’espace administrateur.
+    </p>
+
+    <a class="btn primary" href="partner-register.html">
+      Inscription partenaire
+    </a>
+  </div>
+
+</section>
+
+<div class="footer">
+
+  <div class="container">
+    <p>© MONARCH SUPERCARS — plateforme premium automobile.</p>
+
+    <p>
+      <a href="legal/mentions-legales.html">Mentions légales</a> •
+      <a href="legal/privacy.html">Confidentialité</a> •
+      <a href="legal/cgu-cgv.html">CGU / CGV</a> •
+      <a href="legal/cookies.html">Cookies</a>
+    </p>
+  </div>
+
+</div>
+
+<audio id="backgroundMusic" loop preload="metadata">
+ <source src="assets/audio/paulyudin-background-music-478744.mp3" type="audio/mpeg">
+</audio>
+
+<script src="config.runtime.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/main.js"></script>
+
+<script>
+  function escapeHtml(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function fallbackLogo() {
+    return "assets/Logo Monarch.jpeg";
+  }
+
+  async function loadPartners() {
+    const list = document.getElementById("partnerList");
+
+    try {
+      if (!window.supabase || !window.MONARCH_CONFIG?.SUPABASE_URL) {
+        list.innerHTML = '<div class="notice">Supabase non configuré.</div>';
+        return;
+      }
+
+      const client = window.supabase.createClient(
+        window.MONARCH_CONFIG.SUPABASE_URL,
+        window.MONARCH_CONFIG.SUPABASE_ANON_KEY
+      );
+
+      const { data, error } = await client
+        .from("partners")
+        .select("*")
+        .eq("status", "approved")
+        .order("created_at", { ascending:false });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="notice">Aucun partenaire publié pour le moment.</div>';
+        return;
+      }
+
+      let html = "";
+
+      data.forEach(partner => {
+        html += '<div class="partner-card">';
+        html += '<div>';
+
+        html += '<img class="partner-logo" src="' +
+          escapeHtml(partner.logo_url || fallbackLogo()) +
+          '" alt="' + escapeHtml(partner.company_name || "Partenaire") + '">';
+
+        html += '<h3>' + escapeHtml(partner.company_name || "Partenaire") + '</h3>';
+
+        if (partner.description) {
+          html += '<p>' + escapeHtml(partner.description) + '</p>';
+        }
+
+        if (partner.email) {
+          html += '<p><strong>Email :</strong> ' + escapeHtml(partner.email) + '</p>';
+        }
+
+        html += '</div>';
+
+        html += '<div class="partner-links">';
+
+        if (partner.website_url) {
+          html += '<a class="btn primary" target="_blank" href="' +
+            escapeHtml(partner.website_url) + '">Site web</a>';
+        }
+
+        if (partner.email) {
+          html += '<a class="btn secondary" href="mailto:' +
+            escapeHtml(partner.email) + '">Contacter</a>';
+        }
+
+        html += '</div>';
+        html += '</div>';
+      });
+
+      list.innerHTML = html;
+
+    } catch (err) {
+      list.innerHTML =
+        '<div class="notice">Erreur chargement partenaires : ' +
+        escapeHtml(err.message) +
+        '</div>';
+    }
+  }
+
+  loadPartners();
+</script>
+
+</body>
+</html>

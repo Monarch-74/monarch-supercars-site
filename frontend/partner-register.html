@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MONARCH SUPERCARS - Demande partenaire</title>
+
+  <link rel="stylesheet" href="assets/styles.css" />
+
+  <style>
+    body{
+      background:#050505;
+      color:#fff;
+      font-family:Arial,sans-serif;
+      margin:0;
+    }
+
+    header{
+      background:#000;
+      border-bottom:1px solid #222;
+      padding:15px 30px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:18px;
+    }
+
+    .logo{
+      width:115px;
+      height:115px;
+      border:2px solid #d4af37;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#000;
+      flex-shrink:0;
+    }
+
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      border-radius:50%;
+      display:block;
+    }
+
+    nav{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    nav a{
+      color:white;
+      text-decoration:none;
+      padding:10px 16px;
+      border-radius:10px;
+      border:1px solid transparent;
+      transition:0.3s;
+    }
+
+    nav a:hover{
+      border-color:#d4af37;
+      color:#d4af37;
+    }
+
+    nav a.active{
+      color:#000 !important;
+      background:#d4af37;
+      border-color:#d4af37;
+      font-weight:bold;
+      box-shadow:0 0 12px rgba(212,175,55,0.45);
+    }
+
+    .container{
+      width:90%;
+      max-width:1300px;
+      margin:auto;
+      padding:30px 0;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 0.75fr;
+      gap:25px;
+    }
+
+    .card{
+      background:#111;
+      border:1px solid #333;
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 0 25px rgba(0,0,0,0.4);
+    }
+
+    .card h2,
+    .card h3{
+      margin-top:0;
+      color:#fff;
+    }
+
+    label{
+      display:block;
+      margin-top:16px;
+      margin-bottom:6px;
+      font-weight:bold;
+      font-size:14px;
+    }
+
+    input,
+    textarea{
+      width:100%;
+      padding:13px;
+      border-radius:10px;
+      border:1px solid #333;
+      background:#0b0b0b;
+      color:white;
+      box-sizing:border-box;
+    }
+
+    textarea{
+      min-height:130px;
+      resize:vertical;
+    }
+
+    .muted{
+      color:#aaa;
+      line-height:1.6;
+    }
+
+    .btn{
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:8px;
+      text-decoration:none;
+      border:1px solid #333;
+      cursor:pointer;
+      margin-top:10px;
+      transition:0.3s;
+      font-weight:bold;
+    }
+
+    .btn.primary{
+      background:#d4af37;
+      color:#000;
+      border-color:#d4af37;
+    }
+
+    .btn.secondary{
+      background:#222;
+      color:#fff;
+    }
+
+    .notice{
+      padding:14px;
+      border-radius:10px;
+      margin-top:14px;
+      border:1px solid rgba(212,175,55,0.35);
+      background:rgba(212,175,55,0.1);
+      color:#d4af37;
+    }
+
+    .notice.success{
+      border-color:#2f8f48;
+      background:#102d18;
+      color:#b9ffca;
+    }
+
+    .notice.error{
+      border-color:#7a2a2a;
+      background:#3a1111;
+      color:#ffb3b3;
+    }
+
+    .hide{
+      display:none !important;
+    }
+
+    .footer{
+      padding:30px;
+      text-align:center;
+      border-top:1px solid #222;
+      margin-top:50px;
+      color:#888;
+    }
+
+    .footer a{
+      color:#d4af37;
+      text-decoration:none;
+    }
+
+    @media(max-width:900px){
+      .grid-2{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="brand">
+    <div class="logo">
+      <img src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS">
+    </div>
+
+    <div>
+      <h1>MONARCH SUPERCARS</h1>
+      <small>Road trips • Events • Partners</small>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="partners.html" class="active">Partenaires</a>
+    <a href="events.html">Event</a>
+    <a href="roadtrip.html">Road Trip</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <div class="auth-links">
+    <button id="soundToggle" class="btn secondary">🔊</button>
+    <a class="btn secondary" href="login.html">Connexion</a>
+    <a class="btn primary" href="register.html">Inscription</a>
+  </div>
+
+</header>
+
+<section class="container grid-2">
+
+  <div class="card">
+    <h2>Demande partenaire</h2>
+
+    <p class="muted">
+      Remplissez ce formulaire pour proposer votre société comme partenaire MONARCH SUPERCARS.
+      Votre demande sera étudiée par l’administrateur avant publication.
+    </p>
+
+    <div class="notice">
+      Inscription partenaire : <strong>25&nbsp;€ / an</strong>, paiement sécurisé par Stripe.
+      Vous serez redirigé vers la page de paiement après l’envoi du formulaire.
+    </div>
+
+    <form id="partnerRegisterForm">
+
+      <label>Nom de la société</label>
+      <input name="company_name" required placeholder="Exemple : DreamCarsDay" />
+
+      <label>Contact principal</label>
+      <input name="contact_name" required placeholder="Nom et prénom" />
+
+      <label>Email</label>
+      <input name="email" type="email" required placeholder="contact@societe.com" />
+
+      <label>Téléphone <span class="muted">(facultatif)</span></label>
+      <input name="phone" placeholder="+33 / +41 ..." />
+
+      <label>Site web</label>
+      <input name="website" placeholder="https://..." />
+
+      <label>Logo / image</label>
+      <input name="logo_file" type="file" accept="image/*" />
+
+      <label>Description</label>
+      <textarea
+        name="description"
+        placeholder="Présentez votre société, vos services, votre lien avec l’automobile premium..."
+      ></textarea>
+
+      <button class="btn primary" type="submit">
+        Payer 25€ et soumettre ma demande
+      </button>
+    </form>
+
+    <div id="partnerRegisterResult" class="notice hide"></div>
+  </div>
+
+  <div class="card">
+    <h3>Processus de validation</h3>
+
+    <ul class="muted">
+      <li>1. Vous soumettez votre demande et réglez les 25€ via Stripe.</li>
+      <li>2. MONARCH SUPERCARS examine votre profil.</li>
+      <li>3. L’administrateur valide ou refuse la demande.</li>
+      <li>4. Après validation, votre profil apparaît sur la page Partenaires.</li>
+    </ul>
+  </div>
+
+</section>
+
+<div class="footer">
+  <div class="container">
+    <p>© MONARCH SUPERCARS — plateforme premium automobile.</p>
+
+    <p>
+      <a href="legal/mentions-legales.html">Mentions légales</a> •
+      <a href="legal/privacy.html">Confidentialité</a> •
+      <a href="legal/cgu-cgv.html">CGU / CGV</a> •
+      <a href="legal/cookies.html">Cookies</a>
+    </p>
+  </div>
+</div>
+
+<audio id="backgroundMusic" loop preload="metadata">
+  <source src="assets/audio/paulyudin-background-music-478744.mp3" type="audio/mpeg">
+</audio>
+
+<script src="config.runtime.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/main.js"></script>
+
+<script>
+function showPartnerMessage(message, type) {
+  const result = document.getElementById("partnerRegisterResult");
+
+  result.textContent = message;
+  result.className = "notice " + (type || "success");
+  result.classList.remove("hide");
+}
+
+document.getElementById("partnerRegisterForm").addEventListener("submit", async function(e) {
+
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  const payload = {};
+
+  formData.forEach((value, key) => {
+    if (key !== "logo_file" && key !== "website") {
+      payload[key] = value;
+    }
+  });
+
+  payload.website_url = formData.get("website") || "";
+
+  try {
+
+    if (!window.supabase || !window.MONARCH_CONFIG?.SUPABASE_URL) {
+      throw new Error("Supabase non configuré.");
+    }
+
+    const client = window.supabase.createClient(
+      window.MONARCH_CONFIG.SUPABASE_URL,
+      window.MONARCH_CONFIG.SUPABASE_ANON_KEY
+    );
+
+    const logoFile = formData.get("logo_file");
+
+    if (logoFile && logoFile.size > 0) {
+
+      const fileExt = logoFile.name.split(".").pop();
+
+      const safeName = String(payload.company_name || "partner")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
+      const filePath =
+        safeName + "-" + Date.now() + "." + fileExt;
+
+      const { error: uploadError } = await client.storage
+        .from("partner-logos")
+        .upload(filePath, logoFile, {
+          cacheControl: "3600",
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: publicUrlData } = client.storage
+        .from("partner-logos")
+        .getPublicUrl(filePath);
+
+      payload.logo_url = publicUrlData.publicUrl;
+    }
+
+    payload.success_url = window.location.origin + window.location.pathname.replace(/partner-register\.html$/, "partners.html") + "?payment=success";
+    payload.cancel_url = window.location.origin + window.location.pathname + "?payment=cancelled";
+
+    const data = await callEdge("create-partner-checkout", payload);
+
+    if (!data.checkout_url) {
+      throw new Error("Aucune URL de paiement reçue.");
+    }
+
+    showPartnerMessage("Redirection vers le paiement Stripe (25€)...", "success");
+    window.location.href = data.checkout_url;
+
+  } catch (err) {
+
+    console.error(err);
+
+    showPartnerMessage(
+      err.message || "Erreur lors de l’envoi de la demande partenaire.",
+      "error"
+    );
+  }
+});
+</script>
+
+</body>
+</html>

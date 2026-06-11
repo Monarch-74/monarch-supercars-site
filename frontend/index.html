@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MONARCH SUPERCARS</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <meta name="theme-color" content="#050505" />
+</head>
+<body>
+<div style="position:fixed;top:18px;right:18px;z-index:999;">
+  <button id="soundToggle" class="btn secondary">🔊</button>
+</div>
+<section class="hero">
+  <div class="center">
+    <img class="logo" src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS" style="margin:0 auto 20px;width:282px;height:282px;" />
+    <h2 style="font-size:3rem;margin:0">MONARCH SUPERCARS</h2>
+    <p class="hero-tagline">Une application premium multi-services pour événements automobiles, road trips IA, partenaires, publication payante et gestion métier.</p>
+    <div class="tabs-grid">
+      <a class="tile" href="partners.html">Partenaires</a>
+      <a class="tile" href="events.html">Event</a>
+      <a class="tile" href="roadtrip.html">Road trip</a>
+      <a class="tile" href="contact.html">Contact</a>
+    </div>
+  </div>
+</section>
+<section class="container grid-2">
+  
+  <div class="card">
+    <h3>Mode production</h3>
+    <p class="muted">Les clés réelles sont à renseigner avant mise en ligne. Les textes juridiques présents ici sont des gabarits à faire valider par un professionnel du droit.</p>
+    <div class="inline-actions">
+      <a class="btn primary" href="register.html">Créer un compte</a>
+      <a class="btn secondary" href="partner-register.html">Devenir partenaire</a>
+    </div>
+  </div>
+
+  <div class="card card-center">
+    <h3>Installer l'application</h3>
+    <p class="muted">Scannez ce QR code avec votre téléphone pour ouvrir le site, puis ajoutez-le à votre écran d'accueil pour l'utiliser comme une application.</p>
+    <canvas id="installQrCode" class="qr-canvas"></canvas>
+    <button id="installAppBtn" class="btn primary hide" type="button">📲 Installer l'application</button>
+    <p id="installHint" class="muted install-hint"></p>
+  </div>
+</section>
+
+  <div class="footer">
+    <div class="container">
+      <p>© MONARCH SUPERCARS — plateforme premium automobile.</p>
+      <p>
+        <a href="legal/mentions-legales.html">Mentions légales</a> •
+        <a href="legal/privacy.html">Confidentialité</a> •
+        <a href="legal/cgu-cgv.html">CGU / CGV</a> •
+        <a href="legal/cookies.html">Cookies</a>
+      </p>
+    </div>
+  </div>
+  <div id="cookieBanner" class="cookie-banner hide">
+    <div>
+      <strong>Cookies & mesure d’audience</strong>
+      <div class="muted">Le site prévoit un bandeau de consentement. Les catégories analytiques et marketing doivent rester désactivées par défaut tant que tu n’as pas branché une CMP conforme.</div>
+    </div>
+    <div class="inline-actions">
+      <button class="btn secondary" onclick="localStorage.setItem('monarch_cookie_choice','essential');document.getElementById('cookieBanner').classList.add('hide')">Essentiels</button>
+      <button class="btn primary" onclick="localStorage.setItem('monarch_cookie_choice','all');document.getElementById('cookieBanner').classList.add('hide')">Tout accepter</button>
+    </div>
+  </div>
+  <audio id="backgroundMusic" loop>
+  <source src="assets/audio/paulyudin-background-music-478744.mp3" type="audio/mpeg">
+</audio>
+
+<button onclick="
+  const music = document.getElementById('backgroundMusic');
+  music.volume = 1;
+  music.play();
+">
+  🔊 Activer le son
+</button>
+  <script src="config.runtime.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/main.js"></script>
+
+  <script type="module">
+  import { toCanvas } from "./assets/vendor/qrcode.esm.js";
+
+  toCanvas(document.getElementById("installQrCode"), window.location.href, {
+    width: 200,
+    margin: 1,
+    color: { dark: "#050505", light: "#ffffff" }
+  }).catch(function (err) {
+    console.error("QR code non généré :", err);
+  });
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(function (err) {
+      console.error("Service worker non enregistré :", err);
+    });
+  }
+
+  var deferredInstallPrompt = null;
+  var installBtn = document.getElementById("installAppBtn");
+  var installHint = document.getElementById("installHint");
+
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    installBtn.classList.remove("hide");
+  });
+
+  installBtn.addEventListener("click", function () {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.finally(function () {
+      deferredInstallPrompt = null;
+      installBtn.classList.add("hide");
+    });
+  });
+
+  window.addEventListener("appinstalled", function () {
+    installBtn.classList.add("hide");
+    installHint.textContent = "Application installée avec succès !";
+  });
+
+  var isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+  var isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+
+  if (isIos && !isStandalone) {
+    installHint.textContent = "Sur iPhone/iPad : appuyez sur le bouton Partager de Safari, puis « Sur l'écran d'accueil ».";
+  } else if (!isStandalone) {
+    setTimeout(function () {
+      if (installBtn.classList.contains("hide")) {
+        installHint.textContent = "Utilisez le menu de votre navigateur > « Ajouter à l'écran d'accueil » / « Installer l'application ».";
+      }
+    }, 1500);
+  }
+  </script>
+</body>
+</html>

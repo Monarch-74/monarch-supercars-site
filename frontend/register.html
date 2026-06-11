@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MONARCH SUPERCARS</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+  nav{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+
+  nav a{
+    color:white;
+    text-decoration:none;
+    padding:10px 16px;
+    border-radius:10px;
+    border:1px solid transparent;
+    transition:0.3s;
+  }
+
+  nav a:hover{
+    border-color:#d4af37;
+    color:#d4af37;
+  }
+</style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">
+      <img class="logo" src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS" />
+      <div>
+        <h1>MONARCH SUPERCARS</h1>
+        <small>Road trips • Events • Partners</small>
+      </div>
+    </div>
+    <nav>
+  <a href="index.html">Accueil</a>
+  <a href="partners.html">Partenaires</a>
+  <a href="events.html">Event</a>
+  <a href="roadtrip.html">Road Trip</a>
+  <a href="contact.html">Contact</a>
+</nav>
+    <div class="auth-links">
+      <button id="soundToggle" title="Activer/désactiver la musique">🔊</button>
+      <a class="btn secondary" href="login.html">Connexion</a>
+      <a class="btn primary" href="register.html">Inscription</a>
+    </div>
+  </header>
+
+<section class="container grid-2">
+  <div class="card">
+    <h2>Inscription</h2>
+    <form id="registerForm">
+      <label>Nom complet</label>
+      <input name="full_name" required />
+      <label>Email</label>
+      <input name="email" type="email" required />
+      <label>Mot de passe</label>
+      <input name="password" type="password" minlength="6" required />
+      <label>Confirmer le mot de passe</label>
+      <input name="password_confirm" type="password" minlength="6" required />
+      <button class="btn primary" type="submit">Créer mon compte</button>
+    </form>
+    <div id="registerResult" class="notice hide" style="margin-top:14px"></div>
+  </div>
+  <div class="card">
+    <h3>Espace membre</h3>
+    <p>Les utilisateurs peuvent ensuite consulter les événements et générer des road trips.</p>
+  </div>
+</section>
+
+  <div class="footer">
+    <div class="container">
+      <p>© MONARCH SUPERCARS — plateforme premium automobile.</p>
+      <p>
+        <a href="legal/mentions-legales.html">Mentions légales</a> •
+        <a href="legal/privacy.html">Confidentialité</a> •
+        <a href="legal/cgu-cgv.html">CGU / CGV</a> •
+        <a href="legal/cookies.html">Cookies</a>
+      </p>
+    </div>
+  </div>
+  <div id="cookieBanner" class="cookie-banner hide">
+    <div>
+      <strong>Cookies & mesure d’audience</strong>
+      <div class="muted">Le site prévoit un bandeau de consentement. Les catégories analytiques et marketing doivent rester désactivées par défaut tant que tu n’as pas branché une CMP conforme.</div>
+    </div>
+    <div class="inline-actions">
+      <button class="btn secondary" onclick="localStorage.setItem('monarch_cookie_choice','essential');document.getElementById('cookieBanner').classList.add('hide')">Essentiels</button>
+      <button class="btn primary" onclick="localStorage.setItem('monarch_cookie_choice','all');document.getElementById('cookieBanner').classList.add('hide')">Tout accepter</button>
+    </div>
+  </div>
+  <audio id="backgroundMusic" loop preload="metadata">
+    <source src="assets/audio/paulyudin-background-music-478744.mp3" type="audio/mpeg">
+  </audio>
+  <script src="config.runtime.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
