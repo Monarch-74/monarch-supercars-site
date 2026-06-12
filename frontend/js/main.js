@@ -223,6 +223,67 @@ function getRegionFromEvent(ev, selectedDepartment) {
   return "Région non précisée";
 }
 
+function initCommunityEvents() {
+  var container = el("communityEventsResults");
+
+  if (!container || !supabaseClient) return;
+
+  supabaseClient
+    .from("events")
+    .select("*")
+    .eq("status", "approved")
+    .order("event_date", { ascending: true })
+    .then(function (res) {
+      var data = res.data || [];
+
+      if (res.error || !data.length) {
+        container.className = "notice";
+        container.innerHTML = "Aucun événement publié pour le moment.";
+        return;
+      }
+
+      var html = "";
+
+      data.forEach(function (ev) {
+        html += '<div class="event-card">';
+
+        if (ev.poster_url) {
+          html +=
+            '<img class="poster" src="' +
+            escapeHtml(ev.poster_url) +
+            '" alt="' +
+            escapeHtml(ev.title || "") +
+            '" />';
+        }
+
+        html += "<h3>" + escapeHtml(ev.title || "Événement automobile") + "</h3>";
+
+        if (ev.description) {
+          html += "<p>" + escapeHtml(ev.description).replaceAll("\n", "<br>") + "</p>";
+        }
+
+        html += '<p class="event-meta"><strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || ev.address || "-") + "</p>";
+        html += '<p class="event-meta"><strong>Date :</strong> ' + formatEventDate(ev.event_date) + "</p>";
+
+        if (ev.external_url) {
+          html +=
+            '<a class="event-link" target="_blank" href="' +
+            escapeHtml(ev.external_url) +
+            '">Plus d\'informations</a>';
+        }
+
+        html += "</div>";
+      });
+
+      container.className = "";
+      container.innerHTML = html;
+    })
+    .catch(function () {
+      container.className = "notice error";
+      container.innerHTML = "Impossible de charger les événements.";
+    });
+}
+
 function initEventSearch() {
   var form = el("eventSearchForm");
   var results = el("eventsResults");
@@ -496,6 +557,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initAudioControl();
   initCookieBanner();
   initRegionSelectors();
+  initCommunityEvents();
   initEventSearch();
   initRegister();
   initLogin();

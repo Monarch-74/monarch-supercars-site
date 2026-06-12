@@ -117,7 +117,7 @@
 
     .stats{
       display:grid;
-      grid-template-columns:repeat(4,1fr);
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
       gap:16px;
       margin-bottom:24px;
     }
@@ -221,6 +221,10 @@
       color:#d4af37;
     }
 
+    .section-spaced{
+      margin-top:30px;
+    }
+
     .footer{
       padding:30px;
       text-align:center;
@@ -308,6 +312,11 @@
       <strong id="rejectedPartnersCount">0</strong>
     </div>
 
+    <div class="stat">
+      <h3>Événements en attente</h3>
+      <strong id="pendingEventsCount">0</strong>
+    </div>
+
   </section>
 
   <section class="card">
@@ -350,6 +359,7 @@
       <button class="tab-btn" onclick="showPanel('messagesPanel', this)">Messages</button>
       <button class="tab-btn" onclick="showPanel('approvedPanel', this)">Validés</button>
       <button class="tab-btn" onclick="showPanel('rejectedPanel', this)">Refusés</button>
+      <button class="tab-btn" onclick="showPanel('eventsPanel', this)">Événements</button>
     </div>
 
     <div id="partnersPanel" class="panel active">
@@ -370,6 +380,17 @@
     <div id="rejectedPanel" class="panel">
       <h3>Demandes refusées</h3>
       <div id="rejectedPartnersList" class="notice">Chargement...</div>
+    </div>
+
+    <div id="eventsPanel" class="panel">
+      <h3>Événements en attente de validation</h3>
+      <div id="pendingEventsList" class="notice">Chargement...</div>
+
+      <h3 class="section-spaced">Événements validés</h3>
+      <div id="approvedEventsList" class="notice">Chargement...</div>
+
+      <h3 class="section-spaced">Événements refusés</h3>
+      <div id="rejectedEventsList" class="notice">Chargement...</div>
     </div>
 
   </section>
@@ -689,6 +710,150 @@ async function loadMessages() {
   list.innerHTML = data.map(messageCard).join("");
 }
 
+function eventCard(item, mode) {
+
+  const poster = item.poster_url
+    ? `<img class="partner-logo" src="${escapeHtml(item.poster_url)}">`
+    : "";
+
+  const buttons = mode === "pending"
+    ? `
+      <button class="btn primary" onclick="updateEventStatus('${item.id}', 'approved')">
+        Valider
+      </button>
+
+      <button class="btn danger" onclick="updateEventStatus('${item.id}', 'rejected')">
+        Refuser
+      </button>
+    `
+    : "";
+
+  return `
+    <div class="admin-card">
+
+      ${poster}
+
+      <h4>${escapeHtml(item.title || "")}</h4>
+
+      <p><strong>Lieu :</strong> ${escapeHtml(item.venue_name || "")} — ${escapeHtml(item.address || "")}</p>
+
+      <p><strong>Date :</strong> ${escapeHtml(item.event_date || "")}</p>
+
+      <p><strong>Zone :</strong> ${escapeHtml(item.country || "")} ${escapeHtml(item.department || "")}</p>
+
+      <p><strong>Contact :</strong> ${escapeHtml(item.contact_email || "")} ${escapeHtml(item.phone || "")}</p>
+
+      <p><strong>Description :</strong><br>
+      ${escapeHtml(item.description || "").replaceAll("\n", "<br>")}</p>
+
+      ${buttons}
+
+    </div>
+  `;
+}
+
+async function loadPendingEvents() {
+
+  const client = getClient();
+
+  const { data, error } = await client
+    .from("events")
+    .select("*")
+    .in("status", ["pending_review", "paid"])
+    .order("created_at", { ascending:false });
+
+  const list = document.getElementById("pendingEventsList");
+
+  if (error) {
+    list.innerHTML = error.message;
+    return;
+  }
+
+  document.getElementById("pendingEventsCount").textContent = data.length;
+
+  if (!data.length) {
+    list.innerHTML = "Aucun événement en attente.";
+    return;
+  }
+
+  list.className = "";
+  list.innerHTML = data.map(item => eventCard(item, "pending")).join("");
+}
+
+async function loadApprovedEvents() {
+
+  const client = getClient();
+
+  const { data, error } = await client
+    .from("events")
+    .select("*")
+    .eq("status", "approved")
+    .order("created_at", { ascending:false });
+
+  const list = document.getElementById("approvedEventsList");
+
+  if (error) {
+    list.innerHTML = error.message;
+    return;
+  }
+
+  if (!data.length) {
+    list.innerHTML = "Aucun événement validé.";
+    return;
+  }
+
+  list.className = "";
+  list.innerHTML = data.map(item => eventCard(item, "approved")).join("");
+}
+
+async function loadRejectedEvents() {
+
+  const client = getClient();
+
+  const { data, error } = await client
+    .from("events")
+    .select("*")
+    .eq("status", "rejected")
+    .order("created_at", { ascending:false });
+
+  const list = document.getElementById("rejectedEventsList");
+
+  if (error) {
+    list.innerHTML = error.message;
+    return;
+  }
+
+  if (!data.length) {
+    list.innerHTML = "Aucun événement refusé.";
+    return;
+  }
+
+  list.className = "";
+  list.innerHTML = data.map(item => eventCard(item, "rejected")).join("");
+}
+
+async function updateEventStatus(id, status) {
+
+  try {
+    await callAdminEdge("admin-update-status", {
+      target_type: "event",
+      id: id,
+      status: status
+    });
+
+    if (status === "approved") {
+      alert("Événement validé et publié.");
+    } else if (status === "rejected") {
+      alert("Événement refusé.");
+    }
+
+    await loadAll();
+
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
 function formatDuration(seconds) {
 
   if (seconds === null || seconds === undefined) {
@@ -733,6 +898,9 @@ async function loadAll() {
   await loadApprovedPartners();
   await loadRejectedPartners();
   await loadMessages();
+  await loadPendingEvents();
+  await loadApprovedEvents();
+  await loadRejectedEvents();
   await loadAnalytics();
 }
 
