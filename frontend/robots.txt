@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /promo.html
+Disallow: /reset-password.html
+
+Sitemap: https://www.monarch-apps.fr/sitemap.xml
