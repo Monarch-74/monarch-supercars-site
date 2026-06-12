@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MONARCH SUPERCARS — Teaser</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #050505;
+    color: #fff;
+    font-family: Arial, sans-serif;
+  }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    opacity: 0;
+    animation-duration: 5s;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;
+    animation-play-state: paused;
+  }
+
+  @keyframes fadeInOut {
+    0%   { opacity: 0; transform: translateY(24px) scale(0.97); }
+    10%  { opacity: 1; transform: translateY(0) scale(1); }
+    88%  { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-24px) scale(0.97); }
+  }
+
+  @keyframes fadeInStay {
+    0%   { opacity: 0; transform: translateY(24px) scale(0.97); }
+    14%  { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  #scene1 { animation-name: fadeInOut; animation-delay: 0s; }
+  #scene2 { animation-name: fadeInOut; animation-delay: 4.5s; }
+  #scene3 { animation-name: fadeInOut; animation-delay: 9s; }
+  #scene4 { animation-name: fadeInOut; animation-delay: 13.5s; }
+  #scene5 { animation-name: fadeInOut; animation-delay: 18s; }
+  #scene6 { animation-name: fadeInStay; animation-delay: 22.5s; }
+
+  /* Scene 1 — Logo */
+  .logo {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #000;
+    border: 2px solid #d4af37;
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 25px rgba(212,175,55,0.35); }
+    50%      { box-shadow: 0 0 55px rgba(212,175,55,0.85); }
+  }
+
+  .brand-title {
+    margin-top: 26px;
+    font-size: 3rem;
+    letter-spacing: 6px;
+    color: #fff;
+  }
+
+  .brand-title span { color: #d4af37; }
+
+  /* Scene 2 — Tagline */
+  .tagline {
+    font-size: 2.4rem;
+    max-width: 800px;
+    color: #d4af37;
+    line-height: 1.4;
+    margin-bottom: 18px;
+  }
+
+  .subtagline {
+    font-size: 1.25rem;
+    max-width: 700px;
+    color: #ccc;
+    line-height: 1.6;
+  }
+
+  /* Scene 3 — Features */
+  .scene-title {
+    font-size: 2.2rem;
+    color: #fff;
+    margin-bottom: 40px;
+  }
+
+  .scene-title span { color: #d4af37; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+    max-width: 760px;
+  }
+
+  .feature-card {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 26px 20px;
+    opacity: 0;
+    animation: cardPop 0.7s ease-out forwards;
+  }
+
+  #scene3.run .feature-card:nth-child(1) { animation-delay: 0.6s; }
+  #scene3.run .feature-card:nth-child(2) { animation-delay: 1.0s; }
+  #scene3.run .feature-card:nth-child(3) { animation-delay: 1.4s; }
+  #scene3.run .feature-card:nth-child(4) { animation-delay: 1.8s; }
+
+  @keyframes cardPop {
+    0%   { opacity: 0; transform: translateY(18px) scale(0.92); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .feature-card .icon { font-size: 2.2rem; margin-bottom: 10px; }
+  .feature-card h3 { color: #d4af37; font-size: 1.1rem; margin-bottom: 6px; }
+  .feature-card p { color: #aaa; font-size: 0.95rem; line-height: 1.4; }
+
+  /* Scene 4 — Road trip */
+  .route-path {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+  }
+
+  #scene4.run .route-path {
+    animation: drawRoute 3s ease-out forwards;
+    animation-delay: 0.4s;
+  }
+
+  @keyframes drawRoute {
+    to { stroke-dashoffset: 0; }
+  }
+
+  .pin {
+    opacity: 0;
+  }
+
+  #scene4.run .pin-start { animation: pinPop 0.5s ease-out forwards; animation-delay: 0.3s; }
+  #scene4.run .pin-end   { animation: pinPop 0.5s ease-out forwards; animation-delay: 3.6s; }
+
+  @keyframes pinPop {
+    0%   { opacity: 0; transform: scale(0.4); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  /* Scene 6 — CTA */
+  .cta-box {
+    background: #111;
+    border: 1px solid rgba(212,175,55,0.4);
+    border-radius: 18px;
+    padding: 30px 40px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .cta-box canvas { border-radius: 8px; }
+
+  .cta-text { text-align: left; }
+  .cta-text .url { color: #d4af37; font-size: 1.4rem; font-weight: bold; }
+  .cta-text p { color: #ccc; margin-top: 6px; max-width: 320px; }
+
+  /* Controls */
+  .overlay-btn {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #d4af37;
+    color: #000;
+    border: none;
+    border-radius: 30px;
+    padding: 14px 32px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 0%;
+    background: #d4af37;
+    animation: progressFill 24s linear forwards;
+    animation-play-state: paused;
+  }
+
+  @keyframes progressFill {
+    to { width: 100%; }
+  }
+
+  .hide { display: none !important; }
+
+  @media (max-width: 700px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .cta-box { flex-direction: column; }
+    .tagline { font-size: 1.7rem; }
+    .brand-title { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div id="scene1" class="scene">
+    <img class="logo" src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS" />
+    <div class="brand-title">MONARCH <span>SUPERCARS</span></div>
+  </div>
+
+  <div id="scene2" class="scene">
+    <div class="tagline">L'excellence automobile, à portée de main.</div>
+    <div class="subtagline">La plateforme premium de suivi et de gestion d'événements automobiles — pensée pour ceux qui ne transigent pas avec l'exception.</div>
+  </div>
+
+  <div id="scene3" class="scene">
+    <div class="scene-title">Tout l'univers <span>Supercars</span> dans une seule app</div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">🏁</div>
+        <h3>Événements</h3>
+        <p>Découvrez et publiez les rassemblements automobiles près de chez vous.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🤝</div>
+        <h3>Partenaires premium</h3>
+        <p>Un réseau sélectif de partenaires dédiés à l'automobile d'exception.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🗺️</div>
+        <h3>Road trips IA</h3>
+        <p>Des itinéraires uniques générés par intelligence artificielle.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📲</div>
+        <h3>Application mobile</h3>
+        <p>Installable en un instant, partout avec vous.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="scene4" class="scene">
+    <div class="scene-title"><span>Road trips</span> pensés par l'IA</div>
+    <svg width="320" height="140" viewBox="0 0 320 140">
+      <path class="route-path" d="M20 110 C 80 20, 160 130, 220 50 S 290 10, 300 60" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+      <circle class="pin pin-start" cx="20" cy="110" r="8" fill="#d4af37"/>
+      <circle class="pin pin-end" cx="300" cy="60" r="8" fill="#d4af37"/>
+    </svg>
+    <div class="subtagline">Planifiez vos itinéraires d'exception, générés sur-mesure pour révéler les plus belles routes.</div>
+  </div>
+
+  <div id="scene5" class="scene">
+    <div class="scene-title">Ne manquez plus aucun <span>rassemblement</span></div>
+    <div class="subtagline">Cars &amp; Coffee, supercar meetings, trackdays, rallyes prestige... Monarch Supercars rassemble les événements automobiles d'exception, partout en Europe.</div>
+  </div>
+
+  <div id="scene6" class="scene">
+    <img class="logo" style="width:130px;height:130px;" src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS" />
+    <div class="cta-box">
+      <canvas id="promoQr"></canvas>
+      <div class="cta-text">
+        <div class="url">www.monarch-apps.fr</div>
+        <p>Rejoignez la communauté Monarch Supercars dès aujourd'hui.</p>
+      </div>
+    </div>
+    <button id="replayBtn" class="overlay-btn hide">↺ Revoir le teaser</button>
+  </div>
+
+  <div class="progress-bar" id="progressBar"></div>
+  <button id="startBtn" class="overlay-btn">▶ Démarrer le teaser</button>
+
+</div>
+
+<audio id="promoAudio" loop preload="auto">
+  <source src="assets/audio/paulyudin-background-music-478744.mp3" type="audio/mpeg">
+</audio>
+
+<script type="module">
+  import { toCanvas } from "./assets/vendor/qrcode.esm.js";
+
+  toCanvas(document.getElementById("promoQr"), "https://www.monarch-apps.fr", {
+    width: 130,
+    margin: 1,
+    color: { dark: "#050505", light: "#ffffff" }
+  }).catch(function (err) {
+    console.error("QR code non généré :", err);
+  });
+</script>
+
+<script>
+  var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+  var progressBar = document.getElementById("progressBar");
+  var audio = document.getElementById("promoAudio");
+  var startBtn = document.getElementById("startBtn");
+  var replayBtn = document.getElementById("replayBtn");
+  var scene3 = document.getElementById("scene3");
+  var scene4 = document.getElementById("scene4");
+
+  function play() {
+    scenes.forEach(function (s) { s.style.animationPlayState = "running"; });
+    progressBar.style.animationPlayState = "running";
+    scene3.classList.add("run");
+    scene4.classList.add("run");
+
+    audio.currentTime = 0;
+    audio.volume = 0.5;
+    audio.play().catch(function () {});
+
+    setTimeout(function () {
+      replayBtn.classList.remove("hide");
+    }, 24000);
+  }
+
+  function reset() {
+    scenes.concat([progressBar]).forEach(function (s) {
+      s.style.animation = "none";
+    });
+
+    scene3.classList.remove("run");
+    scene4.classList.remove("run");
+
+    void document.body.offsetHeight;
+
+    scenes.concat([progressBar]).forEach(function (s) {
+      s.style.animation = "";
+      s.style.animationPlayState = "paused";
+    });
+  }
+
+  startBtn.addEventListener("click", function () {
+    startBtn.classList.add("hide");
+    play();
+  });
+
+  replayBtn.addEventListener("click", function () {
+    replayBtn.classList.add("hide");
+    reset();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(play);
+    });
+  });
+</script>
+
+</body>
+</html>

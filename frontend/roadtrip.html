@@ -1268,6 +1268,13 @@
       return;
     }
 
+    const result = document.getElementById("roadtripResult");
+
+    const allowed = await requireLogin(result);
+    if (!allowed) {
+      return;
+    }
+
     isGeneratingRoadtrip = true;
 
     const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -1278,7 +1285,6 @@
       submitBtn.textContent = "Génération en cours...";
     }
 
-    const result = document.getElementById("roadtripResult");
     result.innerHTML = '<div class="notice">Génération des propositions IA en cours... (cela peut prendre jusqu’à une minute)</div>';
 
     const formData = new FormData(e.target);

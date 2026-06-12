@@ -181,6 +181,29 @@ function callEdge(fnName, body) {
   });
 }
 
+// Vérifie que l'utilisateur est connecté avant d'utiliser une fonctionnalité réservée aux membres.
+// Affiche un message avec liens connexion/inscription si ce n'est pas le cas.
+function requireLogin(container) {
+  if (!supabaseClient) {
+    return Promise.resolve(true);
+  }
+
+  return supabaseClient.auth.getSession().then(function (result) {
+    var session = result.data && result.data.session;
+
+    if (session) return true;
+
+    if (container) {
+      container.innerHTML =
+        '<div class="notice error">Vous devez créer un compte gratuit ou vous connecter pour utiliser cette fonctionnalité. ' +
+        '<a class="event-link" href="login.html">Connexion</a> · ' +
+        '<a class="event-link" href="register.html">Inscription gratuite</a></div>';
+    }
+
+    return false;
+  });
+}
+
 function formatEventDate(value) {
   if (!value) return "Date non précisée";
 
@@ -293,16 +316,19 @@ function initEventSearch() {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    results.innerHTML = '<div class="notice">Recherche en cours...</div>';
+    requireLogin(results).then(function (allowed) {
+      if (!allowed) return;
 
-    var formData = new FormData(form);
-    var country = formData.get("country");
-    var department = formData.get("department");
+      results.innerHTML = '<div class="notice">Recherche en cours...</div>';
 
-    callEdge("ai-events-search", {
-      country: country,
-      department: department
-    })
+      var formData = new FormData(form);
+      var country = formData.get("country");
+      var department = formData.get("department");
+
+      callEdge("ai-events-search", {
+        country: country,
+        department: department
+      })
       .then(function (data) {
         var events = data.events || [];
 
@@ -379,6 +405,7 @@ function initEventSearch() {
         results.innerHTML =
           '<div class="notice error">' + escapeHtml(err.message) + '</div>';
       });
+    });
   });
 }
 
