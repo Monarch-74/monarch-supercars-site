@@ -521,8 +521,10 @@ function partnerCard(item, mode) {
     ? `<img class="partner-logo" src="${escapeHtml(item.logo_url)}">`
     : "";
 
-  const buttons = mode === "pending"
-    ? `
+  let buttons = "";
+
+  if (mode === "pending") {
+    buttons = `
       <button class="btn primary" onclick="updatePartnerStatus('${item.id}', 'approved')">
         Valider
       </button>
@@ -530,8 +532,14 @@ function partnerCard(item, mode) {
       <button class="btn danger" onclick="updatePartnerStatus('${item.id}', 'rejected')">
         Refuser
       </button>
-    `
-    : "";
+    `;
+  } else if (mode === "approved") {
+    buttons = `
+      <button class="btn danger" onclick="removePartner('${item.id}')">
+        Retirer
+      </button>
+    `;
+  }
 
   return `
     <div class="admin-card">
@@ -655,6 +663,26 @@ async function updatePartnerStatus(id, status) {
     } else if (status === "rejected") {
       alert("Demande refusée.");
     }
+
+    await loadAll();
+
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function removePartner(id) {
+
+  if (!confirm("Retirer ce partenaire de la page Partenaires ?")) return;
+
+  try {
+    await callAdminEdge("admin-update-status", {
+      target_type: "partner",
+      id: id,
+      status: "rejected"
+    });
+
+    alert("Partenaire retiré.");
 
     await loadAll();
 
