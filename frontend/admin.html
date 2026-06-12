@@ -122,6 +122,13 @@
       margin-bottom:24px;
     }
 
+    .stats-analytics{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:16px;
+      margin-bottom:24px;
+    }
+
     .stat{
       background:#151515;
       border:1px solid #333;
@@ -226,10 +233,16 @@
       .stats{
         grid-template-columns:1fr 1fr;
       }
+      .stats-analytics{
+        grid-template-columns:1fr 1fr;
+      }
     }
 
     @media(max-width:600px){
       .stats{
+        grid-template-columns:1fr;
+      }
+      .stats-analytics{
         grid-template-columns:1fr;
       }
     }
@@ -295,6 +308,39 @@
       <strong id="rejectedPartnersCount">0</strong>
     </div>
 
+  </section>
+
+  <section class="card">
+    <h2>Fréquentation du site</h2>
+
+    <div class="stats-analytics">
+
+      <div class="stat">
+        <h3>Fréquentation (pages vues)</h3>
+        <strong id="pageViewsCount">0</strong>
+      </div>
+
+      <div class="stat">
+        <h3>Visites</h3>
+        <strong id="visitsCount">0</strong>
+      </div>
+
+      <div class="stat">
+        <h3>Inscriptions</h3>
+        <strong id="registrationsCount">0</strong>
+      </div>
+
+      <div class="stat">
+        <h3>Road trips créés</h3>
+        <strong id="roadtripsCount">0</strong>
+      </div>
+
+      <div class="stat">
+        <h3>Durée de consultation (min / moy / max)</h3>
+        <strong id="durationStats">—</strong>
+      </div>
+
+    </div>
   </section>
 
   <section class="card">
@@ -643,12 +689,51 @@ async function loadMessages() {
   list.innerHTML = data.map(messageCard).join("");
 }
 
+function formatDuration(seconds) {
+
+  if (seconds === null || seconds === undefined) {
+    return "—";
+  }
+
+  seconds = Math.round(seconds);
+
+  if (seconds < 60) {
+    return seconds + "s";
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const remaining = seconds % 60;
+
+  return minutes + "min " + remaining + "s";
+}
+
+async function loadAnalytics() {
+
+  try {
+    const data = await callAdminEdge("admin-dashboard", {});
+    const kpis = data.kpis || {};
+
+    document.getElementById("pageViewsCount").textContent = kpis.pageViews || 0;
+    document.getElementById("visitsCount").textContent = kpis.visits || 0;
+    document.getElementById("registrationsCount").textContent = kpis.registrations || 0;
+    document.getElementById("roadtripsCount").textContent = kpis.roadtrips || 0;
+
+    document.getElementById("durationStats").textContent =
+      formatDuration(kpis.durationMin) + " / " + formatDuration(kpis.durationAvg) + " / " + formatDuration(kpis.durationMax);
+
+  } catch (err) {
+    document.getElementById("durationStats").textContent = "—";
+    console.error("Statistiques de fréquentation indisponibles :", err.message);
+  }
+}
+
 async function loadAll() {
 
   await loadPartnerRequests();
   await loadApprovedPartners();
   await loadRejectedPartners();
   await loadMessages();
+  await loadAnalytics();
 }
 
 (async function init() {
