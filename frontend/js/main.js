@@ -343,6 +343,8 @@ function initRegister() {
       return;
     }
 
+    var emailRedirectTo = window.location.href.replace(/register\.html.*$/, "login.html");
+
     supabaseClient.auth
       .signUp({
         email: formData.get("email"),
@@ -350,14 +352,15 @@ function initRegister() {
         options: {
           data: {
             full_name: formData.get("full_name")
-          }
+          },
+          emailRedirectTo: emailRedirectTo
         }
       })
       .then(function (result) {
         if (result.error) {
           showNotice(el("registerResult"), result.error.message, "error");
         } else {
-          showNotice(el("registerResult"), "Compte créé avec succès !");
+          showNotice(el("registerResult"), "Compte créé avec succès ! Vérifiez vos emails pour confirmer votre adresse.");
         }
       });
   });
