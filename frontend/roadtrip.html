@@ -762,7 +762,7 @@
         <div class="inline-grid">
           <div>
             <label>Date de départ</label>
-            <input type="date" name="start_date" required>
+            <input type="date" name="start_date" id="startDateInput" required>
           </div>
 
           <div>
@@ -810,16 +810,16 @@
         <label>Préférences du road trip</label>
         <textarea name="preferences" placeholder="Exemple : passage par Saint-Tropez, Nice, hélicoptère à Monaco, restaurants très bien notés, hôtels 4 étoiles, routes panoramiques..."></textarea>
 
-        <label>Type de recherche IA</label>
+        <label>Type de recherche</label>
         <select name="mode">
-          <option value="best_rated">IA : meilleurs lieux selon les notes Google</option>
+          <option value="best_rated">Meilleurs lieux selon les notes Google</option>
           <option value="scenic">Routes panoramiques et points de vue</option>
           <option value="automotive">Musées auto, expositions, circuits</option>
           <option value="luxury">Premium : hôtels 4 étoiles et restaurants haut de gamme</option>
         </select>
 
         <button type="submit" class="btn primary" style="margin-top:22px;">
-          Générer les propositions IA
+          Générer les propositions
         </button>
 
       </form>
@@ -870,6 +870,15 @@
   let googleMapsUrl = "";
   let wazeUrl = "";
   let isGeneratingRoadtrip = false;
+
+  const startDateInput = document.getElementById("startDateInput");
+  if (startDateInput) {
+    startDateInput.addEventListener("click", function () {
+      if (typeof this.showPicker === "function") {
+        this.showPicker();
+      }
+    });
+  }
 
   function escapeHtml(value) {
     return String(value || "")
