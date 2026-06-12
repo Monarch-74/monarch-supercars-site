@@ -1,4 +1,4 @@
-const CACHE_NAME = "monarch-pwa-v1";
+const CACHE_NAME = "monarch-pwa-v2";
 
 const PRECACHE_URLS = [
   "./",
@@ -6,6 +6,8 @@ const PRECACHE_URLS = [
   "./assets/styles.css",
   "./assets/Logo Monarch.jpeg",
   "./assets/vendor/qrcode.esm.js",
+  "./assets/vendor/encode-utf8.esm.js",
+  "./assets/vendor/dijkstrajs.esm.js",
   "./manifest.json",
 ];
 
