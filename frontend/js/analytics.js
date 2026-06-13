@@ -20,16 +20,14 @@
   }
 
   var startedAt = Date.now();
-  var rowId = null;
+  var rowId = (window.crypto && window.crypto.randomUUID)
+    ? window.crypto.randomUUID()
+    : String(Date.now()) + "-" + Math.random().toString(16).slice(2);
 
   client
     .from("analytics_sessions")
-    .insert({ session_id: sessionId, path: window.location.pathname })
-    .select("id")
-    .single()
-    .then(function (res) {
-      if (res && res.data) rowId = res.data.id;
-    })
+    .insert({ id: rowId, session_id: sessionId, path: window.location.pathname })
+    .then(function () {})
     .catch(function () {});
 
   function reportDuration() {
