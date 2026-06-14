@@ -66,7 +66,20 @@
   <a href="contact.html">Contact</a>
 </nav>
     <div class="auth-links">
-    <div id="google_translate_element" class="lang-select"></div>
+    <div class="lang-select">
+      <div id="google_translate_element"></div>
+      <button id="langSelectBtn" type="button" class="lang-current" aria-haspopup="listbox" aria-expanded="false">
+        <span class="lang-flag">🇫🇷</span><span class="lang-code">FR</span>
+      </button>
+      <ul id="langSelectMenu" class="lang-menu hide" role="listbox">
+        <li role="option" data-lang="fr"><span class="lang-flag">🇫🇷</span> Français</li>
+        <li role="option" data-lang="en"><span class="lang-flag">🇬🇧</span> English</li>
+        <li role="option" data-lang="de"><span class="lang-flag">🇩🇪</span> Deutsch</li>
+        <li role="option" data-lang="it"><span class="lang-flag">🇮🇹</span> Italiano</li>
+        <li role="option" data-lang="nl"><span class="lang-flag">🇳🇱</span> Nederlands</li>
+        <li role="option" data-lang="es"><span class="lang-flag">🇪🇸</span> Español</li>
+      </ul>
+    </div>
       <button id="soundToggle" title="Activer/désactiver la musique">🔊</button>
       <a class="btn secondary" href="login.html">Connexion</a>
       <a class="btn primary" href="register.html">Inscription</a>

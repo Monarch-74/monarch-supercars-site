@@ -647,6 +647,64 @@ window.googleTranslateElementInit = function () {
   }, "google_translate_element");
 };
 
+function setSiteLanguage(lang) {
+  var combo = document.querySelector("#google_translate_element select.goog-te-combo");
+
+  if (!combo) {
+    setTimeout(function () { setSiteLanguage(lang); }, 300);
+    return;
+  }
+
+  combo.value = lang;
+  combo.dispatchEvent(new Event("change"));
+}
+
+function getCurrentLang() {
+  var match = document.cookie.match(/googtrans=\/fr\/([a-zA-Z-]+)/);
+  return match ? match[1] : "fr";
+}
+
+function initLangSelector() {
+  var btn = el("langSelectBtn");
+  var menu = el("langSelectMenu");
+
+  if (!btn || !menu) return;
+
+  var current = getCurrentLang();
+  var activeItem = menu.querySelector('li[data-lang="' + current + '"]') || menu.querySelector('li[data-lang="fr"]');
+
+  if (activeItem) {
+    btn.querySelector(".lang-flag").textContent = activeItem.querySelector(".lang-flag").textContent;
+    btn.querySelector(".lang-code").textContent = current.toUpperCase();
+  }
+
+  btn.addEventListener("click", function () {
+    var isOpen = !menu.classList.contains("hide");
+    menu.classList.toggle("hide");
+    btn.setAttribute("aria-expanded", isOpen ? "false" : "true");
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.classList.add("hide");
+      btn.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  Array.prototype.forEach.call(menu.querySelectorAll("li"), function (item) {
+    item.addEventListener("click", function () {
+      var lang = item.getAttribute("data-lang");
+
+      btn.querySelector(".lang-flag").textContent = item.querySelector(".lang-flag").textContent;
+      btn.querySelector(".lang-code").textContent = lang.toUpperCase();
+      menu.classList.add("hide");
+      btn.setAttribute("aria-expanded", "false");
+
+      setSiteLanguage(lang);
+    });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initAudioControl();
   initCookieBanner();
@@ -658,4 +716,5 @@ document.addEventListener("DOMContentLoaded", function () {
   initForgotPassword();
   initResetPassword();
   initContact();
+  initLangSelector();
 });
