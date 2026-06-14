@@ -708,16 +708,23 @@ function initLangSelector() {
 
 function suppressGoogleTranslateBanner() {
   function cleanup() {
-    var banner = document.querySelector("iframe.goog-te-banner-frame");
+    Array.prototype.forEach.call(document.querySelectorAll("iframe"), function (frame) {
+      var cls = frame.className || "";
+      var src = frame.src || "";
 
-    if (banner) {
-      banner.style.setProperty("display", "none", "important");
-      banner.style.setProperty("visibility", "hidden", "important");
-      banner.style.setProperty("height", "0px", "important");
+      if (cls.indexOf("goog-te-banner") !== -1 || cls.indexOf("goog-te-menu-frame") !== -1 || src.indexOf("translate.google") !== -1) {
+        frame.style.setProperty("display", "none", "important");
+        frame.style.setProperty("visibility", "hidden", "important");
+        frame.style.setProperty("height", "0px", "important");
+      }
+    });
+
+    if (document.body) {
+      document.body.style.setProperty("top", "0px", "important");
     }
 
-    if (document.body && document.body.style.top !== "0px") {
-      document.body.style.setProperty("top", "0px", "important");
+    if (document.documentElement) {
+      document.documentElement.style.setProperty("top", "0px", "important");
     }
   }
 

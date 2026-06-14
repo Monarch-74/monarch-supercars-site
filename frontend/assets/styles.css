@@ -154,7 +154,12 @@ small, .muted{color:var(--muted)}
 }
 .lang-menu li:hover{background:rgba(212,175,55,.12);color:var(--gold)}
 
-.goog-te-banner-frame.skiptranslate{display:none !important}
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+.goog-te-menu-frame,
+#goog-gt-tt{display:none !important;visibility:hidden !important;height:0 !important}
 body{top:0 !important}
+html{top:0 !important}
 .goog-tooltip,.goog-tooltip:hover{box-shadow:none !important}
 .goog-text-highlight{background:none !important;box-shadow:none !important}
