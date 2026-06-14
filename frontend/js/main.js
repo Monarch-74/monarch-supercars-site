@@ -707,34 +707,38 @@ function initLangSelector() {
 }
 
 function suppressGoogleTranslateBanner() {
-  function cleanup() {
-    Array.prototype.forEach.call(document.querySelectorAll("iframe"), function (frame) {
-      var cls = frame.className || "";
-      var src = frame.src || "";
+  function isBannerNode(node) {
+    if (!node || node.nodeType !== 1) return false;
 
-      if (cls.indexOf("goog-te-banner") !== -1 || cls.indexOf("goog-te-menu-frame") !== -1 || src.indexOf("translate.google") !== -1) {
-        frame.style.setProperty("display", "none", "important");
-        frame.style.setProperty("visibility", "hidden", "important");
-        frame.style.setProperty("height", "0px", "important");
-      }
+    var cls = typeof node.className === "string" ? node.className : "";
+    var id = node.id || "";
+
+    return /goog-te-banner|goog-te-ftab|goog-te-menu|skiptranslate|VIpgJd/.test(cls) ||
+      /goog-gt-tt|goog-te/.test(id);
+  }
+
+  function cleanup() {
+    Array.prototype.forEach.call(document.body.children, function (node) {
+      if (node.id !== "google_translate_element" && isBannerNode(node)) node.remove();
     });
 
-    if (document.body) {
-      document.body.style.setProperty("top", "0px", "important");
-    }
+    Array.prototype.forEach.call(document.documentElement.children, function (node) {
+      if (node.tagName !== "HEAD" && node.tagName !== "BODY" && isBannerNode(node)) node.remove();
+    });
 
-    if (document.documentElement) {
-      document.documentElement.style.setProperty("top", "0px", "important");
-    }
+    document.body.style.setProperty("top", "0px", "important");
+    document.documentElement.style.setProperty("top", "0px", "important");
   }
 
   cleanup();
 
   new MutationObserver(cleanup).observe(document.documentElement, {
     childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ["style", "class"]
+    subtree: false
+  });
+
+  document.body && new MutationObserver(cleanup).observe(document.body, {
+    childList: true
   });
 }
 
