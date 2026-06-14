@@ -4,18 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="google-site-verification" content="BftFNhi0UR-NlZN38_hkCQrohn-KpPWIJ4uoh_SX43A" />
-  <title>MONARCH SUPERCARS — Road trips IA, événements automobiles et partenaires premium</title>
+  <title>Road trips IA, événements automobiles et partenaires premium | MONARCH SUPERCARS</title>
   <meta name="description" content="Plateforme premium automobile : générez gratuitement vos road trips sur-mesure par IA, découvrez les événements automobiles (Cars & Coffee, supercar meetings, trackdays) et notre réseau de partenaires d'exception." />
   <link rel="canonical" href="https://www.monarch-apps.fr/" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="fr_FR" />
   <meta property="og:site_name" content="MONARCH SUPERCARS" />
-  <meta property="og:title" content="MONARCH SUPERCARS — Road trips IA, événements automobiles et partenaires premium" />
+  <meta property="og:title" content="Road trips IA, événements automobiles et partenaires premium | MONARCH SUPERCARS" />
   <meta property="og:description" content="Plateforme premium automobile : road trips IA, événements automobiles et réseau de partenaires d'exception." />
   <meta property="og:url" content="https://www.monarch-apps.fr/" />
   <meta property="og:image" content="https://www.monarch-apps.fr/assets/icons/icon-512.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="MONARCH SUPERCARS — Road trips IA, événements automobiles et partenaires premium" />
+  <meta name="twitter:title" content="Road trips IA, événements automobiles et partenaires premium | MONARCH SUPERCARS" />
   <meta name="twitter:description" content="Plateforme premium automobile : road trips IA, événements automobiles et réseau de partenaires d'exception." />
   <meta name="twitter:image" content="https://www.monarch-apps.fr/assets/icons/icon-512.png" />
   <link rel="stylesheet" href="assets/styles.css" />
@@ -56,14 +56,14 @@
   
   <div class="card">
     <h3>L'excellence automobile, à portée de main</h3>
-    <p class="muted">Monarch Supercars, la plateforme premium de suivi et de gestion d'événements automobiles — pensée pour ceux qui ne transigent pas avec l'exception.</p>
+    <p class="muted">Monarch Supercars, la plateforme premium de suivi et de gestion d'événements automobiles, pensée pour ceux qui ne transigent pas avec l'exception.</p>
     <div class="inline-actions">
       <a class="btn primary" href="register.html">Créer un compte</a>
       <a class="btn secondary" href="partner-register.html">Devenir partenaire</a>
     </div>
   </div>
 
-  <div class="card card-center">
+  <div class="card card-center" id="installCard">
     <h3>Installer l'application</h3>
     <p class="muted">Scannez ce QR code avec votre téléphone pour ouvrir le site, puis ajoutez-le à votre écran d'accueil pour l'utiliser comme une application.</p>
     <canvas id="installQrCode" class="qr-canvas"></canvas>
@@ -88,7 +88,7 @@
 
   <div class="footer">
     <div class="container">
-      <p>© MONARCH SUPERCARS — plateforme premium automobile.</p>
+      <p>© MONARCH SUPERCARS, plateforme premium automobile.</p>
       <p>
         <a href="legal/mentions-legales.html">Mentions légales</a> •
         <a href="legal/privacy.html">Confidentialité</a> •
@@ -124,57 +124,63 @@
   <script src="js/analytics.js"></script>
 
   <script type="module">
-  import { toCanvas } from "./assets/vendor/qrcode.esm.js";
-
-  toCanvas(document.getElementById("installQrCode"), window.location.href, {
-    width: 200,
-    margin: 1,
-    color: { dark: "#050505", light: "#ffffff" }
-  }).catch(function (err) {
-    console.error("QR code non généré :", err);
-  });
-
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(function (err) {
       console.error("Service worker non enregistré :", err);
     });
   }
 
-  var deferredInstallPrompt = null;
-  var installBtn = document.getElementById("installAppBtn");
-  var installHint = document.getElementById("installHint");
-
-  window.addEventListener("beforeinstallprompt", function (e) {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-    installBtn.classList.remove("hide");
-  });
-
-  installBtn.addEventListener("click", function () {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.finally(function () {
-      deferredInstallPrompt = null;
-      installBtn.classList.add("hide");
-    });
-  });
-
-  window.addEventListener("appinstalled", function () {
-    installBtn.classList.add("hide");
-    installHint.textContent = "Application installée avec succès !";
-  });
-
   var isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
   var isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
 
-  if (isIos && !isStandalone) {
-    installHint.textContent = "Sur iPhone/iPad : appuyez sur le bouton Partager de Safari, puis « Sur l'écran d'accueil ».";
-  } else if (!isStandalone) {
-    setTimeout(function () {
-      if (installBtn.classList.contains("hide")) {
-        installHint.textContent = "Utilisez le menu de votre navigateur > « Ajouter à l'écran d'accueil » / « Installer l'application ».";
-      }
-    }, 1500);
+  if (isStandalone) {
+    // L'application est déjà installée : inutile d'afficher le QR code / bouton d'installation.
+    document.getElementById("installCard").classList.add("hide");
+  } else {
+    var { toCanvas } = await import("./assets/vendor/qrcode.esm.js");
+
+    toCanvas(document.getElementById("installQrCode"), window.location.href, {
+      width: 200,
+      margin: 1,
+      color: { dark: "#050505", light: "#ffffff" }
+    }).catch(function (err) {
+      console.error("QR code non généré :", err);
+    });
+
+    var deferredInstallPrompt = null;
+    var installBtn = document.getElementById("installAppBtn");
+    var installHint = document.getElementById("installHint");
+
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      installBtn.classList.remove("hide");
+    });
+
+    installBtn.addEventListener("click", function () {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.finally(function () {
+        deferredInstallPrompt = null;
+        installBtn.classList.add("hide");
+      });
+    });
+
+    window.addEventListener("appinstalled", function () {
+      installBtn.classList.add("hide");
+      installHint.textContent = "Application installée avec succès !";
+      document.getElementById("installCard").classList.add("hide");
+    });
+
+    if (isIos) {
+      installHint.textContent = "Sur iPhone/iPad : appuyez sur le bouton Partager de Safari, puis « Sur l'écran d'accueil ».";
+    } else {
+      setTimeout(function () {
+        if (installBtn.classList.contains("hide")) {
+          installHint.textContent = "Utilisez le menu de votre navigateur > « Ajouter à l'écran d'accueil » / « Installer l'application ».";
+        }
+      }, 1500);
+    }
   }
   </script>
 </body>

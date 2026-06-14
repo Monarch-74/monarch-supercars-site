@@ -8,6 +8,9 @@
   --success:#59d18c;
 }
 *{box-sizing:border-box}
+button,input,select,textarea,optgroup{
+  font-family:inherit;font-size:1rem;
+}
 body{
   margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:#fff;
 }
