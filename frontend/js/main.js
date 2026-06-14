@@ -648,15 +648,22 @@ window.googleTranslateElementInit = function () {
 };
 
 function setSiteLanguage(lang) {
-  var combo = document.querySelector("#google_translate_element select.goog-te-combo");
+  var hostname = window.location.hostname;
+  var baseDomain = hostname.replace(/^www\./, "");
+  var value = lang === "fr" ? "" : "/fr/" + lang;
 
-  if (!combo) {
-    setTimeout(function () { setSiteLanguage(lang); }, 300);
-    return;
+  function setCookie(domain) {
+    var cookie = "googtrans=" + value + "; path=/";
+    if (domain) cookie += "; domain=" + domain;
+    cookie += value === "" ? "; expires=Thu, 01 Jan 1970 00:00:00 UTC" : "; max-age=31536000";
+    document.cookie = cookie;
   }
 
-  combo.value = lang;
-  combo.dispatchEvent(new Event("change"));
+  setCookie();
+  setCookie(hostname);
+  setCookie("." + baseDomain);
+
+  window.location.reload();
 }
 
 function getCurrentLang() {
@@ -667,14 +674,15 @@ function getCurrentLang() {
 function initLangSelector() {
   var btn = el("langSelectBtn");
   var menu = el("langSelectMenu");
+  var flagIcon = el("langFlag");
 
-  if (!btn || !menu) return;
+  if (!btn || !menu || !flagIcon) return;
 
   var current = getCurrentLang();
   var activeItem = menu.querySelector('li[data-lang="' + current + '"]') || menu.querySelector('li[data-lang="fr"]');
 
   if (activeItem) {
-    btn.querySelector(".lang-flag").textContent = activeItem.querySelector(".lang-flag").textContent;
+    flagIcon.className = "fi fi-" + activeItem.getAttribute("data-flag") + " lang-flag";
     btn.querySelector(".lang-code").textContent = current.toUpperCase();
   }
 
@@ -693,14 +701,7 @@ function initLangSelector() {
 
   Array.prototype.forEach.call(menu.querySelectorAll("li"), function (item) {
     item.addEventListener("click", function () {
-      var lang = item.getAttribute("data-lang");
-
-      btn.querySelector(".lang-flag").textContent = item.querySelector(".lang-flag").textContent;
-      btn.querySelector(".lang-code").textContent = lang.toUpperCase();
-      menu.classList.add("hide");
-      btn.setAttribute("aria-expanded", "false");
-
-      setSiteLanguage(lang);
+      setSiteLanguage(item.getAttribute("data-lang"));
     });
   });
 }
