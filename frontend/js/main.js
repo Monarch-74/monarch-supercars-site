@@ -246,6 +246,62 @@ function getRegionFromEvent(ev, selectedDepartment) {
   return "Région non précisée";
 }
 
+function injectEventsJsonLd(events) {
+  var today = new Date().toISOString().slice(0, 10);
+
+  var items = events
+    .filter(function (ev) {
+      return ev.title && ev.event_date && ev.event_date >= today;
+    })
+    .slice(0, 20)
+    .map(function (ev) {
+      var item = {
+        "@type": "Event",
+        "name": ev.title,
+        "startDate": ev.event_date,
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "location": {
+          "@type": "Place",
+          "name": ev.venue_name || ev.title,
+          "address": ev.address || ev.venue_name || ev.country || "France"
+        },
+        "organizer": {
+          "@type": "Organization",
+          "name": "MONARCH SUPERCARS",
+          "url": "https://www.monarch-apps.fr/"
+        },
+        "url": ev.external_url || "https://www.monarch-apps.fr/events.html"
+      };
+
+      if (ev.description) item.description = ev.description;
+
+      var image = ev.poster_url || ev.image_url;
+      if (image) item.image = [image];
+
+      return item;
+    });
+
+  var script = document.getElementById("eventsJsonLd");
+
+  if (!items.length) {
+    if (script) script.remove();
+    return;
+  }
+
+  if (!script) {
+    script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "eventsJsonLd";
+    document.head.appendChild(script);
+  }
+
+  script.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": items
+  });
+}
+
 function initCommunityEvents() {
   var container = el("communityEventsResults");
 
@@ -300,6 +356,7 @@ function initCommunityEvents() {
 
       container.className = "";
       container.innerHTML = html;
+      injectEventsJsonLd(data);
     })
     .catch(function () {
       container.className = "notice error";
