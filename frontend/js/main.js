@@ -637,7 +637,146 @@ function initContact() {
   });
 }
 
-function initTranslateHint() {
+// Traduction automatique côté client (sans widget/bannière Google).
+// Utilise l'API de traduction publique de Google (translate.googleapis.com)
+// et remplace directement le texte de la page.
+var TRANSLATE_LANG_KEY = "monarch_lang";
+var TRANSLATE_CACHE_PREFIX = "monarch_tr_";
+var translateOriginalTexts = new Map();
+var translateActiveLang = "fr";
+
+function isTranslatableTextNode(node) {
+  if (!node.nodeValue || !node.nodeValue.trim()) return false;
+
+  var parent = node.parentElement;
+  if (!parent) return false;
+
+  var skipTags = ["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "SELECT", "OPTION"];
+  if (skipTags.indexOf(parent.tagName) !== -1) return false;
+
+  if (parent.closest("[data-no-translate]")) return false;
+
+  return true;
+}
+
+function getTranslatableNodes(root) {
+  var nodes = [];
+
+  if (root.nodeType === Node.TEXT_NODE) {
+    if (isTranslatableTextNode(root)) nodes.push(root);
+    return nodes;
+  }
+
+  var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: function (node) {
+      return isTranslatableTextNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }
+  });
+
+  var n;
+  while ((n = walker.nextNode())) nodes.push(n);
+
+  return nodes;
+}
+
+function translateText(text, targetLang) {
+  var cacheKey = TRANSLATE_CACHE_PREFIX + targetLang + ":" + text;
+
+  var cached;
+  try {
+    cached = localStorage.getItem(cacheKey);
+  } catch (e) {
+    cached = null;
+  }
+
+  if (cached !== null) return Promise.resolve(cached);
+
+  var params = new URLSearchParams({
+    client: "gtx",
+    sl: "auto",
+    tl: targetLang,
+    dt: "t",
+    q: text
+  });
+
+  return fetch("https://translate.googleapis.com/translate_a/single?" + params.toString())
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      var translated = (data[0] || [])
+        .map(function (segment) { return segment[0] || ""; })
+        .join("");
+
+      try {
+        localStorage.setItem(cacheKey, translated);
+      } catch (e) {}
+
+      return translated || text;
+    })
+    .catch(function () {
+      return text;
+    });
+}
+
+function translateNodes(nodes, targetLang) {
+  var queue = nodes.slice();
+  var concurrency = 5;
+
+  function next() {
+    if (!queue.length) return Promise.resolve();
+
+    var node = queue.shift();
+    var original = translateOriginalTexts.get(node);
+
+    if (original === undefined) {
+      original = node.nodeValue;
+      translateOriginalTexts.set(node, original);
+    }
+
+    var trimmed = original.trim();
+    if (!trimmed) return next();
+
+    var leading = original.match(/^\s*/)[0];
+    var trailing = original.match(/\s*$/)[0];
+
+    return translateText(trimmed, targetLang).then(function (translated) {
+      node.nodeValue = leading + translated + trailing;
+      return next();
+    });
+  }
+
+  var workers = [];
+  for (var i = 0; i < concurrency; i++) workers.push(next());
+  return Promise.all(workers);
+}
+
+function updateActiveLangUI(lang) {
+  document.querySelectorAll(".lang-option").forEach(function (opt) {
+    opt.classList.toggle("active", opt.getAttribute("data-lang") === lang);
+  });
+}
+
+function setPageLanguage(targetLang) {
+  translateActiveLang = targetLang;
+
+  try {
+    localStorage.setItem(TRANSLATE_LANG_KEY, targetLang);
+  } catch (e) {}
+
+  updateActiveLangUI(targetLang);
+
+  if (targetLang === "fr") {
+    translateOriginalTexts.forEach(function (text, node) {
+      node.nodeValue = text;
+    });
+    document.documentElement.setAttribute("lang", "fr");
+    return;
+  }
+
+  document.documentElement.setAttribute("lang", targetLang);
+  translateNodes(getTranslatableNodes(document.body), targetLang);
+}
+
+function initTranslate() {
   var btn = el("translateHintBtn");
   var panel = el("translateHintPanel");
 
@@ -655,6 +794,41 @@ function initTranslateHint() {
       btn.setAttribute("aria-expanded", "false");
     }
   });
+
+  panel.querySelectorAll(".lang-option").forEach(function (opt) {
+    opt.addEventListener("click", function () {
+      setPageLanguage(opt.getAttribute("data-lang"));
+      panel.classList.add("hide");
+      btn.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  // Traduit automatiquement le contenu ajouté dynamiquement (résultats Supabase, etc.)
+  var observer = new MutationObserver(function (mutations) {
+    if (translateActiveLang === "fr") return;
+
+    mutations.forEach(function (mutation) {
+      mutation.addedNodes.forEach(function (node) {
+        var nodes = getTranslatableNodes(node);
+        if (nodes.length) translateNodes(nodes, translateActiveLang);
+      });
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  var savedLang;
+  try {
+    savedLang = localStorage.getItem(TRANSLATE_LANG_KEY);
+  } catch (e) {
+    savedLang = null;
+  }
+
+  if (savedLang && savedLang !== "fr") {
+    setPageLanguage(savedLang);
+  } else {
+    updateActiveLangUI("fr");
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -668,5 +842,5 @@ document.addEventListener("DOMContentLoaded", function () {
   initForgotPassword();
   initResetPassword();
   initContact();
-  initTranslateHint();
+  initTranslate();
 });

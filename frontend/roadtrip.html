@@ -704,14 +704,18 @@
   </nav>
 
   <div>
-    <div class="lang-select">
+    <div class="lang-select" data-no-translate>
       <button id="translateHintBtn" type="button" class="lang-current" aria-haspopup="true" aria-expanded="false">
         🌐 Traduire
       </button>
-      <div id="translateHintPanel" class="lang-menu hide" role="tooltip">
-        <p>Pour traduire cette page dans votre langue :</p>
-        <p><strong>Chrome / Edge :</strong> cliquez sur l'icône de traduction dans la barre d'adresse, ou clic droit → « Traduire ».</p>
-        <p><strong>Safari :</strong> bouton « aA » dans la barre d'adresse → « Traduire en... ».</p>
+      <div id="translateHintPanel" class="lang-menu hide" role="menu">
+        <button type="button" class="lang-option active" data-lang="fr">Français</button>
+        <button type="button" class="lang-option" data-lang="en">English</button>
+        <button type="button" class="lang-option" data-lang="it">Italiano</button>
+        <button type="button" class="lang-option" data-lang="de">Deutsch</button>
+        <button type="button" class="lang-option" data-lang="es">Español</button>
+        <button type="button" class="lang-option" data-lang="pt">Português</button>
+        <button type="button" class="lang-option" data-lang="nl">Nederlands</button>
       </div>
     </div>
     <button id="soundToggle" class="btn secondary">🔊</button>

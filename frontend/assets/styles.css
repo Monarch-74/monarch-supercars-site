@@ -132,7 +132,7 @@ small, .muted{color:var(--muted)}
 .qr-canvas{margin:14px auto;display:block;background:#fff;padding:10px;border-radius:12px}
 .install-hint{font-size:.85rem;margin-top:10px}
 
-/* Aide traduction (traduction native du navigateur) */
+/* Sélecteur de langue (traduction automatique côté client) */
 .lang-select{position:relative;display:flex;align-items:center}
 .lang-current{
   display:flex;align-items:center;gap:6px;
@@ -142,12 +142,15 @@ small, .muted{color:var(--muted)}
 .lang-current:hover{border-color:var(--gold);color:var(--gold)}
 .lang-menu{
   position:absolute;top:calc(100% + 8px);right:0;z-index:60;
-  margin:0;padding:14px;width:260px;max-height:320px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:2px;
+  margin:0;padding:6px;min-width:170px;max-height:320px;overflow-y:auto;
   background:#111;border:1px solid var(--border);border-radius:14px;
   box-shadow:0 12px 30px rgba(0,0,0,.45);
 }
-.lang-menu p{
-  margin:0 0 10px;font-size:.85rem;line-height:1.5;color:#fff;
+.lang-option{
+  display:block;width:100%;text-align:left;
+  padding:9px 12px;border-radius:10px;cursor:pointer;font-size:.9rem;color:#fff;
+  background:transparent;border:none;font-family:inherit;
 }
-.lang-menu p:last-child{margin-bottom:0}
-.lang-menu strong{color:var(--gold)}
+.lang-option:hover{background:rgba(212,175,55,.12);color:var(--gold)}
+.lang-option.active{background:rgba(212,175,55,.18);color:var(--gold);font-weight:600}
