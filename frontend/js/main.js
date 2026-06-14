@@ -580,6 +580,16 @@ function initContact() {
   });
 }
 
+window.googleTranslateElementInit = function () {
+  if (!window.google || !window.google.translate || !document.getElementById("google_translate_element")) return;
+
+  new google.translate.TranslateElement({
+    pageLanguage: "fr",
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+  }, "google_translate_element");
+};
+
 document.addEventListener("DOMContentLoaded", function () {
   initAudioControl();
   initCookieBanner();

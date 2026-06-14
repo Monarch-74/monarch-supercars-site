@@ -131,3 +131,15 @@ small, .muted{color:var(--muted)}
 .card-center{text-align:center}
 .qr-canvas{margin:14px auto;display:block;background:#fff;padding:10px;border-radius:12px}
 .install-hint{font-size:.85rem;margin-top:10px}
+
+/* Sélecteur de langue (Google Translate) */
+.lang-select{display:flex;align-items:center}
+.lang-select .goog-te-gadget{font-size:0}
+.lang-select .goog-te-gadget .goog-te-combo{
+  font-size:.85rem;font-family:inherit;color:#fff;background:#111;
+  border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;
+}
+.goog-te-banner-frame.skiptranslate{display:none !important}
+body{top:0 !important}
+.goog-tooltip,.goog-tooltip:hover{box-shadow:none !important}
+.goog-text-highlight{background:none !important;box-shadow:none !important}
