@@ -22,7 +22,6 @@
   <meta property="og:url" content="https://www.monarch-apps.fr/login.html" />
   <meta property="og:image" content="https://www.monarch-apps.fr/assets/icons/icon-512.png" />
   <link rel="stylesheet" href="assets/styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.2.3/css/flag-icons.min.css" />
 </head>
 <body>
   <header>
@@ -43,25 +42,14 @@
     </nav>
     <div class="auth-links">
     <div class="lang-select">
-      <div id="google_translate_element"></div>
-      <button id="langSelectBtn" type="button" class="lang-current" aria-haspopup="listbox" aria-expanded="false">
-        <span id="langFlag" class="fi fi-fr lang-flag"></span><span class="lang-code">FR</span>
+      <button id="translateHintBtn" type="button" class="lang-current" aria-haspopup="true" aria-expanded="false">
+        🌐 Traduire
       </button>
-      <ul id="langSelectMenu" class="lang-menu hide" role="listbox">
-        <li role="option" data-lang="fr" data-flag="fr"><span class="fi fi-fr lang-flag"></span> Français</li>
-        <li role="option" data-lang="en" data-flag="gb"><span class="fi fi-gb lang-flag"></span> English</li>
-        <li role="option" data-lang="de" data-flag="de"><span class="fi fi-de lang-flag"></span> Deutsch</li>
-        <li role="option" data-lang="it" data-flag="it"><span class="fi fi-it lang-flag"></span> Italiano</li>
-        <li role="option" data-lang="es" data-flag="es"><span class="fi fi-es lang-flag"></span> Español</li>
-        <li role="option" data-lang="pt" data-flag="pt"><span class="fi fi-pt lang-flag"></span> Português</li>
-        <li role="option" data-lang="nl" data-flag="nl"><span class="fi fi-nl lang-flag"></span> Nederlands</li>
-        <li role="option" data-lang="pl" data-flag="pl"><span class="fi fi-pl lang-flag"></span> Polski</li>
-        <li role="option" data-lang="ru" data-flag="ru"><span class="fi fi-ru lang-flag"></span> Русский</li>
-        <li role="option" data-lang="tr" data-flag="tr"><span class="fi fi-tr lang-flag"></span> Türkçe</li>
-        <li role="option" data-lang="ar" data-flag="sa"><span class="fi fi-sa lang-flag"></span> العربية</li>
-        <li role="option" data-lang="zh-CN" data-flag="cn"><span class="fi fi-cn lang-flag"></span> 中文</li>
-        <li role="option" data-lang="ja" data-flag="jp"><span class="fi fi-jp lang-flag"></span> 日本語</li>
-      </ul>
+      <div id="translateHintPanel" class="lang-menu hide" role="tooltip">
+        <p>Pour traduire cette page dans votre langue :</p>
+        <p><strong>Chrome / Edge :</strong> cliquez sur l'icône de traduction dans la barre d'adresse, ou clic droit → « Traduire ».</p>
+        <p><strong>Safari :</strong> bouton « aA » dans la barre d'adresse → « Traduire en... ».</p>
+      </div>
     </div>
       <button id="soundToggle" title="Activer/désactiver la musique">🔊</button>
       <a class="btn secondary" href="login.html">Connexion</a>
@@ -126,6 +114,5 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/main.js"></script>
   <script src="js/analytics.js"></script>
-  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
 </body>
 </html>

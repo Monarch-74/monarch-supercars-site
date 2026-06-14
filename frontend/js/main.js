@@ -637,119 +637,23 @@ function initContact() {
   });
 }
 
-window.googleTranslateElementInit = function () {
-  if (!window.google || !window.google.translate || !document.getElementById("google_translate_element")) return;
+function initTranslateHint() {
+  var btn = el("translateHintBtn");
+  var panel = el("translateHintPanel");
 
-  new google.translate.TranslateElement({
-    pageLanguage: "fr",
-    autoDisplay: false,
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-  }, "google_translate_element");
-};
-
-function setSiteLanguage(lang) {
-  var hostname = window.location.hostname;
-  var baseDomain = hostname.replace(/^www\./, "");
-  var value = lang === "fr" ? "" : "/fr/" + lang;
-
-  function setCookie(domain) {
-    var cookie = "googtrans=" + value + "; path=/";
-    if (domain) cookie += "; domain=" + domain;
-    cookie += value === "" ? "; expires=Thu, 01 Jan 1970 00:00:00 UTC" : "; max-age=31536000";
-    document.cookie = cookie;
-  }
-
-  setCookie();
-  setCookie(hostname);
-  setCookie("." + baseDomain);
-
-  window.location.reload();
-}
-
-function getCurrentLang() {
-  var match = document.cookie.match(/googtrans=\/fr\/([a-zA-Z-]+)/);
-  return match ? match[1] : "fr";
-}
-
-function initLangSelector() {
-  var btn = el("langSelectBtn");
-  var menu = el("langSelectMenu");
-  var flagIcon = el("langFlag");
-
-  if (!btn || !menu || !flagIcon) return;
-
-  var current = getCurrentLang();
-  var activeItem = menu.querySelector('li[data-lang="' + current + '"]') || menu.querySelector('li[data-lang="fr"]');
-
-  if (activeItem) {
-    flagIcon.className = "fi fi-" + activeItem.getAttribute("data-flag") + " lang-flag";
-    btn.querySelector(".lang-code").textContent = current.toUpperCase();
-  }
+  if (!btn || !panel) return;
 
   btn.addEventListener("click", function () {
-    var isOpen = !menu.classList.contains("hide");
-    menu.classList.toggle("hide");
+    var isOpen = !panel.classList.contains("hide");
+    panel.classList.toggle("hide");
     btn.setAttribute("aria-expanded", isOpen ? "false" : "true");
   });
 
   document.addEventListener("click", function (e) {
-    if (!menu.contains(e.target) && !btn.contains(e.target)) {
-      menu.classList.add("hide");
+    if (!panel.contains(e.target) && !btn.contains(e.target)) {
+      panel.classList.add("hide");
       btn.setAttribute("aria-expanded", "false");
     }
-  });
-
-  Array.prototype.forEach.call(menu.querySelectorAll("li"), function (item) {
-    item.addEventListener("click", function () {
-      setSiteLanguage(item.getAttribute("data-lang"));
-    });
-  });
-}
-
-function suppressGoogleTranslateBanner() {
-  function isBannerNode(node) {
-    if (!node || node.nodeType !== 1) return false;
-
-    var cls = typeof node.className === "string" ? node.className : "";
-    var id = node.id || "";
-
-    return /goog-te-banner-frame|goog-te-ftab|goog-te-menu-frame|goog-te-menu2/.test(cls) ||
-      /^goog-gt-tt$/.test(id) ||
-      /^:\d+\.(container|tt|tooltip)/.test(id);
-  }
-
-  function hideOffscreen(node) {
-    node.style.setProperty("position", "fixed", "important");
-    node.style.setProperty("top", "-9999px", "important");
-    node.style.setProperty("left", "-9999px", "important");
-    node.style.setProperty("width", "0px", "important");
-    node.style.setProperty("height", "0px", "important");
-    node.style.setProperty("overflow", "hidden", "important");
-    node.style.setProperty("pointer-events", "none", "important");
-  }
-
-  function cleanup() {
-    Array.prototype.forEach.call(document.body.children, function (node) {
-      if (node.id !== "google_translate_element" && isBannerNode(node)) hideOffscreen(node);
-    });
-
-    Array.prototype.forEach.call(document.documentElement.children, function (node) {
-      if (node.tagName !== "HEAD" && node.tagName !== "BODY" && isBannerNode(node)) hideOffscreen(node);
-    });
-
-    document.body.style.setProperty("top", "0px", "important");
-    document.documentElement.style.setProperty("top", "0px", "important");
-  }
-
-  cleanup();
-
-  new MutationObserver(cleanup).observe(document.documentElement, {
-    childList: true,
-    subtree: false
-  });
-
-  document.body && new MutationObserver(cleanup).observe(document.body, {
-    childList: true
   });
 }
 
@@ -764,6 +668,5 @@ document.addEventListener("DOMContentLoaded", function () {
   initForgotPassword();
   initResetPassword();
   initContact();
-  initLangSelector();
-  suppressGoogleTranslateBanner();
+  initTranslateHint();
 });
