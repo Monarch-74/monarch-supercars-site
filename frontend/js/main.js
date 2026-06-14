@@ -713,17 +713,28 @@ function suppressGoogleTranslateBanner() {
     var cls = typeof node.className === "string" ? node.className : "";
     var id = node.id || "";
 
-    return /goog-te-banner|goog-te-ftab|goog-te-menu|skiptranslate|VIpgJd/.test(cls) ||
-      /goog-gt-tt|goog-te/.test(id);
+    return /goog-te-banner-frame|goog-te-ftab|goog-te-menu-frame|goog-te-menu2/.test(cls) ||
+      /^goog-gt-tt$/.test(id) ||
+      /^:\d+\.(container|tt|tooltip)/.test(id);
+  }
+
+  function hideOffscreen(node) {
+    node.style.setProperty("position", "fixed", "important");
+    node.style.setProperty("top", "-9999px", "important");
+    node.style.setProperty("left", "-9999px", "important");
+    node.style.setProperty("width", "0px", "important");
+    node.style.setProperty("height", "0px", "important");
+    node.style.setProperty("overflow", "hidden", "important");
+    node.style.setProperty("pointer-events", "none", "important");
   }
 
   function cleanup() {
     Array.prototype.forEach.call(document.body.children, function (node) {
-      if (node.id !== "google_translate_element" && isBannerNode(node)) node.remove();
+      if (node.id !== "google_translate_element" && isBannerNode(node)) hideOffscreen(node);
     });
 
     Array.prototype.forEach.call(document.documentElement.children, function (node) {
-      if (node.tagName !== "HEAD" && node.tagName !== "BODY" && isBannerNode(node)) node.remove();
+      if (node.tagName !== "HEAD" && node.tagName !== "BODY" && isBannerNode(node)) hideOffscreen(node);
     });
 
     document.body.style.setProperty("top", "0px", "important");
