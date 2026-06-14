@@ -706,6 +706,31 @@ function initLangSelector() {
   });
 }
 
+function suppressGoogleTranslateBanner() {
+  function cleanup() {
+    var banner = document.querySelector("iframe.goog-te-banner-frame");
+
+    if (banner) {
+      banner.style.setProperty("display", "none", "important");
+      banner.style.setProperty("visibility", "hidden", "important");
+      banner.style.setProperty("height", "0px", "important");
+    }
+
+    if (document.body && document.body.style.top !== "0px") {
+      document.body.style.setProperty("top", "0px", "important");
+    }
+  }
+
+  cleanup();
+
+  new MutationObserver(cleanup).observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["style", "class"]
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initAudioControl();
   initCookieBanner();
@@ -718,4 +743,5 @@ document.addEventListener("DOMContentLoaded", function () {
   initResetPassword();
   initContact();
   initLangSelector();
+  suppressGoogleTranslateBanner();
 });
