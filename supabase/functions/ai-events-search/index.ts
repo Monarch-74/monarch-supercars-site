@@ -1379,12 +1379,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // Priorités et événements nommés pour CETTE année ET l'année prochaine (toutes localisations)
     const priorityCurrentYear = fillForAllLocs(PRIORITY_TEMPLATES, currentYear);
     const priorityNextYear    = fillForAllLocs(PRIORITY_TEMPLATES, nextYear);
-    const namedCurrentYear    = fillForAllLocs(NAMED_EVENT_TEMPLATES, currentYear);
-    const namedNextYear       = fillForAllLocs(NAMED_EVENT_TEMPLATES, nextYear);
 
-    // Rotation sur ALL_QUERY_TEMPLATES — localisation principale uniquement (limite les appels API)
-    const rotatedCurrent = rotateSelect(ALL_QUERY_TEMPLATES, 10, dayIndex);
-    const rotatedNext    = rotateSelect(ALL_QUERY_TEMPLATES, 6, dayIndex + Math.floor(ALL_QUERY_TEMPLATES.length / 2));
+    // Sélection réduite des NAMED templates : top 25 les plus polyvalents pour limiter le temps de réponse
+    const TOP_NAMED = NAMED_EVENT_TEMPLATES.slice(0, 25);
+    const namedCurrentYear = fillForAllLocs(TOP_NAMED, currentYear);
+    const namedNextYear    = fillForAllLocs(TOP_NAMED, nextYear);
+
+    // Rotation sur ALL_QUERY_TEMPLATES — localisation principale uniquement
+    const rotatedCurrent = rotateSelect(ALL_QUERY_TEMPLATES, 8, dayIndex);
+    const rotatedNext    = rotateSelect(ALL_QUERY_TEMPLATES, 4, dayIndex + Math.floor(ALL_QUERY_TEMPLATES.length / 2));
     const rotatedCurrentFilled = rotatedCurrent.map((t) => fillTemplate(t, currentYear));
     const rotatedNextFilled    = rotatedNext.map((t) => fillTemplate(t, nextYear));
 
@@ -1397,15 +1400,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
       ...rotatedNextFilled,
     ]));
 
-    const imageTemplates = rotateSelect(IMAGE_QUERY_TEMPLATES, 4, dayIndex);
+    const imageTemplates = rotateSelect(IMAGE_QUERY_TEMPLATES, 3, dayIndex);
     const imageCurrentYear = imageTemplates.map((t) => `affiche ${fillTemplate(t, currentYear)}`);
-    const imageNextYear = imageTemplates.slice(0, 2).map((t) => `affiche ${fillTemplate(t, nextYear)}`);
+    const imageNextYear = imageTemplates.slice(0, 1).map((t) => `affiche ${fillTemplate(t, nextYear)}`);
     const imageQueries = [...imageCurrentYear, ...imageNextYear];
 
     console.log(`SEARCHING ${webQueries.length} WEB QUERIES + ${imageQueries.length} IMAGE QUERIES`);
 
     const [webResultsArrays, imageResultsArrays] = await Promise.all([
-      mapWithConcurrency(webQueries, 5, (q) => googleSearch(q)),
+      mapWithConcurrency(webQueries, 8, (q) => googleSearch(q)),
       mapWithConcurrency(imageQueries, 3, (q) => googleImages(q)),
     ]);
 
@@ -1414,7 +1417,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const events: EventCard[] = [];
 
-    const analyzedImages = await mapWithConcurrency(imageResults.slice(0, 20), 4, async (img: any) => {
+    // Analyse réduite à 6 images pour limiter les appels OpenAI
+    const analyzedImages = await mapWithConcurrency(imageResults.slice(0, 6), 4, async (img: any) => {
       const imageUrl = img.original || img.thumbnail || "";
       const analyzed = await analyzeImage(imageUrl);
       return { img, imageUrl, analyzed };

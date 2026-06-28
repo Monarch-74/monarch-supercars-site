@@ -784,6 +784,15 @@
           + Ajouter une étape
         </button>
 
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" onclick="saveTemplate()" class="btn secondary" style="flex:1;">
+            💾 Sauvegarder ces étapes
+          </button>
+          <select id="templateSelect" onchange="loadTemplate(this.value)" style="flex:2;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;">
+            <option value="">📂 Charger un template sauvegardé...</option>
+          </select>
+        </div>
+
         <div class="separator"></div>
 
         <h3>Arrivée</h3>
@@ -937,6 +946,90 @@
   function removeEtape(btn) {
     btn.closest('.etape-block').remove();
   }
+
+  function getTemplates() {
+    try { return JSON.parse(localStorage.getItem('monarch_rt_templates') || '[]'); } catch(e) { return []; }
+  }
+
+  function saveTemplates(tpls) {
+    localStorage.setItem('monarch_rt_templates', JSON.stringify(tpls));
+  }
+
+  function refreshTemplateSelect() {
+    const sel = document.getElementById('templateSelect');
+    if (!sel) return;
+    const tpls = getTemplates();
+    sel.innerHTML = '<option value="">📂 Charger un template sauvegardé...</option>';
+    tpls.forEach(function(t, i) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = t.name;
+      sel.appendChild(opt);
+    });
+    if (tpls.length > 0) {
+      const del = document.createElement('option');
+      del.value = '__delete__';
+      del.textContent = '🗑 Supprimer un template...';
+      sel.appendChild(del);
+    }
+  }
+
+  function saveTemplate() {
+    const blocs = document.querySelectorAll('.etape-block');
+    if (blocs.length === 0) { alert('Ajoutez d\'abord des étapes avant de sauvegarder.'); return; }
+    const name = prompt('Nom de ce template de road trip :', 'DreamCarsDay 5 juillet');
+    if (!name) return;
+    const etapes = [];
+    blocs.forEach(function(b) {
+      etapes.push({
+        lieu: b.querySelector('[name="etape_lieu"]').value,
+        address: b.querySelector('[name="etape_address"]').value,
+        type: b.querySelector('[name="etape_type"]').value,
+        time: b.querySelector('[name="etape_time"]').value
+      });
+    });
+    const tpls = getTemplates();
+    tpls.push({ name: name, etapes: etapes });
+    saveTemplates(tpls);
+    refreshTemplateSelect();
+    alert('Template "' + name + '" sauvegardé !');
+  }
+
+  function loadTemplate(val) {
+    if (!val || val === '__delete__') {
+      if (val === '__delete__') {
+        const tpls = getTemplates();
+        const names = tpls.map(function(t, i) { return i + ': ' + t.name; }).join('\n');
+        const idx = parseInt(prompt('Numéro du template à supprimer :\n' + names), 10);
+        if (!isNaN(idx) && idx >= 0 && idx < tpls.length) {
+          tpls.splice(idx, 1);
+          saveTemplates(tpls);
+          refreshTemplateSelect();
+          alert('Template supprimé.');
+        }
+      }
+      document.getElementById('templateSelect').value = '';
+      return;
+    }
+    const tpls = getTemplates();
+    const tpl = tpls[parseInt(val, 10)];
+    if (!tpl) return;
+    document.getElementById('etapesContainer').innerHTML = '';
+    etapeCount = 0;
+    tpl.etapes.forEach(function(e) {
+      addEtape();
+      const blocs = document.querySelectorAll('.etape-block');
+      const last = blocs[blocs.length - 1];
+      last.querySelector('[name="etape_lieu"]').value = e.lieu || '';
+      last.querySelector('[name="etape_address"]').value = e.address || '';
+      last.querySelector('[name="etape_type"]').value = e.type || '';
+      last.querySelector('[name="etape_time"]').value = e.time || '';
+    });
+    document.getElementById('templateSelect').value = '';
+    alert('Template "' + tpl.name + '" chargé !');
+  }
+
+  document.addEventListener('DOMContentLoaded', refreshTemplateSelect);
 
   let lastRoadtripData = null;
   let lastAiSummary = "";
