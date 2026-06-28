@@ -1570,28 +1570,34 @@
         ? json.stops.map(function(stop) { return Object.assign({}, stop, { status: "pending" }); })
         : (lastAiSummary ? extractStopsFromSummary(lastAiSummary) : []);
 
-      // Les étapes saisies par l'utilisateur sont pré-validées et affichées en premier
-      const userStops = etapes.map(function(e) {
+      // Utiliser les étapes enrichies par l'edge function (avec vraies photos Google Places)
+      const enriched = Array.isArray(json.user_etapes) ? json.user_etapes : [];
+      const userStops = enriched.map(function(e) {
         var t = (e.type || '').toLowerCase();
         var type = t.includes('restaurant') || t.includes('déjeuner') || t.includes('café') || t.includes('repas') ? 'restaurant'
                  : t.includes('hôtel') || t.includes('hotel') ? 'hotel'
                  : t.includes('musée') || t.includes('musee') ? 'museum'
                  : 'activity';
         return {
-          name: e.lieu + (e.time ? ' — ' + e.time : ''),
+          name: (e.lieu || 'Étape') + (e.time ? ' — ' + e.time : ''),
           type: type,
-          address: e.address,
+          address: e.address || '',
           reason: e.type || 'Étape personnalisée',
-          rating: '',
+          rating: e.rating || '',
           contact: '',
           phone: '',
           website: '',
-          image_url: '',
+          image_url: e.image_url || '',
           status: "validated"
         };
       });
 
-      proposalStops = userStops.concat(aiStops);
+      // Fallback : si pas d'étapes enrichies, utiliser les étapes brutes
+      const fallbackStops = userStops.length === 0 ? etapes.map(function(e) {
+        return { name: (e.lieu || 'Étape') + (e.time ? ' — ' + e.time : ''), type: 'activity', address: e.address || '', reason: e.type || '', rating: '', contact: '', phone: '', website: '', image_url: '', status: "validated" };
+      }) : [];
+
+      proposalStops = (userStops.length > 0 ? userStops : fallbackStops).concat(aiStops);
 
       googleMapsUrl = json.google_maps_url || buildMapsUrl(startFull, endFull);
       wazeUrl = json.waze_url || buildWazeUrl(endFull);

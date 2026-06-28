@@ -102,6 +102,33 @@ async function saveEtapesToCatalog(
   }
 }
 
+async function fetchPlacePhoto(query: string, country: string): Promise<{ imageUrl: string | null; realAddress: string | null; rating: string | null }> {
+  const apiKey = (Deno.env.get("GOOGLE_MAPS_API_KEY") ?? "").trim();
+  if (!apiKey || !query) return { imageUrl: null, realAddress: null, rating: null };
+  try {
+    const searchQuery = [query, country].filter(Boolean).join(" ");
+    const url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" +
+      encodeURIComponent(searchQuery) + "&language=fr&key=" + apiKey;
+    const res = await fetch(url);
+    const data = await res.json();
+    const place = data.results?.[0];
+    if (!place) return { imageUrl: null, realAddress: null, rating: null };
+    let imageUrl: string | null = null;
+    if (place.photos?.[0]?.photo_reference) {
+      imageUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=" +
+        encodeURIComponent(place.photos[0].photo_reference) + "&key=" + apiKey;
+    }
+    return {
+      imageUrl,
+      realAddress: place.formatted_address || null,
+      rating: place.rating ? String(place.rating) : null,
+    };
+  } catch (e) {
+    console.log("PLACE PHOTO ERROR:", e);
+    return { imageUrl: null, realAddress: null, rating: null };
+  }
+}
+
 async function googlePlacesSearch(query: string): Promise<any[]> {
   const apiKey = (Deno.env.get("GOOGLE_MAPS_API_KEY") ?? "").trim();
 
@@ -302,15 +329,30 @@ Retourne uniquement un JSON valide au format :
       }
     }
 
+    // Enrichir les étapes utilisateur avec les vraies photos Google Places
+    const userEtapes = Array.isArray(body.etapes) ? body.etapes : [];
+    const enrichedUserEtapes = await Promise.all(
+      userEtapes.map(async (e: any) => {
+        const query = [e.lieu, e.address].filter(Boolean).join(" ");
+        const country = body.start_country || body.end_country || "";
+        const photo = query ? await fetchPlacePhoto(query, country) : { imageUrl: null, realAddress: null, rating: null };
+        return {
+          lieu: e.lieu || "",
+          address: photo.realAddress || e.address || "",
+          type: e.type || "",
+          time: e.time || "",
+          image_url: photo.imageUrl,
+          rating: photo.rating,
+        };
+      })
+    );
+
     return jsonResponse({
       summary: parsed.summary || "",
       stops: parsed.stops || [],
+      user_etapes: enrichedUserEtapes,
       google_maps_url: googleMapsUrl,
       waze_url: wazeUrl,
-      scenic,
-      museums,
-      restaurants,
-      hotels,
     });
   } catch (error) {
     console.log("AI ROADTRIP ERROR:", error);
