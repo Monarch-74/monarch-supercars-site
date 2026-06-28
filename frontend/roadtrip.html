@@ -1516,18 +1516,32 @@
         throw new Error("Roadbook vide.");
       }
 
-      proposalStops = Array.isArray(json.stops)
-        ? json.stops.map(function(stop) {
-            return {
-              ...stop,
-              status: "pending"
-            };
-          })
-        : [];
+      const aiStops = Array.isArray(json.stops)
+        ? json.stops.map(function(stop) { return Object.assign({}, stop, { status: "pending" }); })
+        : (lastAiSummary ? extractStopsFromSummary(lastAiSummary) : []);
 
-      if (proposalStops.length === 0 && lastAiSummary) {
-        proposalStops = extractStopsFromSummary(lastAiSummary);
-      }
+      // Les étapes saisies par l'utilisateur sont pré-validées et affichées en premier
+      const userStops = etapes.map(function(e) {
+        var t = (e.type || '').toLowerCase();
+        var type = t.includes('restaurant') || t.includes('déjeuner') || t.includes('café') || t.includes('repas') ? 'restaurant'
+                 : t.includes('hôtel') || t.includes('hotel') ? 'hotel'
+                 : t.includes('musée') || t.includes('musee') ? 'museum'
+                 : 'activity';
+        return {
+          name: e.lieu + (e.time ? ' — ' + e.time : ''),
+          type: type,
+          address: e.address,
+          reason: e.type || 'Étape personnalisée',
+          rating: '',
+          contact: '',
+          phone: '',
+          website: '',
+          image_url: '',
+          status: "validated"
+        };
+      });
+
+      proposalStops = userStops.concat(aiStops);
 
       googleMapsUrl = json.google_maps_url || buildMapsUrl(startFull, endFull);
       wazeUrl = json.waze_url || buildWazeUrl(endFull);
