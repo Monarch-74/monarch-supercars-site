@@ -211,8 +211,16 @@ function formatEventDate(value) {
 
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(d)) return d;
 
-  var parsed = new Date(d);
+  // Affiche "mois YYYY" quand seul le mois est connu (ex : "01/03/2026" issu du parsing mois+année)
+  // → on affiche "Mars 2026" plutôt que "01/03/2026"
+  var matchMonthOnly = d.match(/^01\/(\d{2})\/(\d{4})$/);
+  if (matchMonthOnly) {
+    var moisNoms = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+    var m = parseInt(matchMonthOnly[1], 10) - 1;
+    if (m >= 0 && m < 12) return moisNoms[m] + " " + matchMonthOnly[2];
+  }
 
+  var parsed = new Date(d);
   if (!isNaN(parsed.getTime())) {
     return parsed.toLocaleDateString("fr-FR");
   }
@@ -223,17 +231,47 @@ function formatEventDate(value) {
 function getEventTimestamp(value) {
   if (!value) return 9999999999999;
 
-  var d = String(value).trim();
+  var d = String(value).trim().toLowerCase();
 
+  // DD/MM/YYYY
   var matchFr = d.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (matchFr) {
-    return new Date(
-      Number(matchFr[3]),
-      Number(matchFr[2]) - 1,
-      Number(matchFr[1])
-    ).getTime();
+    return new Date(Number(matchFr[3]), Number(matchFr[2]) - 1, Number(matchFr[1])).getTime();
   }
 
+  var MOIS = {
+    // FR complet + abréviations
+    "janvier":0,"février":1,"fevrier":1,"mars":2,"avril":3,"mai":4,"juin":5,
+    "juillet":6,"août":7,"aout":7,"septembre":8,"octobre":9,"novembre":10,"décembre":11,"decembre":11,
+    "janv":0,"jan":0,"févr":1,"fév":1,"fevr":1,"fev":1,"avr":3,
+    "juil":6,"jul":6,"aoû":7,"aou":7,"sept":8,"sep":8,"oct":9,"nov":10,"déc":11,"dec":11,
+    // DE (Suisse alémanique, Allemagne)
+    "januar":0,"februar":1,"marz":2,"mrz":2,"juni":5,"jun":5,"juli":6,"august":7,"aug":7,
+    "oktober":9,"okt":9,"dezember":11,"dez":11,
+    // IT (Tessin, Italie, Val d'Aoste)
+    "gennaio":0,"gen":0,"febbraio":1,"feb":1,"marzo":2,"mar":2,"aprile":3,"apr":3,
+    "maggio":4,"mag":4,"giugno":5,"giu":5,"luglio":6,"lug":6,"agosto":7,"ago":7,
+    "settembre":8,"set":8,"ottobre":9,"ott":9,"dicembre":11,"dic":11,
+    // EN
+    "january":0,"february":1,"march":2,"april":3,"may":4,"june":5,
+    "july":6,"august":7,"september":8,"october":9,"november":10,"december":11
+  };
+  // Supprime les points d'abréviation : "déc." → "déc", "Dez." → "Dez"
+  d = d.replace(/\b([a-zäöüéèêàâùûôîïœçß]+)\./g, "$1");
+  // Remplace aussi le format numérique avec points "13.12.2025" → "13/12/2025"
+  d = d.replace(/(\d{1,2})\.(\d{1,2})\.(\d{4})/g, "$1/$2/$3");
+  // Jour + mois sans année : "20 juin", "samedi 20 juin prochain" → année courante
+  var matchDayMonth = d.match(/\b(\d{1,2})\s+([a-zéûôàâêîèäù]{3,})\b(?!\s*\d{4})/);
+  if (matchDayMonth && MOIS[matchDayMonth[2]] !== undefined) {
+    return new Date(new Date().getFullYear(), MOIS[matchDayMonth[2]], Number(matchDayMonth[1])).getTime();
+  }
+  // Mois + année sans jour : "mars 2026", "march 2026", "mars-avril 2026"
+  var matchMonthYear = d.match(/\b([a-zéùûôàâêîèä]+)(?:\s*[-\/]\s*[a-zéùûôàâêîèä]+)?\s+(\d{4})\b/);
+  if (matchMonthYear && MOIS[matchMonthYear[1]] !== undefined) {
+    return new Date(Number(matchMonthYear[2]), MOIS[matchMonthYear[1]], 1).getTime();
+  }
+
+  // ISO ou autre format reconnu par Date()
   var parsed = new Date(d);
   if (!isNaN(parsed.getTime())) return parsed.getTime();
 
@@ -302,16 +340,77 @@ function injectEventsJsonLd(events) {
   });
 }
 
+function initFeaturedEvents() {
+  var container = el("featuredEventsResults");
+  if (!container || !supabaseClient) return;
+
+  requireLogin(container).then(function (allowed) {
+    if (!allowed) return;
+
+    container.innerHTML = '<div class="notice">Chargement de la sélection…</div>';
+    var todayIso = new Date().toISOString().slice(0, 10);
+
+    supabaseClient
+      .from("events")
+      .select("*")
+      .eq("status", "approved")
+      .eq("is_featured", true)
+      .gte("event_date", todayIso)
+      .order("event_date", { ascending: true })
+      .limit(200)
+      .then(function (res) {
+        var data = res.data || [];
+
+        if (res.error || !data.length) {
+          container.innerHTML = '<div class="notice muted">Aucun événement en sélection pour le moment. Revenez bientôt !</div>';
+          return;
+        }
+
+        var html = "";
+        data.forEach(function (ev) {
+          html += '<div class="event-card">';
+          if (ev.poster_url) {
+            html += '<img class="poster" src="' + escapeHtml(ev.poster_url) + '" alt="' + escapeHtml(ev.title || "") + '" />';
+          }
+          html += '<h3>' + escapeHtml(ev.title || "Événement automobile") + '</h3>';
+          if (ev.description) {
+            html += '<p>' + escapeHtml(ev.description).replaceAll("\n", "<br>") + '</p>';
+          }
+          html += '<p class="event-meta"><strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || ev.address || "-") + '</p>';
+          html += '<p class="event-meta"><strong>Date :</strong> ' + formatEventDate(ev.event_date) + '</p>';
+          if (ev.department) {
+            html += '<p class="event-meta"><strong>Département :</strong> ' + escapeHtml(ev.department) + '</p>';
+          }
+          if (ev.external_url) {
+            html += '<a class="event-link" target="_blank" rel="noopener" href="' + escapeHtml(ev.external_url) + '">Plus d\'informations</a>';
+          }
+          html += '</div>';
+        });
+
+        container.className = "";
+        container.innerHTML = html;
+      })
+      .catch(function () {
+        container.className = "notice error";
+        container.innerHTML = "Impossible de charger la sélection.";
+      });
+  });
+}
+
 function initCommunityEvents() {
   var container = el("communityEventsResults");
 
   if (!container || !supabaseClient) return;
 
+  var todayIso = new Date().toISOString().slice(0, 10);
+
   supabaseClient
     .from("events")
     .select("*")
     .eq("status", "approved")
+    .gte("event_date", todayIso)
     .order("event_date", { ascending: true })
+    .limit(500)
     .then(function (res) {
       var data = res.data || [];
 
@@ -389,6 +488,19 @@ function initEventSearch() {
       .then(function (data) {
         var events = data.events || [];
 
+        // Filtre côté client : exclure les événements dont la date est antérieure à aujourd'hui
+        var todayTs = (function () {
+          var d = new Date();
+          d.setHours(0, 0, 0, 0);
+          return d.getTime();
+        })();
+
+        events = events.filter(function (ev) {
+          var ts = getEventTimestamp(ev.event_date);
+          // 9999999999999 = date absente ou non parseable → on conserve
+          return ts === 9999999999999 || ts >= todayTs;
+        });
+
         if (events.length === 0) {
           results.innerHTML =
             '<div class="notice warning">Aucun événement trouvé.</div>';
@@ -459,8 +571,10 @@ function initEventSearch() {
       })
       .catch(function (err) {
         console.error(err);
-        results.innerHTML =
-          '<div class="notice error">' + escapeHtml(err.message) + '</div>';
+        var msg = (err.message || "").includes("manquante")
+          ? "La recherche IA est temporairement indisponible. Réessayez plus tard."
+          : escapeHtml(err.message || "Erreur inattendue.");
+        results.innerHTML = '<div class="notice error">' + msg + '</div>';
       });
     });
   });
@@ -831,10 +945,95 @@ function initTranslate() {
   }
 }
 
+// ── Menu hamburger mobile (overlay séparé du header pour compatibilité backdrop-filter) ──
+function initMobileMenu() {
+  var toggle = document.querySelector(".menu-toggle");
+  var header = document.querySelector("header");
+  if (!toggle || !header) return;
+
+  var overlay = null;
+
+  function buildOverlay() {
+    // Clone nav links
+    var navEl = header.querySelector("nav");
+    var authEl = header.querySelector(".auth-links");
+
+    overlay = document.createElement("div");
+    overlay.className = "mob-menu-overlay";
+    overlay.innerHTML =
+      '<div class="mob-menu-panel">' +
+        '<div class="mob-nav"></div>' +
+        '<div class="mob-auth"></div>' +
+      '</div>' +
+      '<div class="mob-menu-backdrop"></div>';
+
+    // Copie les liens nav
+    if (navEl) {
+      var navPanel = overlay.querySelector(".mob-nav");
+      navEl.querySelectorAll("a").forEach(function (a) {
+        var clone = a.cloneNode(true);
+        clone.addEventListener("click", closeMenu);
+        navPanel.appendChild(clone);
+      });
+      // Boutons dans nav (ex: admin soundToggle, logoutAdmin)
+      navEl.querySelectorAll("button").forEach(function (btn) {
+        var clone = btn.cloneNode(true);
+        navPanel.appendChild(clone);
+      });
+    }
+
+    // Copie les auth-links
+    if (authEl) {
+      var authPanel = overlay.querySelector(".mob-auth");
+      authEl.childNodes.forEach(function (node) {
+        authPanel.appendChild(node.cloneNode(true));
+      });
+    }
+
+    document.body.appendChild(overlay);
+
+    // Ferme au clic sur le fond
+    overlay.querySelector(".mob-menu-backdrop").addEventListener("click", closeMenu);
+  }
+
+  function openMenu() {
+    if (!overlay) buildOverlay();
+    var hRect = header.getBoundingClientRect();
+    document.documentElement.style.setProperty("--mob-header-h", hRect.bottom + "px");
+    overlay.classList.add("open");
+    toggle.textContent = "✕";
+    toggle.setAttribute("aria-expanded", "true");
+    // Calcule la position du fond après que le panel est rendu
+    requestAnimationFrame(function () {
+      var panel = overlay.querySelector(".mob-menu-panel");
+      if (panel) {
+        var pb = panel.getBoundingClientRect().bottom;
+        document.documentElement.style.setProperty("--mob-panel-bottom", pb + "px");
+      }
+    });
+  }
+
+  function closeMenu() {
+    if (overlay) overlay.classList.remove("open");
+    toggle.textContent = "☰";
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", function () {
+    if (overlay && overlay.classList.contains("open")) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initAudioControl();
   initCookieBanner();
   initRegionSelectors();
+  initMobileMenu();
+  initFeaturedEvents();
   initCommunityEvents();
   initEventSearch();
   initRegister();

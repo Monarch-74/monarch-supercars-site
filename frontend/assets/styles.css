@@ -154,3 +154,117 @@ small, .muted{color:var(--muted)}
 }
 .lang-option:hover{background:rgba(212,175,55,.12);color:var(--gold)}
 .lang-option.active{background:rgba(212,175,55,.18);color:var(--gold);font-weight:600}
+
+/* ── Menu hamburger mobile ── */
+.menu-toggle{
+  display:none;
+  background:transparent;
+  border:1px solid var(--gold);
+  border-radius:8px;
+  color:#fff;
+  font-size:1.4rem;
+  padding:5px 11px;
+  cursor:pointer;
+  flex-shrink:0;
+  line-height:1;
+  align-items:center;
+  justify-content:center;
+  transition:background .2s;
+}
+.menu-toggle:hover{background:rgba(212,175,55,.12)}
+
+@media(max-width:768px){
+  /* ── Barre header : toujours une seule ligne compacte ── */
+  header{
+    flex-wrap:nowrap !important;
+    padding:10px 14px !important;
+    gap:0 !important;
+    align-items:center !important;
+    position:sticky !important;
+    top:0 !important;
+    z-index:200 !important;
+  }
+  header .brand{flex:1;min-width:0;gap:10px !important}
+  header .logo,header img.logo{
+    width:46px !important;height:46px !important;min-width:46px;
+  }
+  header .brand h1{font-size:.72rem !important;letter-spacing:.08em !important;margin:0 !important}
+  header .brand small{display:none}
+  .menu-toggle{display:flex !important}
+  header nav,header .auth-links{display:none !important}
+
+  /* ── Overlay mobile : div séparé injecté dans <body> par JS ──
+     Hors du header → pas de conflit avec backdrop-filter              */
+  .mob-menu-overlay{
+    display:none;
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    z-index:199;
+    pointer-events:none;
+  }
+  .mob-menu-overlay.open{display:block}
+
+  .mob-menu-panel{
+    position:absolute;
+    top:var(--mob-header-h,68px);
+    left:0;right:0;
+    background:rgba(5,5,5,.98);
+    border-bottom:2px solid var(--gold);
+    box-shadow:0 8px 28px rgba(0,0,0,.6);
+    pointer-events:all;
+    padding:10px 14px 12px;
+  }
+
+  /* Grille nav 3 colonnes */
+  .mob-menu-panel .mob-nav{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:5px;
+    margin-bottom:8px;
+  }
+  .mob-menu-panel .mob-nav a{
+    display:block;
+    padding:9px 4px;
+    text-align:center;
+    font-size:.82rem;
+    color:#fff;
+    border:1px solid transparent;
+    border-radius:8px;
+    text-decoration:none;
+  }
+  .mob-menu-panel .mob-nav a:hover,
+  .mob-menu-panel .mob-nav a.active{
+    border-color:var(--gold);
+    color:var(--gold);
+    background:rgba(212,175,55,.1);
+  }
+
+  /* Auth-links compacts */
+  .mob-menu-panel .mob-auth{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    padding-top:8px;
+    border-top:1px solid var(--border);
+    align-items:center;
+  }
+  .mob-menu-panel .mob-auth .btn,
+  .mob-menu-panel .mob-auth a.btn{
+    flex:1;min-width:100px;
+    text-align:center;
+    padding:8px !important;
+    font-size:.82rem !important;
+  }
+  .mob-menu-panel .mob-auth .lang-select{flex:1 1 100%;order:-1}
+  .mob-menu-panel .mob-auth .lang-current{width:100%;font-size:.82rem;padding:7px 10px}
+  .mob-menu-panel .mob-auth #soundToggle{flex:0 0 auto;padding:7px 10px !important}
+
+  /* Fond semi-transparent cliquable pour fermer */
+  .mob-menu-backdrop{
+    position:absolute;
+    top:var(--mob-panel-bottom,180px);
+    left:0;right:0;bottom:0;
+    background:rgba(0,0,0,.45);
+    pointer-events:all;
+  }
+}

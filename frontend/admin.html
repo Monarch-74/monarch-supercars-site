@@ -251,6 +251,21 @@
         grid-template-columns:1fr;
       }
     }
+    .panel-hint{margin-top:0;font-size:.9rem}
+    .poster-preview{display:none;margin-top:10px}
+    .poster-preview img{max-width:200px;border-radius:10px;border:1px solid #333}
+    .featured-checkbox{display:flex;align-items:center;gap:10px;margin-top:16px;cursor:pointer}
+    .featured-checkbox input{width:auto}
+    .form-submit-row{margin-top:18px}
+    .event-result{margin-top:14px}
+    .member-search-bar{margin-bottom:12px}
+    .member-search-input{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0d0d0d;color:#fff;font-size:.9rem;box-sizing:border-box}
+    .member-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;border-bottom:1px solid #222}
+    .member-email{font-weight:700;color:#d4af37;flex:2;min-width:180px}
+    .member-name{flex:1;min-width:120px;color:#ddd}
+    .member-date{font-size:.82rem;color:#888;flex:1;min-width:100px}
+    .member-role{font-size:.78rem;padding:3px 8px;border-radius:999px;border:1px solid #444;color:#aaa}
+    .member-role.admin{border-color:#d4af37;color:#d4af37}
   </style>
 </head>
 
@@ -277,8 +292,9 @@
     <a href="admin.html" class="active">Admin</a>
 
     <button id="soundToggle" class="btn secondary">🔊</button>
-    <button onclick="logoutAdmin()" class="btn danger">Déconnexion</button>
+    <button type="button" onclick="logoutAdmin()" class="btn danger">Déconnexion</button>
   </nav>
+  <button type="button" class="menu-toggle" aria-label="Menu" aria-expanded="false" >☰</button>
 </header>
 
 <main class="container">
@@ -357,15 +373,87 @@
 
     <div class="tabs">
       <button class="tab-btn active" onclick="showPanel('partnersPanel', this)">Partenaires</button>
-      <button class="tab-btn" onclick="showPanel('messagesPanel', this)">Messages</button>
-      <button class="tab-btn" onclick="showPanel('approvedPanel', this)">Validés</button>
-      <button class="tab-btn" onclick="showPanel('rejectedPanel', this)">Refusés</button>
       <button class="tab-btn" onclick="showPanel('eventsPanel', this)">Événements</button>
+      <button class="tab-btn" onclick="showPanel('publishEventPanel', this)">+ Publier un événement</button>
+      <button class="tab-btn" onclick="showPanel('membersPanel', this)">👥 Membres</button>
+      <button class="tab-btn" onclick="showPanel('messagesPanel', this)">Messages</button>
     </div>
 
     <div id="partnersPanel" class="panel active">
-      <h3>Demandes partenaires en attente</h3>
+      <h3>Partenaires en attente</h3>
       <div id="partnerRequestsList" class="notice">Chargement...</div>
+
+      <h3 class="section-spaced">Partenaires validés</h3>
+      <p class="muted panel-hint">Cliquez sur <strong>⏸ Retirer</strong> pour dépublier un partenaire sans le supprimer.</p>
+      <div id="approvedPartnersList" class="notice">Chargement...</div>
+
+      <h3 class="section-spaced">Partenaires refusés / retirés</h3>
+      <p class="muted panel-hint">Re-publiez un partenaire ou supprimez-le définitivement.</p>
+      <div id="inactivePartnersList" class="notice">Chargement...</div>
+    </div>
+
+    <div id="publishEventPanel" class="panel">
+      <h3>Publier un événement</h3>
+      <p class="muted panel-hint">L'événement sera publié immédiatement et visible par tous les membres connectés.</p>
+
+      <form id="adminEventForm">
+        <label>Titre *</label>
+        <input name="title" required placeholder="Ex : Cars & Coffee Savoie" />
+
+        <label>Pays *</label>
+        <select name="country" required>
+          <option value="France">France</option>
+          <option value="Belgique">Belgique</option>
+          <option value="Suisse">Suisse</option>
+          <option value="Allemagne">Allemagne</option>
+          <option value="Italie">Italie</option>
+        </select>
+
+        <label>Département / Région *</label>
+        <input name="department" required placeholder="Ex : 73 - Savoie" />
+
+        <label>Lieu</label>
+        <input name="venue_name" placeholder="Ex : Château de Coppet" />
+
+        <label>Adresse</label>
+        <input name="address" placeholder="Ex : 41 Boulevard Ampère, 38230 Tignieu" />
+
+        <label>Date *</label>
+        <input name="event_date" type="date" required />
+
+        <label>Description</label>
+        <textarea name="description" placeholder="Détails de l'événement..."></textarea>
+
+        <label>Lien externe (billetterie, Facebook, site…)</label>
+        <input name="external_url" type="url" placeholder="https://..." />
+
+        <label>Affiche (image)</label>
+        <input name="poster_file" type="file" accept="image/*" />
+        <div id="posterPreview" class="poster-preview">
+          <img id="posterPreviewImg" alt="Aperçu affiche" />
+        </div>
+
+        <label class="featured-checkbox">
+          <input name="is_featured" type="checkbox" />
+          Ajouter à la Sélection MONARCH (✦)
+        </label>
+
+        <div class="form-submit-row">
+          <button type="submit" class="btn primary">Publier l'événement</button>
+        </div>
+      </form>
+
+      <div id="adminEventResult" class="event-result"></div>
+    </div>
+
+    <div id="membersPanel" class="panel">
+      <h3>Membres inscrits</h3>
+      <p class="muted panel-hint">Liste complète des comptes créés — email, nom, date d'inscription, dernière connexion.</p>
+      <div class="member-search-bar">
+        <input type="search" id="memberSearchInput" placeholder="Rechercher par email ou nom…"
+          class="member-search-input" oninput="filterMembers(this.value)" />
+      </div>
+      <div id="membersList" class="notice">Chargement...</div>
     </div>
 
     <div id="messagesPanel" class="panel">
@@ -373,24 +461,16 @@
       <div id="messagesList" class="notice">Chargement...</div>
     </div>
 
-    <div id="approvedPanel" class="panel">
-      <h3>Partenaires validés</h3>
-      <div id="approvedPartnersList" class="notice">Chargement...</div>
-    </div>
-
-    <div id="rejectedPanel" class="panel">
-      <h3>Demandes refusées</h3>
-      <div id="rejectedPartnersList" class="notice">Chargement...</div>
-    </div>
-
     <div id="eventsPanel" class="panel">
       <h3>Événements en attente de validation</h3>
       <div id="pendingEventsList" class="notice">Chargement...</div>
 
       <h3 class="section-spaced">Événements validés</h3>
+      <p class="muted panel-hint">Cliquez sur <strong>⏸ Retirer</strong> pour archiver sans supprimer.</p>
       <div id="approvedEventsList" class="notice">Chargement...</div>
 
-      <h3 class="section-spaced">Événements refusés</h3>
+      <h3 class="section-spaced">Événements refusés / retirés</h3>
+      <p class="muted panel-hint">Re-publiez ou supprimez définitivement.</p>
       <div id="rejectedEventsList" class="notice">Chargement...</div>
     </div>
 
@@ -527,17 +607,25 @@ function partnerCard(item, mode) {
   if (mode === "pending") {
     buttons = `
       <button class="btn primary" onclick="updatePartnerStatus('${item.id}', 'approved')">
-        Valider
+        ✔ Publier
       </button>
-
       <button class="btn danger" onclick="updatePartnerStatus('${item.id}', 'rejected')">
-        Refuser
+        ✖ Refuser
       </button>
     `;
   } else if (mode === "approved") {
     buttons = `
-      <button class="btn danger" onclick="removePartner('${item.id}')">
-        Retirer
+      <button class="btn danger" onclick="updatePartnerStatus('${item.id}', 'inactive')">
+        ⏸ Retirer
+      </button>
+    `;
+  } else if (mode === "rejected" || mode === "inactive") {
+    buttons = `
+      <button class="btn primary" onclick="updatePartnerStatus('${item.id}', 'approved')">
+        ↩ Re-publier
+      </button>
+      <button class="btn danger" onclick="deletePartner('${item.id}')">
+        🗑 Supprimer
       </button>
     `;
   }
@@ -622,32 +710,28 @@ async function loadApprovedPartners() {
   list.innerHTML = data.map(item => partnerCard(item, "approved")).join("");
 }
 
-async function loadRejectedPartners() {
-
+async function loadInactivePartners() {
   const client = getClient();
-
   const { data, error } = await client
     .from("partners")
     .select("*")
-    .eq("status", "rejected")
-    .order("created_at", { ascending:false });
+    .in("status", ["rejected", "inactive"])
+    .order("created_at", { ascending: false });
 
-  const list = document.getElementById("rejectedPartnersList");
+  const list = document.getElementById("inactivePartnersList");
+  if (!list) return;
 
-  if (error) {
-    list.innerHTML = error.message;
-    return;
-  }
+  if (error) { list.innerHTML = error.message; return; }
 
   document.getElementById("rejectedPartnersCount").textContent = data.length;
 
   if (!data.length) {
-    list.innerHTML = "Aucune demande refusée.";
+    list.innerHTML = "Aucun partenaire dépublié ou refusé.";
     return;
   }
 
   list.className = "";
-  list.innerHTML = data.map(item => partnerCard(item, "rejected")).join("");
+  list.innerHTML = data.map(item => partnerCard(item, item.status === "inactive" ? "inactive" : "rejected")).join("");
 }
 
 async function updatePartnerStatus(id, status) {
@@ -672,23 +756,16 @@ async function updatePartnerStatus(id, status) {
   }
 }
 
-async function removePartner(id) {
-
-  if (!confirm("Retirer ce partenaire de la page Partenaires ?")) return;
-
+async function deletePartner(id) {
+  if (!confirm("Supprimer définitivement ce partenaire ? Cette action est irréversible.")) return;
   try {
-    await callAdminEdge("admin-update-status", {
-      target_type: "partner",
-      id: id,
-      status: "rejected"
-    });
-
-    alert("Partenaire retiré.");
-
+    const client = getClient();
+    const { error } = await client.from("partners").delete().eq("id", id);
+    if (error) throw error;
+    alert("Partenaire supprimé définitivement.");
     await loadAll();
-
   } catch (err) {
-    alert(err.message);
+    alert("Erreur : " + err.message);
   }
 }
 
@@ -745,16 +822,41 @@ function eventCard(item, mode) {
     ? `<img class="partner-logo" src="${escapeHtml(item.poster_url)}">`
     : "";
 
-  const buttons = mode === "pending"
-    ? `
+  let buttons = "";
+  if (mode === "pending") {
+    buttons = `
       <button class="btn primary" onclick="updateEventStatus('${item.id}', 'approved')">
-        Valider
+        ✔ Publier
       </button>
-
       <button class="btn danger" onclick="updateEventStatus('${item.id}', 'rejected')">
-        Refuser
+        ✖ Refuser
       </button>
-    `
+    `;
+  } else if (mode === "approved") {
+    buttons = `
+      <button class="btn danger" onclick="updateEventStatus('${item.id}', 'archived')">
+        ⏸ Retirer
+      </button>
+    `;
+  } else if (mode === "rejected" || mode === "archived") {
+    buttons = `
+      <button class="btn primary" onclick="updateEventStatus('${item.id}', 'approved')">
+        ↩ Re-publier
+      </button>
+      <button class="btn danger" onclick="deleteEvent('${item.id}')">
+        🗑 Supprimer
+      </button>
+    `;
+  }
+
+  const featuredLabel = item.is_featured
+    ? `<span style="color:#d4af37;font-weight:700;">✦ Sélection MONARCH</span>`
+    : "";
+
+  const featuredBtn = mode !== "pending"
+    ? `<button type="button" class="btn ${item.is_featured ? 'danger' : 'secondary'}" onclick="toggleFeatured('${item.id}', ${item.is_featured})">
+        ${item.is_featured ? '✦ Retirer de la sélection' : '✦ Ajouter à la sélection MONARCH'}
+      </button>`
     : "";
 
   return `
@@ -762,7 +864,7 @@ function eventCard(item, mode) {
 
       ${poster}
 
-      <h4>${escapeHtml(item.title || "")}</h4>
+      <h4>${escapeHtml(item.title || "")} ${featuredLabel}</h4>
 
       <p><strong>Lieu :</strong> ${escapeHtml(item.venue_name || "")}, ${escapeHtml(item.address || "")}</p>
 
@@ -776,6 +878,7 @@ function eventCard(item, mode) {
       ${escapeHtml(item.description || "").replaceAll("\n", "<br>")}</p>
 
       ${buttons}
+      ${featuredBtn}
 
     </div>
   `;
@@ -788,7 +891,7 @@ async function loadPendingEvents() {
   const { data, error } = await client
     .from("events")
     .select("*")
-    .in("status", ["pending_review", "paid"])
+    .in("status", ["draft", "pending_review", "paid"])
     .order("created_at", { ascending:false });
 
   const list = document.getElementById("pendingEventsList");
@@ -836,29 +939,25 @@ async function loadApprovedEvents() {
 }
 
 async function loadRejectedEvents() {
-
   const client = getClient();
 
   const { data, error } = await client
     .from("events")
     .select("*")
-    .eq("status", "rejected")
-    .order("created_at", { ascending:false });
+    .in("status", ["rejected", "archived"])
+    .order("created_at", { ascending: false });
 
   const list = document.getElementById("rejectedEventsList");
 
-  if (error) {
-    list.innerHTML = error.message;
-    return;
-  }
+  if (error) { list.innerHTML = error.message; return; }
 
   if (!data.length) {
-    list.innerHTML = "Aucun événement refusé.";
+    list.innerHTML = "Aucun événement dépublié ou refusé.";
     return;
   }
 
   list.className = "";
-  list.innerHTML = data.map(item => eventCard(item, "rejected")).join("");
+  list.innerHTML = data.map(item => eventCard(item, item.status === "archived" ? "archived" : "rejected")).join("");
 }
 
 async function updateEventStatus(id, status) {
@@ -880,6 +979,39 @@ async function updateEventStatus(id, status) {
 
   } catch (err) {
     alert(err.message);
+  }
+}
+
+async function deleteEvent(id) {
+  if (!confirm("Supprimer définitivement cet événement ? Cette action est irréversible.")) return;
+  try {
+    const client = getClient();
+    const { error } = await client.from("events").delete().eq("id", id);
+    if (error) throw error;
+    alert("Événement supprimé définitivement.");
+    await loadAll();
+  } catch (err) {
+    alert("Erreur : " + err.message);
+  }
+}
+
+async function toggleFeatured(id, currentlyFeatured) {
+  try {
+    const client = getClient();
+    const { error } = await client
+      .from("events")
+      .update({ is_featured: !currentlyFeatured })
+      .eq("id", id);
+
+    if (error) throw new Error(error.message);
+
+    alert(currentlyFeatured
+      ? "Événement retiré de la Sélection MONARCH."
+      : "Événement ajouté à la Sélection MONARCH ✦");
+
+    await loadAll();
+  } catch (err) {
+    alert("Erreur : " + err.message);
   }
 }
 
@@ -921,25 +1053,196 @@ async function loadAnalytics() {
   }
 }
 
-async function loadAll() {
+// ── Aperçu affiche avant upload ──
+(function () {
+  const fileInput = document.getElementById ? document.getElementById('adminEventForm') : null;
+  if (!fileInput) return;
+})();
 
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('adminEventForm');
+  if (!form) return;
+
+  // Aperçu de l'image sélectionnée
+  form.querySelector('[name="poster_file"]').addEventListener('change', function () {
+    const file = this.files[0];
+    const preview = document.getElementById('posterPreview');
+    const img = document.getElementById('posterPreviewImg');
+    if (file) {
+      img.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+    }
+  });
+
+  // Soumission du formulaire
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const resultEl = document.getElementById('adminEventResult');
+    const submitBtn = form.querySelector('[type="submit"]');
+    resultEl.className = 'notice';
+    resultEl.textContent = 'Publication en cours…';
+    submitBtn.disabled = true;
+
+    try {
+      const client = getClient();
+      const data = new FormData(form);
+      let posterUrl = null;
+
+      const posterFile = data.get('poster_file');
+      if (posterFile && posterFile.size > 0) {
+        const ext = posterFile.name.split('.').pop();
+        const fileName = Date.now() + '-' + Math.random().toString(36).slice(2) + '.' + ext;
+        const { error: upErr } = await client.storage
+          .from('event-posters')
+          .upload(fileName, posterFile, { upsert: false });
+        if (upErr) throw new Error('Upload affiche : ' + upErr.message);
+        const { data: urlData } = client.storage.from('event-posters').getPublicUrl(fileName);
+        posterUrl = urlData.publicUrl;
+      }
+
+      const { error: insertErr } = await client.from('events').insert({
+        title:        data.get('title'),
+        country:      data.get('country'),
+        department:   data.get('department'),
+        venue_name:   data.get('venue_name') || null,
+        address:      data.get('address') || null,
+        event_date:   data.get('event_date') || null,
+        description:  data.get('description') || null,
+        external_url: data.get('external_url') || null,
+        poster_url:   posterUrl,
+        is_featured:  data.get('is_featured') === 'on',
+        status:       'approved',
+        source_type:  'manual',
+        user_id:      null,
+      });
+
+      if (insertErr) throw new Error(insertErr.message);
+
+      resultEl.className = 'notice success';
+      resultEl.textContent = '✔ Événement publié avec succès.';
+      form.reset();
+      document.getElementById('posterPreview').style.display = 'none';
+      await loadAll();
+
+    } catch (err) {
+      resultEl.className = 'notice error';
+      resultEl.textContent = 'Erreur : ' + err.message;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+});
+
+var allMembers = [];
+
+async function loadMembers() {
+  const list = document.getElementById("membersList");
+  if (!list) return;
+
+  try {
+    const data = await callAdminEdge("admin-dashboard", {});
+    allMembers = data.members || [];
+    renderMembers(allMembers);
+  } catch (err) {
+    list.innerHTML = "Impossible de charger les membres : " + escapeHtml(err.message);
+  }
+}
+
+function renderMembers(members) {
+  const list = document.getElementById("membersList");
+  if (!list) return;
+
+  if (!members.length) {
+    list.innerHTML = "Aucun membre inscrit.";
+    return;
+  }
+
+  list.className = "";
+  list.innerHTML = members.map(function (m) {
+    const dateInscrit = m.created_at ? new Date(m.created_at).toLocaleDateString("fr-FR") : "—";
+    const dateCo = m.last_sign_in ? new Date(m.last_sign_in).toLocaleDateString("fr-FR") : "Jamais";
+    const roleClass = m.role === "admin" ? "member-role admin" : "member-role";
+    return '<div class="member-row">' +
+      '<span class="member-email">' + escapeHtml(m.email || "—") + '</span>' +
+      '<span class="member-name">' + escapeHtml(m.full_name || "—") + '</span>' +
+      '<span class="member-date">Inscrit le ' + dateInscrit + '</span>' +
+      '<span class="member-date">Connexion : ' + dateCo + '</span>' +
+      '<span class="' + roleClass + '">' + escapeHtml(m.role || "user") + '</span>' +
+      '</div>';
+  }).join("");
+}
+
+function filterMembers(query) {
+  const q = (query || "").toLowerCase();
+  if (!q) { renderMembers(allMembers); return; }
+  renderMembers(allMembers.filter(function (m) {
+    return (m.email || "").toLowerCase().includes(q) ||
+           (m.full_name || "").toLowerCase().includes(q);
+  }));
+}
+
+async function loadAll() {
   await loadPartnerRequests();
   await loadApprovedPartners();
-  await loadRejectedPartners();
+  await loadInactivePartners();
   await loadMessages();
   await loadPendingEvents();
   await loadApprovedEvents();
   await loadRejectedEvents();
   await loadAnalytics();
+  await loadMembers();
 }
 
 (async function init() {
   const ok = await requireAdmin();
-
-  if (ok) {
-    await loadAll();
-  }
+  if (ok) await loadAll();
 })();
+
+// Menu hamburger mobile (copie autonome — admin.html ne charge pas main.js)
+document.addEventListener("DOMContentLoaded", function () {
+  var toggle = document.querySelector(".menu-toggle");
+  var header = document.querySelector("header");
+  if (!toggle || !header) return;
+
+  var overlay = null;
+
+  function buildOverlay() {
+    var navEl = header.querySelector("nav");
+    overlay = document.createElement("div");
+    overlay.className = "mob-menu-overlay";
+    overlay.innerHTML =
+      '<div class="mob-menu-panel"><div class="mob-nav"></div></div>' +
+      '<div class="mob-menu-backdrop"></div>';
+
+    if (navEl) {
+      var navPanel = overlay.querySelector(".mob-nav");
+      navEl.querySelectorAll("a, button").forEach(function (el) {
+        navPanel.appendChild(el.cloneNode(true));
+      });
+    }
+    document.body.appendChild(overlay);
+    overlay.querySelector(".mob-menu-backdrop").addEventListener("click", closeMenu);
+  }
+
+  function openMenu() {
+    if (!overlay) buildOverlay();
+    var hRect = header.getBoundingClientRect();
+    document.documentElement.style.setProperty("--mob-header-h", hRect.bottom + "px");
+    overlay.classList.add("open");
+    toggle.textContent = "✕";
+  }
+
+  function closeMenu() {
+    if (overlay) overlay.classList.remove("open");
+    toggle.textContent = "☰";
+  }
+
+  toggle.addEventListener("click", function () {
+    overlay && overlay.classList.contains("open") ? closeMenu() : openMenu();
+  });
+});
 
 </script>
 

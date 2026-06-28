@@ -237,6 +237,21 @@
         grid-template-columns: 1fr;
       }
     }
+
+    .featured-header {
+      border-left: 3px solid #d4af37;
+      padding-left: 18px;
+      margin-bottom: 20px;
+    }
+    .featured-header h2 {
+      margin: 0 0 6px;
+      font-size: 1.25rem;
+      letter-spacing: .06em;
+    }
+    .featured-header p {
+      margin: 0;
+      font-size: .95rem;
+    }
   </style>
 </head>
 
@@ -262,7 +277,9 @@
     <a href="admin.html">Admin</a>
   </nav>
 
-  <div>
+  <button type="button" class="menu-toggle" aria-label="Menu" aria-expanded="false" >☰</button>
+
+  <div class="auth-links">
     <div class="lang-select" data-no-translate>
       <button id="translateHintBtn" type="button" class="lang-current" aria-haspopup="true" aria-expanded="false">
         🌐 Traduire
@@ -288,6 +305,19 @@
   <p class="muted">
     Que faire ce week-end ? Trouvez ici tous les rassemblements automobiles, cars and coffee, meetings supercars et hypercars, sorties voitures de sport, voitures de collection et trackdays près de chez vous, en France, en Suisse, en Belgique et en Italie. Filtrez par pays et région pour suivre les événements Ferrari, Porsche, Lamborghini, McLaren, BMW M, Audi RS et Mercedes AMG de votre secteur.
   </p>
+</section>
+
+<!-- ── Sélection MONARCH — événements choisis à la main ── -->
+<section class="container" id="featuredSection">
+  <div class="featured-header">
+    <h2>✦ Sélection MONARCH</h2>
+    <p class="muted">
+      Pas d'algorithme, pas d'IA. Notre équipe parcourt les réseaux, les clubs et les associations pour vous choisir à la main les événements qui comptent vraiment — concours d'élégance, grands rassemblements, sorties prestige et rencontres de passionnés.
+    </p>
+  </div>
+  <div id="featuredEventsResults" class="notice">
+    Connectez-vous pour accéder à la sélection MONARCH.
+  </div>
 </section>
 
 <section class="container grid-2">

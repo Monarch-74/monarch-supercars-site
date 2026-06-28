@@ -167,7 +167,7 @@
   } else {
     var { toCanvas } = await import("./assets/vendor/qrcode.esm.js");
 
-    toCanvas(document.getElementById("installQrCode"), window.location.href, {
+    toCanvas(document.getElementById("installQrCode"), "https://www.monarch-apps.fr/", {
       width: 200,
       margin: 1,
       color: { dark: "#050505", light: "#ffffff" }

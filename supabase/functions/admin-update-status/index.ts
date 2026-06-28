@@ -17,6 +17,15 @@ Deno.serve(async (req) => {
 
     const adminUser = await requireAdmin(req, supabase);
 
+    const VALID_PARTNER_STATUSES = ["approved", "rejected", "inactive", "pending", "paid"];
+    const VALID_EVENT_STATUSES = ["approved", "rejected", "archived", "pending_review", "draft"];
+
+    if (body.target_type === "partner") {
+      if (!VALID_PARTNER_STATUSES.includes(body.status)) throw new Error("Statut partenaire invalide");
+    } else if (body.target_type === "event") {
+      if (!VALID_EVENT_STATUSES.includes(body.status)) throw new Error("Statut événement invalide");
+    }
+
     if (body.target_type === "partner") {
       const { data: partner, error: partnerError } = await supabase
         .from("partners")
