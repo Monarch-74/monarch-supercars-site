@@ -775,8 +775,15 @@
 
         <div class="separator"></div>
 
-        <h3>Étapes intermédiaires</h3>
-        <p class="muted" style="font-size:.85rem;margin-top:0;">Ajoutez vos arrêts prévus : petit-déjeuner, déjeuner, visite, baptêmes en supercars...</p>
+        <h3>Étapes intermédiaires <span style="font-size:.75rem;color:#888;font-weight:normal;">(optionnel)</span></h3>
+        <p class="muted" style="font-size:.85rem;margin-top:0;">Ajoutez vos arrêts si vous les connaissez — sinon laissez vide et l'IA proposera des étapes. Seul le type d'activité suffit.</p>
+        <button type="button" onclick="showInspirations()" class="btn secondary" style="font-size:.82rem;padding:7px 12px;margin-bottom:8px;">
+          ✨ Voir des inspirations d'étapes
+        </button>
+        <div id="inspirationsPanel" style="display:none;background:#0d0d0d;border:1px solid #333;border-radius:10px;padding:12px;margin-bottom:10px;">
+          <div style="color:#d4af37;font-weight:bold;margin-bottom:8px;">Étapes populaires — cliquez pour ajouter</div>
+          <div id="inspirationsList" style="color:#aaa;font-size:.85rem;">Chargement...</div>
+        </div>
 
         <div id="etapesContainer"></div>
 
@@ -933,13 +940,13 @@
       '<button type="button" onclick="removeEtape(this)" style="position:absolute;top:10px;right:10px;background:#3a1111;border:1px solid #7a2a2a;color:#ffb3b3;border-radius:6px;padding:4px 10px;cursor:pointer;">× Retirer</button>' +
       '<div style="font-weight:bold;color:#d4af37;margin-bottom:10px;">Étape ' + etapeCount + '</div>' +
       '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Lieu / Établissement</label>' +
-      '<input name="etape_lieu" placeholder="Ex : Carbox, L\'Amicalement Votre..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;margin-bottom:8px;" />' +
-      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Adresse</label>' +
-      '<input name="etape_address" placeholder="Ex : Route de Nendaz, Ardon, Suisse" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;margin-bottom:8px;" />' +
-      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Type / Activité</label>' +
-      '<input name="etape_type" placeholder="Ex : Petit-déjeuner, Déjeuner, Baptêmes supercars..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;margin-bottom:8px;" />' +
-      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Heure prévue</label>' +
-      '<input name="etape_time" type="time" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;" />';
+      '<input name="etape_lieu" title="Lieu ou établissement" placeholder="Lieu (optionnel) — ex : Carbox, L\'Amicalement Votre" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;margin-bottom:8px;" />' +
+      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Adresse <span style="font-weight:normal;color:#888;">(optionnel)</span></label>' +
+      '<input name="etape_address" title="Adresse" placeholder="Adresse — ex : Route de Nendaz, Ardon" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;margin-bottom:8px;" />' +
+      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Type / Activité <span style="font-weight:normal;color:#d4af37;">← recommandé</span></label>' +
+      '<input name="etape_type" title="Type d\'activité" placeholder="ex : Petit-déjeuner, Déjeuner, Baptêmes supercars, Visite..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;margin-bottom:8px;" />' +
+      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Heure prévue <span style="font-weight:normal;color:#888;">(optionnel)</span></label>' +
+      '<input name="etape_time" type="time" title="Heure prévue" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;" />';
     container.appendChild(div);
   }
 
@@ -1030,6 +1037,49 @@
   }
 
   document.addEventListener('DOMContentLoaded', refreshTemplateSelect);
+
+  var inspirationsLoaded = false;
+
+  function showInspirations() {
+    var panel = document.getElementById('inspirationsPanel');
+    if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+    panel.style.display = 'block';
+    if (inspirationsLoaded) return;
+    inspirationsLoaded = true;
+    var list = document.getElementById('inspirationsList');
+
+    if (!window.supabase || !window.MONARCH_CONFIG) {
+      list.textContent = 'Indisponible.'; return;
+    }
+    var client = window.supabase.createClient(
+      window.MONARCH_CONFIG.SUPABASE_URL,
+      window.MONARCH_CONFIG.SUPABASE_ANON_KEY
+    );
+    client.from('etapes_catalog')
+      .select('lieu, address, type, pays, usage_count')
+      .order('usage_count', { ascending: false })
+      .limit(30)
+      .then(function(res) {
+        var data = res.data || [];
+        if (!data.length) { list.textContent = 'Aucune inspiration disponible pour le moment.'; return; }
+        list.innerHTML = data.map(function(e) {
+          var label = (e.type ? '<em>' + escapeHtml(e.type) + '</em> — ' : '') + '<strong>' + escapeHtml(e.lieu) + '</strong>' + (e.address ? ' <span style="color:#888">(' + escapeHtml(e.address) + ')</span>' : '') + (e.usage_count > 1 ? ' <span style="color:#d4af37">×' + e.usage_count + '</span>' : '');
+          return '<div style="padding:6px 0;border-bottom:1px solid #222;cursor:pointer;" onclick="addEtapeFromInspiration(' + JSON.stringify(e).replace(/"/g, '&quot;') + ')">' + label + '</div>';
+        }).join('');
+      })
+      .catch(function() { list.textContent = 'Impossible de charger les inspirations.'; });
+  }
+
+  function addEtapeFromInspiration(e) {
+    addEtape();
+    var blocs = document.querySelectorAll('.etape-block');
+    var last = blocs[blocs.length - 1];
+    last.querySelector('[name="etape_lieu"]').value = e.lieu || '';
+    last.querySelector('[name="etape_address"]').value = e.address || '';
+    last.querySelector('[name="etape_type"]').value = e.type || '';
+    document.getElementById('inspirationsPanel').style.display = 'none';
+    inspirationsLoaded = false;
+  }
 
   let lastRoadtripData = null;
   let lastAiSummary = "";

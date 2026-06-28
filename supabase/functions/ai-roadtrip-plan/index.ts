@@ -73,6 +73,35 @@ async function insertRoadtripRequest(
   });
 }
 
+async function saveEtapesToCatalog(
+  supabaseUrl: string,
+  supabaseKey: string,
+  etapes: any[],
+  pays: string,
+  region: string,
+): Promise<void> {
+  if (!etapes || etapes.length === 0) return;
+  for (const e of etapes) {
+    if (!e.lieu) continue;
+    // Upsert : si le lieu + type existe déjà, incrémente usage_count
+    await fetch(`${supabaseUrl}/rest/v1/rpc/upsert_etape_catalog`, {
+      method: "POST",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        p_lieu: e.lieu,
+        p_address: e.address || null,
+        p_type: e.type || null,
+        p_pays: pays || null,
+        p_region: region || null,
+      }),
+    });
+  }
+}
+
 async function googlePlacesSearch(query: string): Promise<any[]> {
   const apiKey = (Deno.env.get("GOOGLE_MAPS_API_KEY") ?? "").trim();
 
@@ -258,6 +287,16 @@ Retourne uniquement un JSON valide au format :
           googleMapsUrl,
           wazeUrl,
         );
+        // Enrichir le catalogue avec les étapes soumises par l'utilisateur
+        if (Array.isArray(body.etapes) && body.etapes.length > 0) {
+          await saveEtapesToCatalog(
+            supabaseUrl,
+            supabaseKey,
+            body.etapes,
+            body.start_country || "",
+            body.start_region || "",
+          ).catch((e) => console.log("CATALOG WARNING:", e));
+        }
       } catch (dbError) {
         console.log("SUPABASE INSERT WARNING:", dbError);
       }
