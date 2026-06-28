@@ -199,72 +199,62 @@ Deno.serve(async (req: Request): Promise<Response> => {
       body.preferences,
     ].filter(Boolean).join(" ");
 
-    const [scenic, museums, restaurants, hotels] = await Promise.all([
-      googlePlacesSearch(`points de vue panoramiques route automobile ${searchZone}`),
-      googlePlacesSearch(`musée automobile exposition voiture collection ${searchZone}`),
-      googlePlacesSearch(`restaurants très bien notés gastronomique premium parking sécurisé note 4.4 ${searchZone}`),
-      googlePlacesSearch(`hôtels 4 étoiles luxe très bien notés parking sécurisé premium ${searchZone}`),
+    // Recherches Google Places uniquement dans la zone des étapes utilisateur
+    const userEtapesZone = Array.isArray(body.etapes) && body.etapes.length > 0
+      ? body.etapes.map((e: any) => e.address || e.lieu).filter(Boolean).join(" ")
+      : searchZone;
+
+    const [restaurants, hotels] = await Promise.all([
+      googlePlacesSearch(`restaurant très bien noté gastronomique ${userEtapesZone}`),
+      googlePlacesSearch(`hôtel 4 étoiles très bien noté ${userEtapesZone}`),
     ]);
+
+    // Construire l'itinéraire imposé à partir des étapes utilisateur
+    const etapesImposees = Array.isArray(body.etapes) && body.etapes.length > 0
+      ? body.etapes.map((e: any, i: number) =>
+          `Étape ${i + 1}${e.time ? " (" + e.time + ")" : ""} : ${e.lieu || ""}${e.address ? " — " + e.address : ""}${e.type ? " [" + e.type + "]" : ""}`
+        ).join("\n")
+      : "Aucune étape imposée — propose des étapes pertinentes.";
 
     const prompt = `
 Tu es l'assistant IA de MONARCH SUPERCARS.
-Tu crées un roadbook premium automobile, clair, structuré et imprimable.
+Tu crées un roadbook premium automobile chronologique, clair et imprimable.
 
-Données utilisateur :
-${JSON.stringify(body, null, 2)}
+=== ITINÉRAIRE IMPOSÉ — NE PAS MODIFIER ===
+Départ : ${startFull}
+${etapesImposees}
+Arrivée : ${endFull}
+Date : ${body.start_date || "non précisée"}
+Durée : ${body.days || 1} jour(s) — ${body.people || 1} personne(s)
+============================================
 
-Départ complet :
-${startFull}
+RÈGLES ABSOLUES :
+1. Tu dois UNIQUEMENT suivre les étapes imposées ci-dessus dans l'ORDRE EXACT.
+2. Tu n'ajoutes AUCUNE destination, musée, hôtel ou lieu qui n'est pas dans les étapes imposées.
+3. Tu enrichis CHAQUE étape imposée avec : durée estimée du trajet, conseils pratiques, notes sur le lieu.
+4. Si des préférences supplémentaires sont mentionnées, elles s'appliquent uniquement aux étapes existantes.
+5. N'invente pas de nouvelles villes ou lieux qui ne figurent pas dans l'itinéraire imposé.
 
-Arrivée complète :
-${endFull}
+Préférences utilisateur (pour enrichir les étapes existantes uniquement) :
+${body.preferences || "Aucune préférence supplémentaire."}
 
-Points de vue candidats :
-${JSON.stringify(scenic, null, 2)}
+Données restaurants à proximité des étapes :
+${JSON.stringify(restaurants.slice(0, 3), null, 2)}
 
-Musées / expositions candidats :
-${JSON.stringify(museums, null, 2)}
+Données hôtels à proximité des étapes :
+${JSON.stringify(hotels.slice(0, 2), null, 2)}
 
-Restaurants candidats :
-${JSON.stringify(restaurants, null, 2)}
-
-Hôtels candidats :
-${JSON.stringify(hotels, null, 2)}
-
-Règles obligatoires :
-- Respecte strictement les préférences utilisateur.
-- Si l'utilisateur indique des villes, lieux ou activités obligatoires dans les préférences, tu dois les intégrer comme étapes officielles.
-- Ne force jamais une ville fixe : utilise uniquement les lieux demandés par l'utilisateur.
-- Si l'utilisateur demande une activité comme hélicoptère, jet ski, circuit, musée, château ou restaurant précis, ajoute une section "Activités demandées par l'utilisateur".
-- Les restaurants doivent être uniquement des établissements très bien notés, idéalement note Google supérieure à 4.4/5.
-- Privilégie les établissements premium, gastronomiques, avec parking sécurisé si possible.
-- Évite les fast-foods, chaînes bas de gamme, restaurants mal notés ou avec peu d'avis.
-- Les hôtels doivent être très bien notés et adaptés à une clientèle premium automobile.
-- Si les données Google Places sont vides ou insuffisantes, propose des recommandations cohérentes mais indique que les contacts doivent être vérifiés.
-
-Le roadbook doit contenir :
-1. Résumé du trajet
-2. Itinéraire jour par jour
-3. Étapes obligatoires demandées par l'utilisateur
-4. Points de vue à visiter
-5. Musées automobiles / expositions
-6. Restaurants recommandés très bien notés
-7. Hôtels recommandés très bien notés
-8. Contacts utiles si disponibles
-9. Conseils timing : déjeuner, route, hôtel
-10. Recommandations Google Maps / Waze
-
-Retourne uniquement un JSON valide au format :
+Retourne uniquement un JSON valide. Le champ "stops" doit contenir UNIQUEMENT les étapes imposées dans l'ordre chronologique (pas de nouvelles destinations inventées) :
 {
-  "summary": "roadbook complet en texte imprimable",
+  "summary": "Roadbook détaillé chronologique : pour chaque étape imposée, décris le trajet depuis l'étape précédente (durée, route), les informations pratiques du lieu, et les conseils horaires. Ne mentionne que les lieux de l'itinéraire imposé.",
   "stops": [
     {
-      "name": "",
-      "type": "viewpoint|museum|restaurant|hotel|activity|stop",
-      "address": "",
-      "reason": "",
-      "rating": "",
-      "contact": ""
+      "name": "Nom exact de l'étape imposée — heure si connue",
+      "type": "restaurant|hotel|activity|stop",
+      "address": "Adresse exacte",
+      "reason": "Description courte de l'activité prévue",
+      "rating": "Note Google si disponible",
+      "contact": "Téléphone ou site si disponible"
     }
   ]
 }
@@ -286,11 +276,12 @@ Retourne uniquement un JSON valide au format :
       };
     }
 
-    const stopAddresses = Array.isArray(parsed.stops)
-      ? parsed.stops.map((s: any) => s.address).filter(Boolean)
+    // Utiliser les adresses des étapes utilisateur pour Google Maps (ordre chronologique garanti)
+    const userEtapeAddresses = Array.isArray(body.etapes)
+      ? body.etapes.map((e: any) => [e.lieu, e.address].filter(Boolean).join(", ")).filter(Boolean)
       : [];
 
-    const addresses = [startFull, ...stopAddresses, endFull].filter(Boolean);
+    const addresses = [startFull, ...userEtapeAddresses, endFull].filter(Boolean);
     const encoded = addresses.map((a: string) => encodeURIComponent(a));
 
     const googleMapsUrl =
