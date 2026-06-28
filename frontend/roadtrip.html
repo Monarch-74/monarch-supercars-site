@@ -775,6 +775,17 @@
 
         <div class="separator"></div>
 
+        <h3>Étapes intermédiaires</h3>
+        <p class="muted" style="font-size:.85rem;margin-top:0;">Ajoutez vos arrêts prévus : petit-déjeuner, déjeuner, visite, baptêmes en supercars...</p>
+
+        <div id="etapesContainer"></div>
+
+        <button type="button" onclick="addEtape()" class="btn secondary" style="width:100%;margin-top:10px;text-align:center;">
+          + Ajouter une étape
+        </button>
+
+        <div class="separator"></div>
+
         <h3>Arrivée</h3>
 
         <label>Pays d’arrivée</label>
@@ -901,6 +912,32 @@
 <script src="js/analytics.js"></script>
 
 <script>
+  let etapeCount = 0;
+
+  function addEtape() {
+    etapeCount++;
+    const container = document.getElementById('etapesContainer');
+    const div = document.createElement('div');
+    div.className = 'etape-block';
+    div.style.cssText = 'border:1px solid #333;border-radius:10px;padding:14px;margin-top:12px;position:relative;background:#0d0d0d;';
+    div.innerHTML =
+      '<button type="button" onclick="removeEtape(this)" style="position:absolute;top:10px;right:10px;background:#3a1111;border:1px solid #7a2a2a;color:#ffb3b3;border-radius:6px;padding:4px 10px;cursor:pointer;">× Retirer</button>' +
+      '<div style="font-weight:bold;color:#d4af37;margin-bottom:10px;">Étape ' + etapeCount + '</div>' +
+      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Lieu / Établissement</label>' +
+      '<input name="etape_lieu" placeholder="Ex : Carbox, L\'Amicalement Votre..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;margin-bottom:8px;" />' +
+      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Adresse</label>' +
+      '<input name="etape_address" placeholder="Ex : Route de Nendaz, Ardon, Suisse" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;margin-bottom:8px;" />' +
+      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Type / Activité</label>' +
+      '<input name="etape_type" placeholder="Ex : Petit-déjeuner, Déjeuner, Baptêmes supercars..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;margin-bottom:8px;" />' +
+      '<label style="display:block;margin-top:8px;margin-bottom:4px;font-size:14px;font-weight:bold;">Heure prévue</label>' +
+      '<input name="etape_time" type="time" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0b0b0b;color:white;box-sizing:border-box;" />';
+    container.appendChild(div);
+  }
+
+  function removeEtape(btn) {
+    btn.closest('.etape-block').remove();
+  }
+
   let lastRoadtripData = null;
   let lastAiSummary = "";
   let proposalStops = [];
@@ -1339,6 +1376,24 @@
     formData.forEach((value, key) => {
       data[key] = value;
     });
+
+    // Collecter les étapes intermédiaires
+    const etapeBlocs = document.querySelectorAll('.etape-block');
+    const etapes = [];
+    etapeBlocs.forEach(function(bloc) {
+      const lieu = bloc.querySelector('[name="etape_lieu"]').value.trim();
+      const address = bloc.querySelector('[name="etape_address"]').value.trim();
+      const type = bloc.querySelector('[name="etape_type"]').value.trim();
+      const time = bloc.querySelector('[name="etape_time"]').value.trim();
+      if (lieu) etapes.push({ lieu: lieu, address: address, type: type, time: time });
+    });
+    if (etapes.length > 0) {
+      data.etapes = etapes;
+      const etapesText = etapes.map(function(e, i) {
+        return (i + 1) + '. ' + (e.time ? e.time + ' - ' : '') + e.lieu + (e.type ? ' (' + e.type + ')' : '') + (e.address ? ' — ' + e.address : '');
+      }).join('\n');
+      data.preferences = (data.preferences ? data.preferences + '\n\nÉtapes imposées à inclure dans l\'itinéraire :\n' : 'Étapes imposées :\n') + etapesText;
+    }
 
     lastRoadtripData = data;
     updateHero(data);
