@@ -879,9 +879,30 @@ function eventCard(item, mode) {
 
       ${buttons}
       ${featuredBtn}
+      <label style="margin-top:10px;display:block;font-size:.85rem;color:#aaa;">🖼 Modifier l'affiche</label>
+      <input type="file" accept="image/*" style="margin-top:4px;" onchange="uploadEventPoster('${item.id}', this)" />
 
     </div>
   `;
+}
+
+async function uploadEventPoster(eventId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const client = getClient();
+  try {
+    const ext = file.name.split('.').pop();
+    const fileName = eventId + '-' + Date.now() + '.' + ext;
+    const { error: upErr } = await client.storage.from('event-posters').upload(fileName, file, { upsert: true });
+    if (upErr) throw upErr;
+    const { data: urlData } = client.storage.from('event-posters').getPublicUrl(fileName);
+    const { error: updErr } = await client.from('events').update({ poster_url: urlData.publicUrl }).eq('id', eventId);
+    if (updErr) throw updErr;
+    alert('Affiche mise à jour !');
+    await loadAll();
+  } catch (err) {
+    alert('Erreur : ' + err.message);
+  }
 }
 
 async function loadPendingEvents() {
