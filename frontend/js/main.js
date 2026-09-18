@@ -1069,6 +1069,52 @@ function initMobileMenu() {
   });
 }
 
+// Fait apparaître en fondu les cartes/tuiles au scroll (progressive enhancement :
+// si le navigateur ne supporte pas IntersectionObserver, tout reste visible normalement).
+// Un MutationObserver couvre aussi les cartes ajoutées dynamiquement (événements,
+// propositions road trip, etc.) après le chargement initial de la page.
+function initScrollReveal() {
+  if (!("IntersectionObserver" in window)) return;
+
+  var SELECTOR = ".card, .tile, .event-card, .partner-card, .roadbook-stop";
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("reveal-visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+
+  function observeNew(root) {
+    var nodes = (root.matches && root.matches(SELECTOR)) ? [root] : [];
+
+    if (root.querySelectorAll) {
+      nodes = nodes.concat(Array.prototype.slice.call(root.querySelectorAll(SELECTOR)));
+    }
+
+    nodes.forEach(function (el) {
+      if (el.classList.contains("reveal") || el.classList.contains("reveal-visible")) return;
+      el.classList.add("reveal");
+      observer.observe(el);
+    });
+  }
+
+  observeNew(document.body);
+
+  if ("MutationObserver" in window) {
+    var mo = new MutationObserver(function (mutations) {
+      mutations.forEach(function (m) {
+        m.addedNodes.forEach(function (node) {
+          if (node.nodeType === 1) observeNew(node);
+        });
+      });
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initAudioControl();
   initCookieBanner();
@@ -1084,4 +1130,5 @@ document.addEventListener("DOMContentLoaded", function () {
   initResetPassword();
   initContact();
   initTranslate();
+  initScrollReveal();
 });

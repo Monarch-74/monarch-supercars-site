@@ -266,6 +266,7 @@ RÈGLES ABSOLUES :
 3. Tu enrichis CHAQUE étape imposée avec : durée estimée du trajet, conseils pratiques, notes sur le lieu.
 4. Si des préférences supplémentaires sont mentionnées, elles s'appliquent uniquement aux étapes existantes.
 5. N'invente pas de nouvelles villes ou lieux qui ne figurent pas dans l'itinéraire imposé.
+6. Le champ "summary" est un texte que TU RÉDIGES toi-même, entre 150 et 300 mots : décris chronologiquement le trajet entre chaque étape imposée (durée estimée, route empruntée, conseils horaires, informations pratiques sur chaque lieu). Ce n'est pas un gabarit à recopier — écris un résumé réel, spécifique à cet itinéraire précis, avec de vraies phrases.
 
 Préférences utilisateur (pour enrichir les étapes existantes uniquement) :
 ${body.preferences || "Aucune préférence supplémentaire."}
@@ -276,9 +277,9 @@ ${JSON.stringify(restaurants.slice(0, 3), null, 2)}
 Données hôtels à proximité des étapes :
 ${JSON.stringify(hotels.slice(0, 2), null, 2)}
 
-Retourne uniquement un JSON valide. Le champ "stops" doit contenir UNIQUEMENT les étapes imposées dans l'ordre chronologique (pas de nouvelles destinations inventées) :
+Retourne uniquement un JSON valide, structuré exactement comme ci-dessous. Remplace les valeurs entre < > par le contenu réel que tu génères — ce ne sont pas des exemples à recopier. Le champ "stops" doit contenir UNIQUEMENT les étapes imposées dans l'ordre chronologique (pas de nouvelles destinations inventées) :
 {
-  "summary": "Roadbook détaillé chronologique : pour chaque étape imposée, décris le trajet depuis l'étape précédente (durée, route), les informations pratiques du lieu, et les conseils horaires. Ne mentionne que les lieux de l'itinéraire imposé.",
+  "summary": "<ton résumé chronologique rédigé ici, 150 à 300 mots, voir règle 6>",
   "stops": [
     {
       "name": "Nom exact de l'étape imposée — heure si connue",

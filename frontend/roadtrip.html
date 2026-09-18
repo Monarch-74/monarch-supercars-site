@@ -745,6 +745,12 @@
 
 <main class="container">
 
+  <section class="container" style="padding-top:0">
+    <h2>Exemples de road trips générés par notre IA</h2>
+    <p class="muted">Un aperçu réel de ce que notre générateur peut créer pour vous : routes panoramiques, étapes gourmandes, hôtels de charme et casino, roadbook rédigé automatiquement.</p>
+    <div class="examples-grid" id="roadtripExamples"></div>
+  </section>
+
   <section class="roadtrip-grid">
 
     <div class="card">
@@ -953,6 +959,99 @@
 <script src="js/analytics.js"></script>
 
 <script>
+  // ===== Exemples de road trips (générés une fois via notre IA, figés en démo) =====
+  var ROADTRIP_EXAMPLES = [
+    {
+      tag: "France • 3 jours • 2 pers.",
+      title: "Route des Grandes Alpes",
+      route: "Chamonix-Mont-Blanc → Menton",
+      summary: "Le road trip commence à Chamonix-Mont-Blanc, un point de départ emblématique pour les amateurs de supercars. À 10h00, vous prendrez la route en direction du Col de l'Iseran, un trajet d'environ 1h30 (environ 50 km) à travers des paysages alpins à couper le souffle. Ce col, culminant à 2 764 mètres, offre un panorama exceptionnel sur les sommets environnants. Ensuite, à 13h30, vous arriverez à Briançon, après un trajet d'environ 2h30 (environ 120 km). La vieille ville, classée au patrimoine mondial de l'UNESCO, est parfaite pour une visite historique. À 16h30, vous reprendrez la route vers le Col de la Bonette, un trajet d'environ 1h30 (environ 60 km). Ce col est le plus haut d'Europe, offrant des vues spectaculaires sur les Alpes. Enfin, à 20h00, vous atteindrez la Promenade des Anglais à Nice, après environ 2h de route (environ 90 km), pour un dîner en bord de mer. Ce trajet vous mènera à Menton, votre destination finale, où vous pourrez profiter de la beauté de la Côte d'Azur.",
+      stops: [
+        { name: "Col de l'Iseran", time: "10:00", type: "stop", address: "Col de l'Iseran, 73480 Val-d'Isère, France", reason: "Point de vue spectaculaire sur les Alpes, le plus haut col routier d'Europe." },
+        { name: "Briançon, vieille ville", time: "13:30", type: "activity", address: "Place de la République, 05100 Briançon, France", reason: "Visite de la vieille ville historique classée UNESCO et de ses fortifications." },
+        { name: "Col de la Bonette", time: "16:30", type: "stop", address: "Col de la Bonette, 06430 Saint-Étienne-de-Tinée, France", reason: "Point de vue offrant des panoramas époustouflants sur les Alpes." },
+        { name: "Promenade des Anglais", time: "20:00", type: "restaurant", address: "Promenade des Anglais, 06000 Nice, France", reason: "Dîner avec vue sur la mer Méditerranée avant l'arrivée à Menton." }
+      ]
+    },
+    {
+      tag: "France • Monaco • 2 jours • 2 pers.",
+      title: "Côte d'Azur Prestige",
+      route: "Saint-Tropez → Monaco",
+      summary: "Le road trip commence à Saint-Tropez, un lieu emblématique de la Côte d'Azur, où vous pourrez profiter de la Place des Lices à partir de 09h30. Cette place animée est parfaite pour une promenade matinale, avec ses cafés et son ambiance vivante. Ensuite, à 13h00, direction Cannes, un trajet d'environ 1 heure en empruntant la D559, offrant des vues magnifiques sur la mer Méditerranée. À Cannes, la Croisette vous attend pour une balade le long de ses plages et de ses boutiques de luxe. Après cette pause glamour, partez pour le village d'Èze, un trajet d'environ 30 minutes par la Basse Corniche (D6098), célèbre pour ses ruelles pittoresques et ses panoramas époustouflants. Vous arriverez à Èze à 16h00 pour explorer ce charmant village perché. Enfin, à 20h00, direction le Casino de Monte-Carlo, situé à environ 30 minutes d'Èze, où vous pourrez passer une soirée mémorable dans l'un des casinos les plus prestigieux au monde. Ce trajet vous plongera dans l'ambiance glamour de la Côte d'Azur, avec des paysages à couper le souffle et des expériences inoubliables.",
+      stops: [
+        { name: "Place des Lices", time: "09:30", type: "activity", address: "Place des Lices, 83990 Saint-Tropez, France", reason: "Visite de la place animée, idéale pour découvrir l'ambiance locale." },
+        { name: "La Croisette", time: "13:00", type: "activity", address: "Boulevard de la Croisette, 06400 Cannes, France", reason: "Balade le long de la célèbre promenade, avec boutiques et plages." },
+        { name: "Village d'Èze", time: "16:00", type: "activity", address: "Èze, 06360, France", reason: "Visite du village perché, connu pour ses vues panoramiques et son charme médiéval." },
+        { name: "Casino de Monte-Carlo", time: "20:00", type: "activity", address: "Place du Casino, 98000 Monaco", reason: "Soirée au prestigieux casino, symbole du luxe et de l'élégance." }
+      ]
+    },
+    {
+      tag: "Italie • Toscane • 2 jours • 2 pers.",
+      title: "Toscane & Chianti",
+      route: "Florence → Sienne",
+      summary: "Le road trip commence à Florence, où vous aurez l'opportunité de profiter d'une vue imprenable sur la ville depuis le Piazzale Michelangelo à 9h00. Préparez-vous pour une balade à travers les charmantes collines toscanes, en empruntant la route panoramique qui vous mènera au Château de Brolio à Gaiole in Chianti. Arrivé à 13h00, vous pourrez déguster des vins renommés dans ce domaine viticole emblématique. Après une pause pour savourer les délices locaux, reprenez la route en direction de San Gimignano. À 16h00, explorez cette ville médiévale célèbre pour ses tours et son patrimoine historique. Enfin, partez pour Sienne, une belle ville à seulement 30 minutes de San Gimignano. À 20h00, vous dînerez sur la Piazza del Campo, un lieu emblématique, où vous pourrez déguster une cuisine toscane raffinée. Ce road trip en supercar à travers la Toscane promet des paysages à couper le souffle et des expériences gastronomiques inoubliables.",
+      stops: [
+        { name: "Piazzale Michelangelo", time: "09:00", type: "stop", address: "Piazzale Michelangelo, 50125 Firenze, Italie", reason: "Point de vue panoramique sur Florence." },
+        { name: "Château de Brolio", time: "13:00", type: "activity", address: "Castello di Brolio, 53013 Gaiole in Chianti, Italie", reason: "Dégustation de vins dans un domaine viticole historique." },
+        { name: "San Gimignano", time: "16:00", type: "stop", address: "San Gimignano, 53037, Italie", reason: "Visite de la ville médiévale et de ses célèbres tours." },
+        { name: "Piazza del Campo", time: "20:00", type: "restaurant", address: "Piazza del Campo, 53100 Siena, Italie", reason: "Dîner sur la célèbre place de Sienne, cuisine toscane raffinée." }
+      ]
+    }
+  ];
+
+  function renderRoadtripExamples() {
+    var container = document.getElementById("roadtripExamples");
+    if (!container) return;
+
+    var html = "";
+
+    ROADTRIP_EXAMPLES.forEach(function (ex, index) {
+      var excerpt = ex.summary.length > 200 ? ex.summary.slice(0, 200).trim() + "…" : ex.summary;
+      var detailId = "example-detail-" + index;
+
+      html += '<div class="card">';
+      html += '<span class="example-tag">' + escapeHtml(ex.tag) + '</span>';
+      html += '<h3>' + escapeHtml(ex.title) + '</h3>';
+      html += '<p class="example-route">' + escapeHtml(ex.route) + '</p>';
+      html += '<p class="example-excerpt">' + escapeHtml(excerpt) + '</p>';
+      html += '<button class="btn secondary notice-top-margin" type="button" data-example-toggle="' + detailId + '">Voir l\'itinéraire complet</button>';
+
+      html += '<div class="example-detail hide" id="' + detailId + '">';
+      html += '<p style="line-height:1.6">' + escapeHtml(ex.summary) + '</p>';
+      html += '<div class="timeline notice-top-margin">';
+
+      ex.stops.forEach(function (stop) {
+        html += '<div class="timeline-item">';
+        html += '<img class="final-image" src="' + escapeHtml(imageForType(stop.type)) + '" alt="' + escapeHtml(stop.name) + '">';
+        html += '<h4>' + escapeHtml(stop.time) + ' — ' + escapeHtml(stop.name) + '</h4>';
+        html += '<p><span class="badge">' + escapeHtml(labelForType(stop.type)) + '</span></p>';
+        html += '<p><strong>Adresse :</strong> ' + escapeHtml(stop.address) + '</p>';
+        html += '<p><strong>Pourquoi :</strong> ' + escapeHtml(stop.reason) + '</p>';
+        html += '</div>';
+      });
+
+      html += '</div>';
+      html += '<a class="btn primary notice-top-margin" href="#roadtripForm">Créer mon road trip</a>';
+      html += '</div>';
+
+      html += '</div>';
+    });
+
+    container.innerHTML = html;
+
+    container.querySelectorAll("[data-example-toggle]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var detail = document.getElementById(btn.getAttribute("data-example-toggle"));
+        if (!detail) return;
+        var isHidden = detail.classList.contains("hide");
+        detail.classList.toggle("hide", !isHidden);
+        btn.textContent = isHidden ? "Masquer l'itinéraire" : "Voir l'itinéraire complet";
+      });
+    });
+  }
+
+  renderRoadtripExamples();
+
   let etapeCount = 0;
 
   function addEtape() {
