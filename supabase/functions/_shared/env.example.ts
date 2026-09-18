@@ -53,22 +53,23 @@
 // Trouvé dans: https://serpapi.com/dashboard
 // Pour recherche Google personnalisée (ai-events-search)
 
-// ========== EMAILS ==========
-// RESEND_API_KEY
-// Trouvé dans: https://resend.com/api-keys
-// Commençant par: re_
+// ========== EMAILS (Gmail / Google Workspace SMTP) ==========
+// GMAIL_SMTP_USER
+// L'adresse Gmail / Google Workspace utilisée pour envoyer les emails.
+// Exemple: admin@monarch-apps.com
+
+// GMAIL_SMTP_PASSWORD
+// Mot de passe d'application Google (PAS le mot de passe normal du compte).
+// À générer sur: https://myaccount.google.com/apppasswords
+// (nécessite la validation en 2 étapes activée sur le compte)
 
 // ADMIN_EMAIL
-// Adresse email pour recevoir les messages de contact
-// Exemple: admin@monarch-supercars.app
+// Adresse email qui reçoit les messages de contact et demandes partenaires.
+// Exemple: admin@monarch-apps.com
 
 // ========== CONFIGURATION ==========
 // APP_BASE_URL (OPTIONNEL)
 // URL complète de votre application
 // Exemple: https://www.monarch-supercars.app
 // Utilisée pour les liens dans les emails
-
-// EMAIL_FROM (OPTIONNEL)
-// Adresse d'envoi des emails
-// Exemple: noreply@monarch-supercars.app
 

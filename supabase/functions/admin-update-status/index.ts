@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireAdmin } from "../_shared/admin-auth.ts";
+import { sendEmail } from "../_shared/send-email.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -36,10 +37,7 @@ Deno.serve(async (req) => {
 
       if (partnerError) throw partnerError;
 
-      const resendKey = (Deno.env.get("RESEND_API_KEY") ?? "").trim();
-      const emailFrom = (Deno.env.get("EMAIL_FROM") ?? "MONARCH SUPERCARS <onboarding@resend.dev>").trim();
-
-      if (resendKey && partner?.email) {
+      if (partner?.email) {
         const isApproved = body.status === "approved";
 
         const subject = isApproved
@@ -53,14 +51,7 @@ Deno.serve(async (req) => {
           : `<h2>Bonjour ${partner.contact_name || partner.company_name},</h2>
              <p>Votre demande de partenariat pour <strong>${partner.company_name}</strong> n'a pas été retenue pour le moment.</p>`;
 
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${resendKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ from: emailFrom, to: partner.email, subject, html }),
-        }).catch((e) => console.log("RESEND PARTNER STATUS ERROR:", e));
+        await sendEmail({ to: partner.email, subject, html });
       }
     } else if (body.target_type === "event") {
       const { error: eventError } = await supabase

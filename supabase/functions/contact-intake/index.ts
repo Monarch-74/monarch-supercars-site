@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendEmail } from "../_shared/send-email.ts";
 
 declare const Deno: any;
 
@@ -37,40 +38,23 @@ Deno.serve(async (req: Request) => {
 
     if (error) throw error;
 
-    const resendKey = (Deno.env.get("RESEND_API_KEY") ?? "").trim();
     const adminEmail = (Deno.env.get("ADMIN_EMAIL") ?? "admin@monarch-apps.com").trim();
-console.log("RESEND OK:", Boolean(resendKey));
-console.log("ADMIN EMAIL:", adminEmail);
-    if (resendKey) {
-      const emailResponse = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${resendKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "MONARCH SUPERCARS <onboarding@resend.dev>",
-          to: adminEmail,
-          subject: "Nouveau message MONARCH SUPERCARS",
-          html: `
-            <h2>Nouveau message depuis MONARCH SUPERCARS</h2>
-            <p><strong>Nom :</strong> ${payload.name}</p>
-            <p><strong>Email :</strong> ${payload.email}</p>
-            <p><strong>Sujet :</strong> ${payload.subject}</p>
-            <p><strong>Message :</strong></p>
-            <p>${String(payload.message).replace(/\n/g, "<br>")}</p>
-          `,
-        }),
-      });
 
-      if (!emailResponse.ok) {
-        const emailError = await emailResponse.text();
-        console.log("RESEND ERROR:", emailError);
-      }
-    }
+    const emailResult = await sendEmail({
+      to: adminEmail,
+      subject: "Nouveau message MONARCH SUPERCARS",
+      html: `
+        <h2>Nouveau message depuis MONARCH SUPERCARS</h2>
+        <p><strong>Nom :</strong> ${payload.name}</p>
+        <p><strong>Email :</strong> ${payload.email}</p>
+        <p><strong>Sujet :</strong> ${payload.subject}</p>
+        <p><strong>Message :</strong></p>
+        <p>${String(payload.message).replace(/\n/g, "<br>")}</p>
+      `,
+    });
 
     return Response.json(
-      { ok: true, message: "Message envoyé !" },
+      { ok: true, message: "Message envoyé !", email_relay: emailResult },
       { headers: cors }
     );
 
