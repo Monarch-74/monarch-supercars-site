@@ -1059,15 +1059,14 @@
   renderRoadtripExamples();
 
   // ===== Circuits en boucle (départ = arrivée) — itinéraires originaux Monarch =====
-  // Distances/durées estimées (billing Google Cloud pas encore activé sur ce projet
-  // → API Directions indisponible). À rafraîchir avec les valeurs exactes une fois activé.
+  // Distances/durées calculées via Google Directions (route réelle, pas une estimation).
   var ROADTRIP_CIRCUITS = [
     {
       title: "Les Cols Secrets du Vercors",
       tag: "France • Isère",
       cover: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=75",
-      duration: "≈ 3h30",
-      distance: "≈ 155 km (estimation)",
+      duration: "3h43",
+      distance: "190,9 km",
       description: "Boucle au départ de Grenoble : montée vers Villard-de-Lans, passage par le Col de Rousset et ses lacets vertigineux, puis descente sur les gorges de la Bourne jusqu'à Pont-en-Royans avant de rejoindre Grenoble. Routes sinueuses, falaises du Vercors et villages perchés.",
       origin: "Grenoble, France",
       waypoints: ["Villard-de-Lans, France", "Col de Rousset, France", "Pont-en-Royans, France"]
@@ -1076,8 +1075,8 @@
       title: "La Boucle des Gorges du Verdon",
       tag: "France • Provence",
       cover: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=75",
-      duration: "≈ 3h15",
-      distance: "≈ 140 km (estimation)",
+      duration: "2h40",
+      distance: "113,4 km",
       description: "Départ de Moustiers-Sainte-Marie, direction Castellane puis la Corniche Sublime en surplomb du canyon, retour par Aiguines et ses points de vue sur le lac de Sainte-Croix. L'une des routes les plus spectaculaires d'Europe, à prendre sans se presser.",
       origin: "Moustiers-Sainte-Marie, France",
       waypoints: ["Castellane, France", "Corniche Sublime, France", "Aiguines, France"]
@@ -1086,8 +1085,8 @@
       title: "Le Tour des Cols Valaisans",
       tag: "Suisse • Valais",
       cover: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=75",
-      duration: "≈ 4h",
-      distance: "≈ 190 km (estimation)",
+      duration: "3h20",
+      distance: "199,3 km",
       description: "Depuis Sion, cap sur Crans-Montana puis le mythique Col du Grand-Saint-Bernard aux portes de l'Italie, retour par Martigny et le vignoble valaisan. Altitude, lacets alpins et panoramas sur les 4000 suisses.",
       origin: "Sion, Suisse",
       waypoints: ["Crans-Montana, Suisse", "Col du Grand-Saint-Bernard, Suisse", "Martigny, Suisse"]
