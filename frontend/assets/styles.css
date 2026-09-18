@@ -124,6 +124,18 @@ nav a:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(212
 .example-route{font-size:1.05rem;color:#ddd;margin:6px 0 12px}
 .example-excerpt{line-height:1.55;color:#ccc}
 .example-detail{margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.circuit-card{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.circuit-cover{
+  height:200px;background-size:cover;background-position:center;position:relative;
+  display:flex;align-items:flex-end;padding:18px;
+}
+.circuit-cover::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.85) 100%);
+}
+.circuit-cover h3{position:relative;z-index:1;margin:0;font-size:1.3rem;letter-spacing:.02em}
+.circuit-body{padding:20px}
+.circuit-stats{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
 label{display:block;margin:14px 0 6px;font-size:.95rem;color:#ddd}
 input,select,textarea{
   width:100%;padding:14px;background:#0d0d0d;color:#fff;border:1px solid #333;border-radius:12px;
