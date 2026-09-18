@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Road Trip IA : Itinéraires automobiles sur-mesure | MONARCH SUPERCARS</title>
-  <meta name="description" content="Road trip automobile et road trip voiture sur-mesure générés par IA en France, Suisse, Belgique et Italie : itinéraires pour sortie voiture sportive, balade en voiture de collection, hôtels et restaurants premium." />
+  <title>Road Trip Sur-Mesure : Itinéraires automobiles | MONARCH SUPERCARS</title>
+  <meta name="description" content="Road trip automobile et road trip voiture sur-mesure en France, Suisse, Belgique et Italie : itinéraires pour sortie voiture sportive, balade en voiture de collection, hôtels et restaurants premium." />
   <link rel="canonical" href="https://www.monarch-apps.fr/roadtrip.html" />
   <link rel="alternate" hreflang="fr-fr" href="https://www.monarch-apps.fr/roadtrip.html" />
   <link rel="alternate" hreflang="fr-be" href="https://www.monarch-apps.fr/roadtrip.html" />
@@ -17,13 +17,13 @@
   <meta property="og:locale:alternate" content="fr_CH" />
   <meta property="og:locale:alternate" content="it_IT" />
   <meta property="og:site_name" content="MONARCH SUPERCARS" />
-  <meta property="og:title" content="Road Trip IA : Itinéraires automobiles sur-mesure | MONARCH SUPERCARS" />
-  <meta property="og:description" content="Road trip automobile et road trip voiture sur-mesure générés par IA en France, Suisse, Belgique et Italie : sortie voiture sportive, balade en voiture de collection, hôtels et restaurants premium." />
+  <meta property="og:title" content="Road Trip Sur-Mesure : Itinéraires automobiles | MONARCH SUPERCARS" />
+  <meta property="og:description" content="Road trip automobile et road trip voiture sur-mesure en France, Suisse, Belgique et Italie : sortie voiture sportive, balade en voiture de collection, hôtels et restaurants premium." />
   <meta property="og:url" content="https://www.monarch-apps.fr/roadtrip.html" />
   <meta property="og:image" content="https://www.monarch-apps.fr/assets/icons/icon-512.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Road Trip IA : Itinéraires automobiles sur-mesure | MONARCH SUPERCARS" />
-  <meta name="twitter:description" content="Road trip automobile et road trip voiture sur-mesure générés par IA en France, Suisse, Belgique et Italie : sortie voiture sportive, balade en voiture de collection, hôtels et restaurants premium." />
+  <meta name="twitter:title" content="Road Trip Sur-Mesure : Itinéraires automobiles | MONARCH SUPERCARS" />
+  <meta name="twitter:description" content="Road trip automobile et road trip voiture sur-mesure en France, Suisse, Belgique et Italie : sortie voiture sportive, balade en voiture de collection, hôtels et restaurants premium." />
   <meta name="twitter:image" content="https://www.monarch-apps.fr/assets/icons/icon-512.png" />
 
   <link rel="stylesheet" href="assets/styles.css" />
@@ -760,7 +760,7 @@
   <section class="roadtrip-grid">
 
     <div class="card">
-      <h2>Road Trip IA</h2>
+      <h2>Road Trip Sur-Mesure</h2>
       <p class="muted">
         Créez votre road trip automobile ou road trip voiture sur-mesure : itinéraire premium avec escales, points de vue, musées automobiles,
         restaurants, hôtels, contacts et roadbook imprimable, idéal pour une sortie voiture sportive entre amis ou une balade en voiture de collection.
@@ -788,7 +788,7 @@
         <div class="separator"></div>
 
         <h3>Étapes intermédiaires <span style="font-size:.75rem;color:#888;font-weight:normal;">(optionnel)</span></h3>
-        <p class="muted" style="font-size:.85rem;margin-top:0;">Ajoutez vos arrêts si vous les connaissez — sinon laissez vide et l'IA proposera des étapes. Seul le type d'activité suffit.</p>
+        <p class="muted" style="font-size:.85rem;margin-top:0;">Ajoutez vos arrêts si vous les connaissez — sinon laissez vide et des étapes vous seront proposées. Seul le type d'activité suffit.</p>
         <button type="button" onclick="showInspirations()" class="btn secondary" style="font-size:.82rem;padding:7px 12px;margin-bottom:8px;">
           ✨ Voir des inspirations d'étapes
         </button>
@@ -905,7 +905,7 @@
       <h2>Résultat</h2>
 
       <p class="muted">
-        Validez ou supprimez les propositions IA, puis générez votre roadbook final premium.
+        Validez ou supprimez les propositions, puis générez votre roadbook final premium.
       </p>
 
       <div class="inline-actions">
@@ -917,7 +917,7 @@
 
       <div id="roadtripResult" class="result-box">
         <div class="notice">
-          En attente de génération IA.
+          En attente de génération.
         </div>
       </div>
     </div>
@@ -965,7 +965,7 @@
 <script src="js/analytics.js"></script>
 
 <script>
-  // ===== Exemples de road trips (générés une fois via notre IA, figés en démo) =====
+  // ===== Exemples de road trips (générés une fois via notre générateur, figés en démo) =====
   var ROADTRIP_EXAMPLES = [
     {
       tag: "France • 3 jours • 2 pers.",
@@ -1483,7 +1483,7 @@
         name: clean,
         type: type,
         address: "",
-        reason: "Proposition extraite du roadbook IA",
+        reason: "Proposition extraite du roadbook",
         rating: "",
         contact: "",
         phone: "",
@@ -1509,7 +1509,7 @@
   function replaceStop(index) {
     proposalStops[index].status = "removed";
     renderProposals();
-    alert("Proposition supprimée. Relancez l’IA avec une préférence plus précise pour obtenir un remplacement.");
+    alert("Proposition supprimée. Relancez la génération avec une préférence plus précise pour obtenir un remplacement.");
   }
 
   function renderProposals() {
@@ -1521,12 +1521,12 @@
     let html = "";
 
     html += '<div class="roadbook-section">';
-    html += '<h4>Résumé IA</h4>';
+    html += '<h4>Résumé</h4>';
     html += '<div style="white-space:pre-wrap;line-height:1.6;">' + escapeHtml(lastAiSummary) + '</div>';
     html += '</div>';
 
     html += '<div class="notice">';
-    html += 'Propositions IA : ' + activeStops.length + ' visibles • ' + validatedStops.length + ' validée(s). ';
+    html += 'Propositions : ' + activeStops.length + ' visibles • ' + validatedStops.length + ' validée(s). ';
     html += 'Validez uniquement les éléments à conserver dans le roadbook final.';
     html += '</div>';
 
@@ -1781,7 +1781,7 @@
       submitBtn.textContent = "Génération en cours...";
     }
 
-    result.innerHTML = '<div class="notice">Génération des propositions IA en cours... (cela peut prendre jusqu’à une minute)</div>';
+    result.innerHTML = '<div class="notice">Génération des propositions en cours... (cela peut prendre jusqu’à une minute)</div>';
 
     const formData = new FormData(e.target);
     const data = {};
@@ -1881,7 +1881,7 @@
 
     } catch (err) {
       result.innerHTML =
-        '<div class="notice">Mode démonstration : la fonction IA Road Trip n’est pas encore connectée ou a retourné une erreur.</div>' +
+        '<div class="notice">Mode démonstration : le générateur de road trip n’est pas encore connecté ou a retourné une erreur.</div>' +
         '<div class="roadbook-section">' +
           '<h4>1. Départ</h4>' +
           '<p><strong>' + escapeHtml(startFull) + '</strong></p>' +
@@ -1892,7 +1892,7 @@
           '<p><strong>' + escapeHtml(endFull) + '</strong></p>' +
         '</div>' +
         '<div class="roadbook-section">' +
-          '<h4>3. Proposition IA attendue</h4>' +
+          '<h4>3. Proposition attendue</h4>' +
           '<ul>' +
             '<li>Points de vue avec photos et images satellite</li>' +
             '<li>Musées automobiles et expositions</li>' +

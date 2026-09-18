@@ -585,7 +585,7 @@ function initEventSearch() {
       .catch(function (err) {
         console.error(err);
         var msg = (err.message || "").includes("manquante")
-          ? "La recherche IA est temporairement indisponible. Réessayez plus tard."
+          ? "La recherche est temporairement indisponible. Réessayez plus tard."
           : escapeHtml(err.message || "Erreur inattendue.");
         results.innerHTML = '<div class="notice error">' + msg + '</div>';
       });
