@@ -1,5 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 export {};
 
 const roadtripCorsHeaders: Record<string, string> = {
@@ -55,22 +57,52 @@ async function insertRoadtripRequest(
   summary: string,
   googleMapsUrl: string,
   wazeUrl: string,
-): Promise<void> {
-  await fetch(`${supabaseUrl}/rest/v1/roadtrip_requests`, {
+  userId: string | null,
+): Promise<string | null> {
+  const res = await fetch(`${supabaseUrl}/rest/v1/roadtrip_requests`, {
     method: "POST",
     headers: {
       apikey: supabaseKey,
       Authorization: `Bearer ${supabaseKey}`,
       "Content-Type": "application/json",
-      Prefer: "return=minimal",
+      Prefer: "return=representation",
     },
     body: JSON.stringify({
+      user_id: userId,
       payload: body,
       ai_summary: summary,
       route_google_maps_url: googleMapsUrl,
       route_waze_url: wazeUrl,
     }),
   });
+
+  const rows = await res.json().catch(() => null);
+  return Array.isArray(rows) && rows[0]?.id ? rows[0].id : null;
+}
+
+// Résout l'utilisateur connecté à partir du header Authorization, si présent.
+// Best-effort : un road trip peut aussi être généré sans compte (invité), auquel
+// cas userId reste null et le road trip n'est simplement pas rattachable à un
+// utilisateur (pas d'invitation d'équipe / suivi GPS possible pour ce trip-là).
+async function resolveUserId(
+  req: Request,
+  supabaseUrl: string,
+  supabaseKey: string,
+): Promise<string | null> {
+  try {
+    const authHeader = req.headers.get("Authorization") || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!token) return null;
+
+    // Le client passe soit la clé anon (invité), soit le vrai token utilisateur.
+    // auth.getUser() renvoie naturellement "aucun utilisateur" pour la clé anon.
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data?.user) return null;
+    return data.user.id;
+  } catch {
+    return null;
+  }
 }
 
 async function saveEtapesToCatalog(
@@ -295,15 +327,20 @@ Retourne uniquement un JSON valide. Le champ "stops" doit contenir UNIQUEMENT le
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
+    let roadtripId: string | null = null;
+
     if (supabaseUrl && supabaseKey) {
       try {
-        await insertRoadtripRequest(
+        const userId = await resolveUserId(req, supabaseUrl, supabaseKey);
+
+        roadtripId = await insertRoadtripRequest(
           supabaseUrl,
           supabaseKey,
           body,
           parsed.summary || "",
           googleMapsUrl,
           wazeUrl,
+          userId,
         );
         // Enrichir le catalogue avec les étapes soumises par l'utilisateur
         if (Array.isArray(body.etapes) && body.etapes.length > 0) {
@@ -344,6 +381,7 @@ Retourne uniquement un JSON valide. Le champ "stops" doit contenir UNIQUEMENT le
       user_etapes: enrichedUserEtapes,
       google_maps_url: googleMapsUrl,
       waze_url: wazeUrl,
+      roadtrip_id: roadtripId,
     });
   } catch (error) {
     console.log("AI ROADTRIP ERROR:", error);

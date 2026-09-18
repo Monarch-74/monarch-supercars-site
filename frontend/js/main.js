@@ -142,6 +142,8 @@ function initCookieBanner() {
 }
 
 // 🔥🔥🔥 VERSION FINALE DE callEdge AVEC HEADERS SUPABASE 🔥🔥🔥
+// Envoie le token de la session connectée quand il y en a une (pour que les fonctions
+// serveur sachent quel utilisateur appelle), sinon retombe sur la clé anon (invité).
 function callEdge(fnName, body) {
   if (!cfg.EDGE_BASE_URL) {
     return Promise.reject(new Error("EDGE_BASE_URL non configuré"));
@@ -149,14 +151,25 @@ function callEdge(fnName, body) {
 
   var url = cfg.EDGE_BASE_URL.replace(/\/$/, "") + "/" + fnName;
 
-  return fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + cfg.SUPABASE_ANON_KEY,
-      "apikey": cfg.SUPABASE_ANON_KEY
-    },
-    body: JSON.stringify(body || {})
+  var authTokenPromise = supabaseClient
+    ? supabaseClient.auth.getSession().then(function (result) {
+        var session = result.data && result.data.session;
+        return session ? session.access_token : cfg.SUPABASE_ANON_KEY;
+      }).catch(function () {
+        return cfg.SUPABASE_ANON_KEY;
+      })
+    : Promise.resolve(cfg.SUPABASE_ANON_KEY);
+
+  return authTokenPromise.then(function (accessToken) {
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + accessToken,
+        "apikey": cfg.SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify(body || {})
+    });
   }).then(function (res) {
     return res.text().then(function (text) {
       if (!text) {
@@ -655,6 +668,34 @@ function initLogin() {
   });
 }
 
+// Ajoute un bouton "œil" à tous les champs mot de passe pour afficher/masquer la saisie.
+function initPasswordToggles() {
+  var inputs = document.querySelectorAll('input[type="password"]');
+
+  inputs.forEach(function (input) {
+    if (input.closest(".password-field")) return;
+
+    var wrapper = document.createElement("div");
+    wrapper.className = "password-field";
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+
+    var toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "password-toggle";
+    toggle.setAttribute("aria-label", "Afficher le mot de passe");
+    toggle.textContent = "👁";
+    wrapper.appendChild(toggle);
+
+    toggle.addEventListener("click", function () {
+      var willShow = input.type === "password";
+      input.type = willShow ? "text" : "password";
+      toggle.textContent = willShow ? "🙈" : "👁";
+      toggle.setAttribute("aria-label", willShow ? "Masquer le mot de passe" : "Afficher le mot de passe");
+    });
+  });
+}
+
 function initForgotPassword() {
   var toggle = el("forgotPasswordToggle");
   var form = el("forgotPasswordForm");
@@ -1038,6 +1079,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initEventSearch();
   initRegister();
   initLogin();
+  initPasswordToggles();
   initForgotPassword();
   initResetPassword();
   initContact();

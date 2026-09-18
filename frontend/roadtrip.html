@@ -910,6 +910,31 @@
       </div>
     </div>
 
+    <div class="card" id="roadtripTeamCard" style="display:none">
+      <h2>Équipe & suivi GPS</h2>
+      <p class="muted">
+        Invitez des membres inscrits Monarch à rejoindre ce road trip et suivez leur position en temps réel pendant le voyage.
+      </p>
+
+      <form id="roadtripInviteForm" class="inline-actions" style="align-items:flex-end">
+        <div style="flex:1;min-width:220px">
+          <label for="roadtripInviteEmail">Email du membre à inviter</label>
+          <input id="roadtripInviteEmail" type="email" placeholder="email@exemple.com" required />
+        </div>
+        <button class="btn primary" type="submit">Inviter</button>
+      </form>
+      <div id="roadtripInviteResult" class="notice hide notice-top-margin"></div>
+
+      <div id="roadtripMembersList" class="list notice-top-margin"></div>
+
+      <div class="inline-actions notice-top-margin">
+        <button class="btn secondary" id="roadtripShareToggle" type="button">Activer le partage de ma position</button>
+      </div>
+      <p class="muted" id="roadtripShareStatus"></p>
+
+      <div id="roadtripTrackingMap" class="notice-top-margin" style="height:420px;border-radius:14px;overflow:hidden;background:#0d0d0d;border:1px solid #333"></div>
+    </div>
+
   </section>
 
 </main>
@@ -1087,6 +1112,7 @@
   let googleMapsUrl = "";
   let wazeUrl = "";
   let isGeneratingRoadtrip = false;
+  let currentRoadtripId = null;
 
   const startDateInput = document.getElementById("startDateInput");
   if (startDateInput) {
@@ -1604,6 +1630,11 @@
 
       renderProposals();
 
+      currentRoadtripId = json.roadtrip_id || null;
+      if (currentRoadtripId) {
+        initTeamPanel(currentRoadtripId);
+      }
+
     } catch (err) {
       result.innerHTML =
         '<div class="notice">Mode démonstration : la fonction IA Road Trip n’est pas encore connectée ou a retourné une erreur.</div>' +
@@ -1638,6 +1669,377 @@
       }
     }
   });
+
+  // ===== Équipe & suivi GPS en temps réel =====
+
+  var teamPanelWired = false;
+  var monarchMap = null;
+  var monarchMarkers = {};
+  var locationsChannel = null;
+  var membersChannel = null;
+  var geoWatchId = null;
+  var isSharingPosition = false;
+  var currentUserId = null;
+  var teamMembersCache = [];
+  var googleMapsLoadPromise = null;
+
+  function ensureGoogleMapsLoaded() {
+    var key = cfg.GOOGLE_MAPS_BROWSER_KEY;
+
+    if (!key || key.indexOf("YOUR_") === 0) {
+      return Promise.reject(new Error("Clé Google Maps non configurée"));
+    }
+
+    if (window.google && window.google.maps) {
+      return Promise.resolve();
+    }
+
+    if (googleMapsLoadPromise) return googleMapsLoadPromise;
+
+    googleMapsLoadPromise = new Promise(function (resolve, reject) {
+      var script = document.createElement("script");
+      script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key);
+      script.async = true;
+      script.onload = function () { resolve(); };
+      script.onerror = function () { reject(new Error("Impossible de charger Google Maps")); };
+      document.head.appendChild(script);
+    });
+
+    return googleMapsLoadPromise;
+  }
+
+  function initTeamPanel(roadtripId) {
+    var card = document.getElementById("roadtripTeamCard");
+    if (card) card.style.display = "";
+
+    loadMembers(roadtripId);
+    wireTeamPanel();
+    subscribeTeamRealtime(roadtripId);
+
+    ensureGoogleMapsLoaded()
+      .then(function () {
+        initTrackingMap();
+        loadInitialLocations(roadtripId);
+      })
+      .catch(function (err) {
+        var mapEl = document.getElementById("roadtripTrackingMap");
+        if (mapEl) {
+          mapEl.innerHTML =
+            '<div class="notice error" style="margin:0;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px">' +
+            "Carte de suivi indisponible : " + escapeHtml(err.message) + ". Contactez l'administrateur pour activer la clé Google Maps." +
+            "</div>";
+        }
+      });
+  }
+
+  function initTrackingMap() {
+    var mapEl = document.getElementById("roadtripTrackingMap");
+    if (!mapEl || monarchMap) return;
+
+    monarchMap = new google.maps.Map(mapEl, {
+      center: { lat: 46.6, lng: 2.3 },
+      zoom: 5
+    });
+  }
+
+  function memberLabel(userId) {
+    var m = teamMembersCache.find(function (x) { return x.user_id === userId; });
+    return m ? m.email : userId;
+  }
+
+  function upsertMarker(loc) {
+    if (!monarchMap || !window.google) return;
+
+    var pos = { lat: loc.lat, lng: loc.lng };
+
+    if (monarchMarkers[loc.user_id]) {
+      monarchMarkers[loc.user_id].setPosition(pos);
+    } else {
+      monarchMarkers[loc.user_id] = new google.maps.Marker({
+        position: pos,
+        map: monarchMap,
+        title: memberLabel(loc.user_id)
+      });
+    }
+
+    monarchMap.panTo(pos);
+  }
+
+  function removeMarker(userId) {
+    if (monarchMarkers[userId]) {
+      monarchMarkers[userId].setMap(null);
+      delete monarchMarkers[userId];
+    }
+  }
+
+  function loadInitialLocations(roadtripId) {
+    if (!supabaseClient) return;
+
+    supabaseClient
+      .from("roadtrip_locations")
+      .select("*")
+      .eq("roadtrip_id", roadtripId)
+      .eq("sharing", true)
+      .then(function (res) {
+        (res.data || []).forEach(function (loc) { upsertMarker(loc); });
+      });
+  }
+
+  function loadMembers(roadtripId) {
+    if (!supabaseClient) return;
+
+    supabaseClient
+      .from("roadtrip_members")
+      .select("*")
+      .eq("roadtrip_id", roadtripId)
+      .then(function (res) {
+        teamMembersCache = res.data || [];
+        renderMembers(roadtripId, teamMembersCache);
+      });
+  }
+
+  function renderMembers(roadtripId, rows) {
+    var container = document.getElementById("roadtripMembersList");
+    if (!container) return;
+
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<p class="muted">Aucun membre invité pour le moment.</p>';
+      return;
+    }
+
+    supabaseClient.auth.getUser().then(function (userRes) {
+      var myId = userRes.data && userRes.data.user ? userRes.data.user.id : null;
+
+      var html = "";
+
+      rows.forEach(function (m) {
+        var badgeClass = m.status === "accepted" ? "success" : (m.status === "declined" ? "error" : "warning");
+        var badgeLabel = m.status === "accepted" ? "A accepté" : (m.status === "declined" ? "A refusé" : "En attente");
+
+        html += '<div class="event-card" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">';
+        html += "<span>" + escapeHtml(m.email) + "</span>";
+        html += '<span class="badge ' + badgeClass + '">' + badgeLabel + "</span>";
+
+        if (m.user_id === myId && m.status === "invited") {
+          html += '<span class="inline-actions" style="margin:0">' +
+            '<button class="btn secondary" type="button" data-accept="' + m.id + '">Accepter</button>' +
+            '<button class="btn secondary" type="button" data-decline="' + m.id + '">Refuser</button>' +
+            "</span>";
+        }
+
+        html += "</div>";
+      });
+
+      container.innerHTML = html;
+
+      container.querySelectorAll("[data-accept]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          respondInvite(btn.getAttribute("data-accept"), "accepted", roadtripId);
+        });
+      });
+
+      container.querySelectorAll("[data-decline]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          respondInvite(btn.getAttribute("data-decline"), "declined", roadtripId);
+        });
+      });
+    });
+  }
+
+  function respondInvite(memberId, status, roadtripId) {
+    supabaseClient
+      .from("roadtrip_members")
+      .update({ status: status, responded_at: new Date().toISOString() })
+      .eq("id", memberId)
+      .then(function () {
+        loadMembers(roadtripId);
+      });
+  }
+
+  function wireTeamPanel() {
+    if (teamPanelWired) return;
+    teamPanelWired = true;
+
+    var inviteForm = document.getElementById("roadtripInviteForm");
+    if (inviteForm) {
+      inviteForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        var emailInput = document.getElementById("roadtripInviteEmail");
+        var resultEl = document.getElementById("roadtripInviteResult");
+        var email = emailInput.value.trim();
+        if (!email || !currentRoadtripId) return;
+
+        resultEl.classList.remove("hide", "success", "error");
+        resultEl.textContent = "Envoi de l'invitation...";
+
+        callEdge("roadtrip-invite-member", { roadtrip_id: currentRoadtripId, email: email })
+          .then(function () {
+            resultEl.classList.add("success");
+            resultEl.textContent = "Invitation envoyée à " + email + ".";
+            emailInput.value = "";
+            loadMembers(currentRoadtripId);
+          })
+          .catch(function (err) {
+            resultEl.classList.add("error");
+            resultEl.textContent = err.message;
+          });
+      });
+    }
+
+    var shareToggle = document.getElementById("roadtripShareToggle");
+    if (shareToggle) {
+      shareToggle.addEventListener("click", function () {
+        if (isSharingPosition) {
+          stopSharingPosition();
+        } else {
+          startSharingPosition(currentRoadtripId);
+        }
+      });
+    }
+  }
+
+  function startSharingPosition(roadtripId) {
+    if (!navigator.geolocation) {
+      alert("Votre navigateur ne supporte pas la géolocalisation.");
+      return;
+    }
+
+    if (!roadtripId) return;
+
+    supabaseClient.auth.getUser().then(function (res) {
+      var uid = res.data && res.data.user ? res.data.user.id : null;
+      if (!uid) return;
+
+      currentUserId = uid;
+
+      geoWatchId = navigator.geolocation.watchPosition(function (pos) {
+        supabaseClient
+          .from("roadtrip_locations")
+          .upsert({
+            roadtrip_id: roadtripId,
+            user_id: uid,
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            heading: pos.coords.heading,
+            speed: pos.coords.speed,
+            sharing: true,
+            updated_at: new Date().toISOString()
+          }, { onConflict: "roadtrip_id,user_id" })
+          .then(function () {});
+      }, function (err) {
+        console.error("Géolocalisation refusée ou indisponible :", err);
+        stopSharingPosition();
+        alert("Impossible d'accéder à votre position : " + err.message);
+      }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
+
+      isSharingPosition = true;
+      updateShareButton();
+    });
+  }
+
+  function stopSharingPosition() {
+    if (geoWatchId !== null) {
+      navigator.geolocation.clearWatch(geoWatchId);
+      geoWatchId = null;
+    }
+
+    isSharingPosition = false;
+    updateShareButton();
+
+    if (currentRoadtripId && currentUserId) {
+      supabaseClient
+        .from("roadtrip_locations")
+        .update({ sharing: false })
+        .eq("roadtrip_id", currentRoadtripId)
+        .eq("user_id", currentUserId)
+        .then(function () {});
+    }
+  }
+
+  function updateShareButton() {
+    var btn = document.getElementById("roadtripShareToggle");
+    var status = document.getElementById("roadtripShareStatus");
+
+    if (btn) btn.textContent = isSharingPosition ? "Arrêter le partage de ma position" : "Activer le partage de ma position";
+    if (status) status.textContent = isSharingPosition
+      ? "Votre position est partagée avec les membres de ce road trip."
+      : "Votre position n'est pas partagée.";
+  }
+
+  window.addEventListener("beforeunload", function () {
+    if (isSharingPosition) stopSharingPosition();
+  });
+
+  function subscribeTeamRealtime(roadtripId) {
+    if (!supabaseClient) return;
+
+    if (locationsChannel) supabaseClient.removeChannel(locationsChannel);
+    if (membersChannel) supabaseClient.removeChannel(membersChannel);
+
+    locationsChannel = supabaseClient
+      .channel("roadtrip-locations-" + roadtripId)
+      .on("postgres_changes", { event: "*", schema: "public", table: "roadtrip_locations", filter: "roadtrip_id=eq." + roadtripId }, function (payload) {
+        if (payload.eventType === "DELETE") {
+          removeMarker(payload.old.user_id);
+          return;
+        }
+
+        var loc = payload.new;
+        if (loc.sharing === false) {
+          removeMarker(loc.user_id);
+        } else {
+          upsertMarker(loc);
+        }
+      })
+      .subscribe();
+
+    membersChannel = supabaseClient
+      .channel("roadtrip-members-" + roadtripId)
+      .on("postgres_changes", { event: "*", schema: "public", table: "roadtrip_members", filter: "roadtrip_id=eq." + roadtripId }, function () {
+        loadMembers(roadtripId);
+      })
+      .subscribe();
+  }
+
+  // Lien de partage (?trip=<id>) : permet à un membre invité d'ouvrir directement
+  // le road trip du propriétaire pour accepter l'invitation et activer son suivi GPS.
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var sharedTripId = params.get("trip");
+    if (!sharedTripId) return;
+
+    var result = document.getElementById("roadtripResult");
+
+    requireLogin(result).then(function (allowed) {
+      if (!allowed || !supabaseClient) return;
+
+      supabaseClient
+        .from("roadtrip_requests")
+        .select("*")
+        .eq("id", sharedTripId)
+        .single()
+        .then(function (res) {
+          if (res.error || !res.data) {
+            result.innerHTML = '<div class="notice error">Ce road trip est introuvable ou vous n\'y avez pas accès.</div>';
+            return;
+          }
+
+          var trip = res.data;
+          var payload = trip.payload || {};
+
+          result.innerHTML =
+            '<div class="notice success">Vous consultez le road trip partagé' +
+            (payload.start_address ? " : " + escapeHtml(payload.start_address) + " → " + escapeHtml(payload.end_address || "") : "") +
+            ".</div>" +
+            '<div style="white-space:pre-wrap;line-height:1.6;margin-top:14px">' + escapeHtml(trip.ai_summary || "") + "</div>";
+
+          currentRoadtripId = trip.id;
+          initTeamPanel(currentRoadtripId);
+        });
+    });
+  })();
 </script>
 
 </body>
