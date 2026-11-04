@@ -31,7 +31,12 @@ Deno.serve(async (req) => {
 
       if (targetType === "partner" && targetId) {
         await supabase.from("partners")
-          .update({ stripe_payment_status: "paid", status: "paid", stripe_customer_id: String(session.customer || "") })
+          .update({
+            stripe_payment_status: "paid",
+            status: "paid",
+            stripe_customer_id: String(session.customer || ""),
+            stripe_subscription_id: String(session.subscription || "")
+          })
           .eq("id", targetId);
       }
 
@@ -54,6 +59,33 @@ Deno.serve(async (req) => {
         target_type: targetType || "unknown",
         target_id: targetId || null,
         metadata: { session_id: session.id }
+      });
+    }
+
+    // Abonnement partenaire annulé ou définitivement impayé (après les relances
+    // automatiques de Stripe) : on désactive le partenaire, ce qui le retire
+    // immédiatement de la page publique (RLS: events_public_read_approved
+    // n'autorise que status = 'approved').
+    if (event.type === "customer.subscription.deleted") {
+      const subscription = event.data.object as any;
+      const targetId = subscription.metadata?.target_id;
+
+      const query = supabase.from("partners").update({
+        status: "inactive",
+        stripe_payment_status: "canceled"
+      });
+
+      if (targetId) {
+        await query.eq("id", targetId);
+      } else {
+        await query.eq("stripe_subscription_id", String(subscription.id || ""));
+      }
+
+      await supabase.from("audit_logs").insert({
+        action: "stripe_subscription_canceled",
+        target_type: "partner",
+        target_id: targetId || null,
+        metadata: { subscription_id: subscription.id }
       });
     }
 

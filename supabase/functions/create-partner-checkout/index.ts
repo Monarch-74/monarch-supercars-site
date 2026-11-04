@@ -41,8 +41,11 @@ Deno.serve(async (req) => {
     const priceId = (Deno.env.get("STRIPE_PARTNER_PRICE_ID") ?? "").trim();
     if (!priceId) throw new Error("STRIPE_PARTNER_PRICE_ID non configuré");
 
+    // Abonnement annuel (et non un paiement unique) : le prix Stripe référencé par
+    // STRIPE_PARTNER_PRICE_ID doit être un prix récurrent (interval: year), sinon
+    // Stripe refuse la session en mode "subscription".
     const session = await stripe.checkout.sessions.create({
-      mode: "payment",
+      mode: "subscription",
       success_url: body.success_url || "https://monarch-supercars.app",
       cancel_url: body.cancel_url || "https://monarch-supercars.app/partners",
       line_items: [{ price: priceId, quantity: 1 }],
@@ -50,6 +53,12 @@ Deno.serve(async (req) => {
       metadata: {
         target_type: "partner",
         target_id: partner.id
+      },
+      subscription_data: {
+        metadata: {
+          target_type: "partner",
+          target_id: partner.id
+        }
       }
     });
 

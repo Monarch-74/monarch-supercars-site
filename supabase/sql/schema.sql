@@ -19,6 +19,7 @@ create table if not exists public.partners (
   description text,
   stripe_checkout_session_id text,
   stripe_customer_id text,
+  stripe_subscription_id text,
   stripe_payment_status text default 'unpaid',
   status text not null default 'pending' check (status in ('pending','paid','approved','rejected','inactive')),
   created_at timestamptz not null default now()
