@@ -127,3 +127,25 @@ create policy "roadtrip_owner_insert" on public.roadtrip_requests for insert wit
 create policy "roadtrip_owner_read" on public.roadtrip_requests for select using (auth.uid() = user_id);
 
 -- Admin access is handled by service role in Edge Functions.
+
+-- Coordonnées pour l'affichage carte (Leaflet / OpenStreetMap). Nullable : rempli
+-- par géocodage côté client (MVP) ou côté admin à l'approbation (stretch goal futur).
+alter table public.events
+  add column if not exists lat double precision,
+  add column if not exists lng double precision;
+
+-- Abonnements aux alertes email "nouveaux événements près de chez vous".
+-- Lecture réservée au service_role (edge function admin-update-status) : aucune
+-- policy SELECT publique, pour ne jamais exposer les emails des abonnés.
+create table if not exists public.event_alerts (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  country text not null,
+  department text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.event_alerts enable row level security;
+
+create policy "event_alerts_public_insert" on public.event_alerts
+  for insert with check (true);

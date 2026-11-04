@@ -9,6 +9,18 @@ if (cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY && window.supabase) {
   );
 }
 
+// Données partagées par la carte et le calendrier de la page événements,
+// alimentées par initFeaturedEvents() et initCommunityEvents() (events.html uniquement).
+var MAP_CALENDAR_STATE = { events: [], pending: 2 };
+
+function maybeRenderMapAndCalendar() {
+  MAP_CALENDAR_STATE.pending -= 1;
+  if (MAP_CALENDAR_STATE.pending <= 0) {
+    renderEventsMap(MAP_CALENDAR_STATE.events);
+    renderEventsCalendar(MAP_CALENDAR_STATE.events);
+  }
+}
+
 // Départements par pays
 var REGIONS = {
   France: [
@@ -80,9 +92,9 @@ function showNotice(node, message, type) {
   node.classList.remove("hide");
 }
 
-function initRegionSelectors() {
-  var countrySelect = document.querySelector('select[name="country"]');
-  var regionSelect = document.querySelector('select[name="department"]');
+function initRegionSelectors(countrySelector, departmentSelector) {
+  var countrySelect = document.querySelector(countrySelector || 'select[name="country"]');
+  var regionSelect = document.querySelector(departmentSelector || 'select[name="department"]');
 
   if (!countrySelect || !regionSelect) return;
 
@@ -358,7 +370,10 @@ function initFeaturedEvents() {
   if (!container || !supabaseClient) return;
 
   requireLogin(container).then(function (allowed) {
-    if (!allowed) return;
+    if (!allowed) {
+      maybeRenderMapAndCalendar();
+      return;
+    }
 
     container.innerHTML = '<div class="notice">Chargement de la sélection…</div>';
     var todayIso = new Date().toISOString().slice(0, 10);
@@ -373,6 +388,7 @@ function initFeaturedEvents() {
       .limit(200)
       .then(function (res) {
         var data = res.data || [];
+        MAP_CALENDAR_STATE.events = MAP_CALENDAR_STATE.events.concat(data);
 
         if (res.error || !data.length) {
           container.innerHTML = '<div class="notice muted">Aucun événement en sélection pour le moment. Revenez bientôt !</div>';
@@ -389,10 +405,10 @@ function initFeaturedEvents() {
           if (ev.description) {
             html += '<p>' + escapeHtml(ev.description).replaceAll("\n", "<br>") + '</p>';
           }
-          html += '<p class="event-meta"><strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || ev.address || "-") + '</p>';
-          html += '<p class="event-meta"><strong>Date :</strong> ' + formatEventDate(ev.event_date) + '</p>';
+          html += '<p class="event-meta">📍 <strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || ev.address || "-") + '</p>';
+          html += '<p class="event-meta">🗓 <strong>Date :</strong> ' + formatEventDate(ev.event_date) + '</p>';
           if (ev.department) {
-            html += '<p class="event-meta"><strong>Département :</strong> ' + escapeHtml(ev.department) + '</p>';
+            html += '<p class="event-meta">📌 <strong>Département :</strong> ' + escapeHtml(ev.department) + '</p>';
           }
           if (ev.external_url) {
             html += '<a class="event-link" target="_blank" rel="noopener" href="' + escapeHtml(ev.external_url) + '">Plus d\'informations</a>';
@@ -400,12 +416,15 @@ function initFeaturedEvents() {
           html += '</div>';
         });
 
-        container.className = "";
+        container.className = "events-grid";
         container.innerHTML = html;
       })
       .catch(function () {
         container.className = "notice error";
         container.innerHTML = "Impossible de charger la sélection.";
+      })
+      .finally(function () {
+        maybeRenderMapAndCalendar();
       });
   });
 }
@@ -426,6 +445,7 @@ function initCommunityEvents() {
     .limit(500)
     .then(function (res) {
       var data = res.data || [];
+      MAP_CALENDAR_STATE.events = MAP_CALENDAR_STATE.events.concat(data);
 
       if (res.error || !data.length) {
         container.className = "notice";
@@ -453,8 +473,8 @@ function initCommunityEvents() {
           html += "<p>" + escapeHtml(ev.description).replaceAll("\n", "<br>") + "</p>";
         }
 
-        html += '<p class="event-meta"><strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || ev.address || "-") + "</p>";
-        html += '<p class="event-meta"><strong>Date :</strong> ' + formatEventDate(ev.event_date) + "</p>";
+        html += '<p class="event-meta">📍 <strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || ev.address || "-") + "</p>";
+        html += '<p class="event-meta">🗓 <strong>Date :</strong> ' + formatEventDate(ev.event_date) + "</p>";
 
         if (ev.external_url) {
           html +=
@@ -466,13 +486,16 @@ function initCommunityEvents() {
         html += "</div>";
       });
 
-      container.className = "";
+      container.className = "events-grid";
       container.innerHTML = html;
       injectEventsJsonLd(data);
     })
     .catch(function () {
       container.className = "notice error";
       container.innerHTML = "Impossible de charger les événements.";
+    })
+    .finally(function () {
+      maybeRenderMapAndCalendar();
     });
 }
 
@@ -549,6 +572,8 @@ function initEventSearch() {
           dates.forEach(function (date) {
             html += '<h3 style="color:white;margin-top:20px;border-bottom:1px solid #333;padding-bottom:8px;">📅 ' + escapeHtml(date) + '</h3>';
 
+            html += '<div class="events-grid">';
+
             grouped[region][date].forEach(function (ev) {
               html += '<div class="event-card">';
 
@@ -563,18 +588,20 @@ function initEventSearch() {
 
               html += '<h3>' + escapeHtml(ev.title || "Événement automobile") + '</h3>';
               html += '<p>' + escapeHtml(ev.summary || "Description non disponible.") + '</p>';
-              html += '<p><strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || "-") + '</p>';
-              html += '<p><strong>Date :</strong> ' + escapeHtml(date) + '</p>';
+              html += '<p class="event-meta">📍 <strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || "-") + '</p>';
+              html += '<p class="event-meta">🗓 <strong>Date :</strong> ' + escapeHtml(date) + '</p>';
 
               if (ev.source_url) {
                 html +=
-                  '<a class="btn secondary" target="_blank" href="' +
+                  '<a class="event-link" target="_blank" href="' +
                   escapeHtml(ev.source_url) +
                   '">Voir la source</a>';
               }
 
               html += '</div>';
             });
+
+            html += '</div>';
           });
 
           html += '</div>';
@@ -1115,6 +1142,333 @@ function initScrollReveal() {
   }
 }
 
+// Compte à rebours vers le tout prochain événement publié, affiché sur la page d'accueil.
+// event_date ne stocke qu'une date (pas d'heure) : la cible est minuit (00:00:00) du jour J.
+var nextEventCountdownTimer = null;
+
+function initNextEventCountdown() {
+  var section = el("nextEventSection");
+  if (!section || !supabaseClient) return;
+
+  var todayIso = new Date().toISOString().slice(0, 10);
+
+  supabaseClient
+    .from("events")
+    .select("*")
+    .eq("status", "approved")
+    .gte("event_date", todayIso)
+    .order("event_date", { ascending: true })
+    .limit(1)
+    .then(function (res) {
+      var ev = res.data && res.data[0];
+      if (res.error || !ev) {
+        section.innerHTML = "";
+        return;
+      }
+
+      section.innerHTML =
+        '<div class="card countdown-card">' +
+        '<h3>⏳ Prochain événement</h3>' +
+        '<p class="event-title">' + escapeHtml(ev.title || "Événement automobile") + '</p>' +
+        '<p class="muted">📍 ' + escapeHtml(ev.venue_name || ev.address || "-") + ' — 🗓 ' + formatEventDate(ev.event_date) + '</p>' +
+        '<div class="countdown">' +
+        '<div class="countdown-box"><span class="countdown-value" id="cdDays">00</span><span class="countdown-label">Jours</span></div>' +
+        '<div class="countdown-box"><span class="countdown-value" id="cdHours">00</span><span class="countdown-label">Heures</span></div>' +
+        '<div class="countdown-box"><span class="countdown-value" id="cdMinutes">00</span><span class="countdown-label">Minutes</span></div>' +
+        '<div class="countdown-box"><span class="countdown-value" id="cdSeconds">00</span><span class="countdown-label">Secondes</span></div>' +
+        '</div>' +
+        '<a class="btn primary" href="events.html">Voir l\'agenda complet</a>' +
+        '</div>';
+
+      startNextEventCountdownTimer(ev.event_date);
+    })
+    .catch(function () {
+      section.innerHTML = "";
+    });
+}
+
+function startNextEventCountdownTimer(eventDate) {
+  var target = new Date(eventDate + "T00:00:00").getTime();
+  var daysEl = el("cdDays");
+  var hoursEl = el("cdHours");
+  var minutesEl = el("cdMinutes");
+  var secondsEl = el("cdSeconds");
+  if (!daysEl) return;
+
+  if (nextEventCountdownTimer) clearInterval(nextEventCountdownTimer);
+
+  function tick() {
+    var diff = target - Date.now();
+    if (diff <= 0) {
+      daysEl.textContent = hoursEl.textContent = minutesEl.textContent = secondsEl.textContent = "00";
+      clearInterval(nextEventCountdownTimer);
+      return;
+    }
+    var totalSeconds = Math.floor(diff / 1000);
+    var days = Math.floor(totalSeconds / 86400);
+    var hours = Math.floor((totalSeconds % 86400) / 3600);
+    var minutes = Math.floor((totalSeconds % 3600) / 60);
+    var seconds = totalSeconds % 60;
+
+    daysEl.textContent = String(days).padStart(2, "0");
+    hoursEl.textContent = String(hours).padStart(2, "0");
+    minutesEl.textContent = String(minutes).padStart(2, "0");
+    secondsEl.textContent = String(seconds).padStart(2, "0");
+  }
+
+  tick();
+  nextEventCountdownTimer = setInterval(tick, 1000);
+}
+
+var CALENDAR_WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+var CALENDAR_MONTHS = [
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+];
+var calendarViewDate = new Date();
+calendarViewDate.setDate(1);
+
+function renderEventsCalendar(events) {
+  var grid = el("eventsCalendar");
+  var label = el("calendarMonthLabel");
+  var dayList = el("eventsCalendarDayList");
+  if (!grid || !label) return;
+
+  var byDate = {};
+  events.forEach(function (ev) {
+    if (!ev.event_date) return;
+    var key = String(ev.event_date).slice(0, 10);
+    (byDate[key] = byDate[key] || []).push(ev);
+  });
+
+  var year = calendarViewDate.getFullYear();
+  var month = calendarViewDate.getMonth();
+  label.textContent = CALENDAR_MONTHS[month] + " " + year;
+
+  var firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7; // lundi = 0
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  var html = CALENDAR_WEEKDAYS.map(function (d) {
+    return '<div class="calendar-weekday">' + d + "</div>";
+  }).join("");
+
+  for (var i = 0; i < firstWeekday; i++) {
+    html += '<div class="calendar-day empty"></div>';
+  }
+
+  for (var day = 1; day <= daysInMonth; day++) {
+    var key = year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+    var hasEvents = !!byDate[key];
+    html +=
+      '<div class="calendar-day' + (hasEvents ? " has-events" : "") + '" data-date="' + key + '">' +
+      day +
+      "</div>";
+  }
+
+  grid.innerHTML = html;
+
+  grid.querySelectorAll(".calendar-day.has-events").forEach(function (dayEl) {
+    dayEl.addEventListener("click", function () {
+      grid.querySelectorAll(".calendar-day.selected").forEach(function (d) {
+        d.classList.remove("selected");
+      });
+      dayEl.classList.add("selected");
+      renderCalendarDayList(byDate[dayEl.dataset.date] || []);
+    });
+  });
+
+  if (dayList) dayList.innerHTML = "";
+}
+
+function renderCalendarDayList(dayEvents) {
+  var dayList = el("eventsCalendarDayList");
+  if (!dayList) return;
+
+  if (!dayEvents.length) {
+    dayList.innerHTML = '<div class="notice muted">Aucun événement ce jour-là.</div>';
+    return;
+  }
+
+  var html = "<ul>";
+  dayEvents.forEach(function (ev) {
+    html += "<li><strong>" + escapeHtml(ev.title || "Événement automobile") + "</strong> — " +
+      escapeHtml(ev.venue_name || ev.address || "-") + "</li>";
+  });
+  html += "</ul>";
+  dayList.innerHTML = html;
+}
+
+function initCalendarNav() {
+  var prevBtn = el("calendarPrevBtn");
+  var nextBtn = el("calendarNextBtn");
+  if (prevBtn) {
+    prevBtn.addEventListener("click", function () {
+      calendarViewDate.setMonth(calendarViewDate.getMonth() - 1);
+      renderEventsCalendar(MAP_CALENDAR_STATE.events);
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener("click", function () {
+      calendarViewDate.setMonth(calendarViewDate.getMonth() + 1);
+      renderEventsCalendar(MAP_CALENDAR_STATE.events);
+    });
+  }
+}
+
+var monarchMapInstance = null;
+
+function buildMapPopupHtml(ev) {
+  var html = "<strong>" + escapeHtml(ev.title || "Événement automobile") + "</strong><br>" +
+    "📍 " + escapeHtml(ev.venue_name || ev.address || "-") + "<br>" +
+    "🗓 " + formatEventDate(ev.event_date);
+  if (ev.external_url) {
+    html += '<br><a target="_blank" rel="noopener" href="' + escapeHtml(ev.external_url) + '">Plus d\'informations</a>';
+  }
+  return html;
+}
+
+function renderEventsMap(events) {
+  if (!window.L) return;
+  var mapEl = el("eventsMap");
+  if (!mapEl) return;
+
+  if (!monarchMapInstance) {
+    monarchMapInstance = L.map("eventsMap").setView([46.6, 2.5], 5);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+      maxZoom: 18
+    }).addTo(monarchMapInstance);
+  }
+
+  var toGeocode = [];
+  events.forEach(function (ev) {
+    if (ev.lat && ev.lng) {
+      L.marker([ev.lat, ev.lng]).addTo(monarchMapInstance).bindPopup(buildMapPopupHtml(ev));
+    } else {
+      toGeocode.push(ev);
+    }
+  });
+
+  geocodeQueue(toGeocode);
+}
+
+// Géocode les événements sans lat/lng via l'API gratuite Nominatim (OpenStreetMap),
+// un par un avec un délai pour respecter sa politique d'usage (~1 requête/seconde).
+function geocodeQueue(toGeocode) {
+  var i = 0;
+
+  function next() {
+    if (i >= toGeocode.length) return;
+    var ev = toGeocode[i++];
+
+    geocodeEvent(ev)
+      .then(function (coords) {
+        if (coords && monarchMapInstance) {
+          L.marker([coords.lat, coords.lng]).addTo(monarchMapInstance).bindPopup(buildMapPopupHtml(ev));
+        }
+      })
+      .finally(function () {
+        setTimeout(next, 1100);
+      });
+  }
+
+  next();
+}
+
+function geocodeEvent(ev) {
+  var query = [ev.venue_name, ev.address, ev.department, ev.country].filter(Boolean).join(", ");
+  if (!query) return Promise.resolve(null);
+
+  var cacheKey = "monarch_geocode_" + query;
+  try {
+    var cached = sessionStorage.getItem(cacheKey);
+    if (cached) return Promise.resolve(JSON.parse(cached));
+  } catch (e) {
+    // sessionStorage indisponible (navigation privée, etc.) : on géocode sans cache.
+  }
+
+  return fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(query))
+    .then(function (res) { return res.json(); })
+    .then(function (results) {
+      if (!results || !results.length) return null;
+      var coords = { lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) };
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify(coords));
+      } catch (e) {
+        // ignore
+      }
+      return coords;
+    })
+    .catch(function () {
+      return null;
+    });
+}
+
+function initEventAlertsForm() {
+  var form = el("eventAlertsForm");
+  if (!form || !supabaseClient) return;
+
+  initRegionSelectors("#alertCountrySelect", "#alertDepartmentSelect");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var notice = el("alertFormNotice");
+    var email = el("alertEmailInput").value.trim();
+    var country = el("alertCountrySelect").value;
+    var department = el("alertDepartmentSelect").value;
+
+    if (!email || !country || !department) return;
+
+    supabaseClient
+      .from("event_alerts")
+      .insert({ email: email, country: country, department: department })
+      .then(function (res) {
+        if (res.error) {
+          showNotice(notice, "Impossible de vous inscrire pour le moment.", "error");
+          return;
+        }
+        showNotice(notice, "Vous recevrez un email dès qu'un événement est publié dans cette zone.", "success");
+        form.reset();
+      })
+      .catch(function () {
+        showNotice(notice, "Impossible de vous inscrire pour le moment.", "error");
+      });
+  });
+}
+
+// Agrandit l'affiche d'un événement en plein écran au clic (délégation d'événement
+// car les cartes sont injectées dynamiquement après le chargement de la page).
+function initPosterLightbox() {
+  var overlay = document.createElement("div");
+  overlay.className = "poster-lightbox";
+  overlay.innerHTML = '<button type="button" class="poster-lightbox-close" aria-label="Fermer">✕</button><img alt="" />';
+  document.body.appendChild(overlay);
+
+  var lightboxImg = overlay.querySelector("img");
+
+  function close() {
+    overlay.classList.remove("active");
+  }
+
+  document.addEventListener("click", function (e) {
+    var poster = e.target.closest(".event-card img.poster");
+    if (poster) {
+      lightboxImg.src = poster.src;
+      lightboxImg.alt = poster.alt || "";
+      overlay.classList.add("active");
+      return;
+    }
+    if (e.target === overlay || e.target.closest(".poster-lightbox-close")) {
+      close();
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") close();
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initAudioControl();
   initCookieBanner();
@@ -1123,6 +1477,10 @@ document.addEventListener("DOMContentLoaded", function () {
   initFeaturedEvents();
   initCommunityEvents();
   initEventSearch();
+  initEventAlertsForm();
+  initCalendarNav();
+  initNextEventCountdown();
+  initPosterLightbox();
   initRegister();
   initLogin();
   initPasswordToggles();

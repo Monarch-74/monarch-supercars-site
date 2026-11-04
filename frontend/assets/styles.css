@@ -150,6 +150,7 @@ label{display:block;margin:14px 0 6px;font-size:.95rem;color:#ddd}
 input,select,textarea{
   width:100%;padding:14px;background:#0d0d0d;color:#fff;border:1px solid #333;border-radius:12px;
   transition:border-color .25s ease, box-shadow .25s ease;
+  color-scheme:dark;
 }
 input:focus,select:focus,textarea:focus{
   outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.14);
@@ -190,6 +191,13 @@ small, .muted{color:var(--muted)}
 .warning{border-color:rgba(212,175,55,.35);background:rgba(212,175,55,.08)}
 .error{border-color:rgba(255,93,93,.35);background:rgba(255,93,93,.08)}
 .notice-top-margin{margin-top:14px}
+.countdown-card{text-align:center}
+.countdown-card h3{margin:0 0 4px}
+.countdown-card .event-title{color:var(--gold);font-size:1.3rem;margin:0 0 6px}
+.countdown{display:flex;justify-content:center;gap:14px;margin:20px 0;flex-wrap:wrap}
+.countdown-box{background:#0d0d0d;border:1px solid #333;border-radius:12px;padding:14px 18px;min-width:76px}
+.countdown-value{display:block;font-size:2rem;font-weight:700;color:var(--gold);line-height:1}
+.countdown-label{display:block;font-size:.72rem;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-top:6px}
 .table{width:100%;border-collapse:collapse}
 .table th,.table td{padding:12px;border-bottom:1px solid #272727;text-align:left;font-size:.95rem;vertical-align:top}
 .hero-tagline{font-size:1.2rem;color:#ddd;max-width:750px;margin:12px auto 0}

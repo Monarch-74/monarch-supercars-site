@@ -853,6 +853,10 @@ function eventCard(item, mode) {
     ? `<span style="color:#d4af37;font-weight:700;">✦ Sélection MONARCH</span>`
     : "";
 
+  const autoDiscoveredLabel = item.external_source === "weekly-events-discovery"
+    ? `<span style="color:#ff6b6b;font-weight:700;" title="Trouvé automatiquement par recherche web, à vérifier avant publication">🔎 Trouvé automatiquement — à vérifier</span>`
+    : "";
+
   const featuredBtn = mode !== "pending"
     ? `<button type="button" class="btn ${item.is_featured ? 'danger' : 'secondary'}" onclick="toggleFeatured('${item.id}', ${item.is_featured})">
         ${item.is_featured ? '✦ Retirer de la sélection' : '✦ Ajouter à la sélection MONARCH'}
@@ -865,6 +869,7 @@ function eventCard(item, mode) {
       ${poster}
 
       <h4>${escapeHtml(item.title || "")} ${featuredLabel}</h4>
+      ${autoDiscoveredLabel ? `<p>${autoDiscoveredLabel}</p>` : ""}
 
       <p><strong>Lieu :</strong> ${escapeHtml(item.venue_name || "")}, ${escapeHtml(item.address || "")}</p>
 
@@ -879,11 +884,75 @@ function eventCard(item, mode) {
 
       ${buttons}
       ${featuredBtn}
+      <button type="button" class="btn secondary" onclick="toggleEventEditForm('${item.id}')">✏ Modifier</button>
+
+      <form id="editForm-${item.id}" class="hide" style="margin-top:12px;" onsubmit="saveEventEdit(event, '${item.id}')">
+        <label>Titre</label>
+        <input name="title" value="${escapeHtml(item.title || "")}" required />
+
+        <label>Lieu (salle / site)</label>
+        <input name="venue_name" value="${escapeHtml(item.venue_name || "")}" />
+
+        <label>Adresse</label>
+        <input name="address" value="${escapeHtml(item.address || "")}" />
+
+        <label>Pays</label>
+        <input name="country" value="${escapeHtml(item.country || "")}" required />
+
+        <label>Département</label>
+        <input name="department" value="${escapeHtml(item.department || "")}" required />
+
+        <label>Date</label>
+        <input type="date" name="event_date" value="${escapeHtml(item.event_date || "")}" />
+
+        <label>Lien externe</label>
+        <input name="external_url" value="${escapeHtml(item.external_url || "")}" />
+
+        <label>Description</label>
+        <textarea name="description">${escapeHtml(item.description || "")}</textarea>
+
+        <div class="inline-actions" style="margin-top:10px;">
+          <button type="submit" class="btn primary">💾 Enregistrer</button>
+          <button type="button" class="btn secondary" onclick="toggleEventEditForm('${item.id}')">Annuler</button>
+        </div>
+      </form>
+
       <label style="margin-top:10px;display:block;font-size:.85rem;color:#aaa;">🖼 Modifier l'affiche</label>
       <input type="file" accept="image/*" style="margin-top:4px;" onchange="uploadEventPoster('${item.id}', this)" />
 
     </div>
   `;
+}
+
+function toggleEventEditForm(id) {
+  const form = document.getElementById("editForm-" + id);
+  if (form) form.classList.toggle("hide");
+}
+
+async function saveEventEdit(evt, id) {
+  evt.preventDefault();
+  const formData = new FormData(evt.target);
+
+  const payload = {
+    title: formData.get("title"),
+    venue_name: formData.get("venue_name"),
+    address: formData.get("address"),
+    country: formData.get("country"),
+    department: formData.get("department"),
+    event_date: formData.get("event_date") || null,
+    external_url: formData.get("external_url"),
+    description: formData.get("description")
+  };
+
+  try {
+    const client = getClient();
+    const { error } = await client.from("events").update(payload).eq("id", id);
+    if (error) throw error;
+    alert("Événement mis à jour.");
+    await loadAll();
+  } catch (err) {
+    alert("Erreur : " + err.message);
+  }
 }
 
 async function uploadEventPoster(eventId, input) {

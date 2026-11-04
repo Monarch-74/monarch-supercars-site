@@ -54,12 +54,33 @@ Deno.serve(async (req) => {
         await sendEmail({ to: partner.email, subject, html });
       }
     } else if (body.target_type === "event") {
-      const { error: eventError } = await supabase
+      const { data: eventRow, error: eventError } = await supabase
         .from("events")
         .update({ status: body.status })
-        .eq("id", body.id);
+        .eq("id", body.id)
+        .select()
+        .single();
 
       if (eventError) throw eventError;
+
+      if (body.status === "approved" && eventRow) {
+        const { data: subscribers } = await supabase
+          .from("event_alerts")
+          .select("email")
+          .eq("country", eventRow.country)
+          .eq("department", eventRow.department);
+
+        if (subscribers && subscribers.length) {
+          const subject = `Nouvel événement près de chez vous : ${eventRow.title}`;
+          const html = `<h2>Un nouvel événement vient d'être publié</h2>
+             <p><strong>${eventRow.title}</strong></p>
+             <p>📍 ${eventRow.venue_name || eventRow.address || ""} — ${eventRow.department}, ${eventRow.country}</p>
+             <p>🗓 ${eventRow.event_date || "Date à confirmer"}</p>
+             ${eventRow.external_url ? `<p><a href="${eventRow.external_url}">Plus d'informations</a></p>` : ""}`;
+
+          await Promise.all(subscribers.map((s) => sendEmail({ to: s.email, subject, html })));
+        }
+      }
     } else {
       throw new Error("target_type invalide");
     }
