@@ -236,10 +236,26 @@ Deno.serve(async (req: Request): Promise<Response> => {
       ? body.etapes.map((e: any) => e.address || e.lieu).filter(Boolean).join(" ")
       : searchZone;
 
-    const [restaurants, hotels] = await Promise.all([
+    // Toutes ces recherches passent par googlePlacesSearch(), qui filtre déjà
+    // les résultats à 4,4 étoiles minimum — pas de filtrage supplémentaire à faire.
+    const [restaurants, hotels, fuelStations, cols, sightseeing] = await Promise.all([
       googlePlacesSearch(`restaurant très bien noté gastronomique ${userEtapesZone}`),
       googlePlacesSearch(`hôtel 4 étoiles très bien noté ${userEtapesZone}`),
+      googlePlacesSearch(`station-service ${userEtapesZone}`),
+      googlePlacesSearch(`col de montagne route panoramique ${userEtapesZone}`),
+      googlePlacesSearch(`lieu touristique incontournable point de vue ${userEtapesZone}`),
     ]);
+
+    const roadStyle = String(body.road_style || "rapide");
+    const roadStyleInstruction: Record<string, string> = {
+      rapide: "Privilégie les autoroutes et axes rapides, trajet le plus direct possible.",
+      sinueux: "Privilégie les routes secondaires panoramiques et pittoresques, évite les autoroutes autant que possible.",
+      technique: "Privilégie les routes de montagne, virages et routes de conduite sportive, évite les autoroutes autant que possible.",
+    };
+
+    const vehicleType = String(body.vehicle_type || "").trim();
+    const vehicleModel = String(body.vehicle_model || "").trim();
+    const vehicleDescription = [vehicleType, vehicleModel].filter(Boolean).join(" ");
 
     // Construire l'itinéraire imposé à partir des étapes utilisateur
     const etapesImposees = Array.isArray(body.etapes) && body.etapes.length > 0
@@ -267,6 +283,8 @@ RÈGLES ABSOLUES :
 4. Si des préférences supplémentaires sont mentionnées, elles s'appliquent uniquement aux étapes existantes.
 5. N'invente pas de nouvelles villes ou lieux qui ne figurent pas dans l'itinéraire imposé.
 6. Le champ "summary" est un texte que TU RÉDIGES toi-même, entre 150 et 300 mots : décris chronologiquement le trajet entre chaque étape imposée (durée estimée, route empruntée, conseils horaires, informations pratiques sur chaque lieu). Ce n'est pas un gabarit à recopier — écris un résumé réel, spécifique à cet itinéraire précis, avec de vraies phrases.
+7. Style de route demandé : ${roadStyleInstruction[roadStyle] || roadStyleInstruction.rapide}
+${vehicleDescription ? `8. Véhicule utilisé : ${vehicleDescription} — adapte tes conseils pratiques si pertinent (gabarit, stationnement, adhérence en montagne).` : ""}
 
 Préférences utilisateur (pour enrichir les étapes existantes uniquement) :
 ${body.preferences || "Aucune préférence supplémentaire."}
@@ -376,10 +394,42 @@ Retourne uniquement un JSON valide, structuré exactement comme ci-dessous. Remp
       })
     );
 
+    // Liens d'affiliation : URLs publiques non trackées (aucun compte partenaire
+    // Booking.com/Omio pour l'instant) — construites uniquement à partir des
+    // données déjà disponibles, jamais persistées (cohérent avec stops/POI
+    // qui restent côté client uniquement).
+    function addDays(dateStr: string, days: number): string {
+      const d = dateStr ? new Date(dateStr) : new Date();
+      d.setDate(d.getDate() + (Number(days) || 1));
+      return d.toISOString().slice(0, 10);
+    }
+
+    const checkoutDate = addDays(body.start_date, body.days);
+    const destinationCity = body.end_region || body.end_address || "";
+
+    const bookingUrl = destinationCity
+      ? `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destinationCity)}` +
+        `&checkin=${encodeURIComponent(body.start_date || "")}` +
+        `&checkout=${encodeURIComponent(checkoutDate)}` +
+        `&group_adults=${encodeURIComponent(String(body.people || 1))}`
+      : "https://www.booking.com/";
+
+    // Omio n'expose pas de format de deep-link public documenté sans API partenaire ;
+    // on renvoie un lien générique honnête plutôt qu'inventer des paramètres non garantis.
+    const transportUrl = "https://www.omio.com/";
+
     return jsonResponse({
       summary: parsed.summary || "",
       stops: parsed.stops || [],
       user_etapes: enrichedUserEtapes,
+      restaurants_suggestions: restaurants,
+      hotels_suggestions: hotels,
+      fuel_stations: fuelStations,
+      cols_suggestions: cols,
+      sightseeing_suggestions: sightseeing,
+      road_style: roadStyle,
+      booking_url: bookingUrl,
+      transport_url: transportUrl,
       google_maps_url: googleMapsUrl,
       waze_url: wazeUrl,
       roadtrip_id: roadtripId,

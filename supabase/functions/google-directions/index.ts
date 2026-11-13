@@ -96,6 +96,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
       params.set("waypoints", waypoints.map((w) => `via:${w}`).join("|"));
     }
 
+    // 68° propose 3 styles de route ; on les traduit en paramètre Google natif.
+    // sinueux/technique évitent l'autoroute pour privilégier les routes secondaires.
+    const roadStyle = String(body.road_style || "rapide");
+    if (roadStyle === "sinueux" || roadStyle === "technique") {
+      params.set("avoid", "highways");
+    }
+
     const url = `https://maps.googleapis.com/maps/api/directions/json?${params.toString()}`;
     const res = await fetch(url);
     const data = await res.json();

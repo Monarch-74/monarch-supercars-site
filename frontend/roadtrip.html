@@ -894,6 +894,37 @@
           <option value="luxury">Premium : hôtels 4 étoiles et restaurants haut de gamme</option>
         </select>
 
+        <label>Style de route</label>
+        <select name="road_style">
+          <option value="rapide">Rapide — autoroutes et axes directs</option>
+          <option value="sinueux">Sinueux — routes de campagne et panoramas</option>
+          <option value="technique">Technique — routes de montagne et virages</option>
+        </select>
+
+        <div class="inline-grid">
+          <div>
+            <label>Type de véhicule</label>
+            <select name="vehicle_type">
+              <option value="">Non précisé</option>
+              <option value="citadine">Citadine</option>
+              <option value="berline">Berline</option>
+              <option value="cabriolet">Cabriolet</option>
+              <option value="coupe_sport">Coupé sport</option>
+              <option value="suv">SUV</option>
+              <option value="supercar">Supercar / GT</option>
+            </select>
+          </div>
+          <div>
+            <label>Modèle (optionnel)</label>
+            <input name="vehicle_model" placeholder="Ex : Porsche 911" />
+          </div>
+        </div>
+
+        <label style="display:flex;align-items:center;gap:8px;font-weight:normal;">
+          <input type="checkbox" name="loop_to_start" id="loopToStartCheckbox">
+          Revenir au point de départ (boucle)
+        </label>
+
         <button type="submit" class="btn primary" style="margin-top:22px;">
           Générer les propositions
         </button>
@@ -1355,6 +1386,9 @@
   let proposalStops = [];
   let googleMapsUrl = "";
   let wazeUrl = "";
+  let lastPoiData = {};
+  let bookingUrl = "";
+  let transportUrl = "";
   let isGeneratingRoadtrip = false;
   let currentRoadtripId = null;
 
@@ -1608,7 +1642,7 @@
     }).join("");
   }
 
-  async function loadDirections(startFull, endFull, selected) {
+  async function loadDirections(startFull, endFull, selected, roadStyle) {
     const container = document.getElementById("directionsSection");
 
     if (!container) return;
@@ -1619,7 +1653,8 @@
       const json = await callEdge("google-directions", {
         origin: startFull,
         destination: endFull,
-        waypoints: waypoints
+        waypoints: waypoints,
+        road_style: roadStyle
       });
 
       if (!json.legs || json.legs.length === 0) {
@@ -1729,6 +1764,12 @@
     html += '</div>';
     html += '</div>';
 
+    html += poiSectionHtml("Hôtels suggérés", lastPoiData.hotels);
+    html += poiSectionHtml("Restaurants suggérés", lastPoiData.restaurants);
+    html += poiSectionHtml("Stations-service sur votre zone", lastPoiData.fuel_stations);
+    html += poiSectionHtml("Cols à proximité", lastPoiData.cols);
+    html += poiSectionHtml("Lieux à voir", lastPoiData.sightseeing);
+
     html += '<div class="roadbook-section" id="directionsSection">';
     html += '<h4>Itinéraire détaillé Google Maps</h4>';
     html += '<div class="notice">Chargement de l’itinéraire détaillé...</div>';
@@ -1745,6 +1786,14 @@
       html += '<a class="btn secondary" target="_blank" href="' + escapeHtml(wazeUrl) + '">Ouvrir Waze</a>';
     }
 
+    if (bookingUrl) {
+      html += ' <a class="btn secondary" target="_blank" href="' + escapeHtml(bookingUrl) + '">Réserver un hôtel (Booking.com)</a>';
+    }
+
+    if (transportUrl) {
+      html += ' <a class="btn secondary" target="_blank" href="' + escapeHtml(transportUrl) + '">Comparer les transports (Omio)</a>';
+    }
+
     html += '</div>';
 
     html += '</div>';
@@ -1752,7 +1801,20 @@
 
     result.innerHTML = html;
 
-    loadDirections(startFull, endFull, selected);
+    loadDirections(startFull, endFull, selected, lastRoadtripData.road_style);
+  }
+
+  // Petit bloc de suggestions (hôtels/restaurants/stations) le long de la zone du trajet.
+  function poiSectionHtml(title, items) {
+    if (!items || items.length === 0) return "";
+    let html = '<div class="roadbook-section"><h4>' + escapeHtml(title) + '</h4><div class="summary-cards">';
+    items.slice(0, 5).forEach(function (p) {
+      html += '<div class="summary-card"><strong>' + escapeHtml(p.name || "-") + '</strong>' +
+        escapeHtml(p.formatted_address || "-") +
+        (p.rating ? ' • ⭐ ' + escapeHtml(String(p.rating)) : '') + '</div>';
+    });
+    html += '</div></div>';
+    return html;
   }
 
   document.getElementById("generateFinalRoadbook").addEventListener("click", generateFinalRoadbook);
@@ -1806,6 +1868,14 @@
         return (i + 1) + '. ' + (e.time ? e.time + ' - ' : '') + e.lieu + (e.type ? ' (' + e.type + ')' : '') + (e.address ? ' — ' + e.address : '');
       }).join('\n');
       data.preferences = (data.preferences ? data.preferences + '\n\nÉtapes imposées à inclure dans l\'itinéraire :\n' : 'Étapes imposées :\n') + etapesText;
+    }
+
+    // Boucle simplifiée : on ramène l'arrivée au point de départ, le pipeline
+    // linéaire existant (étapes imposées, Google Maps/Waze) reste inchangé.
+    if (data.loop_to_start === "on") {
+      data.end_country = data.start_country;
+      data.end_region = data.start_region;
+      data.end_address = data.start_address;
     }
 
     lastRoadtripData = data;
@@ -1871,6 +1941,16 @@
 
       googleMapsUrl = json.google_maps_url || buildMapsUrl(startFull, endFull);
       wazeUrl = json.waze_url || buildWazeUrl(endFull);
+
+      lastPoiData = {
+        restaurants: Array.isArray(json.restaurants_suggestions) ? json.restaurants_suggestions : [],
+        hotels: Array.isArray(json.hotels_suggestions) ? json.hotels_suggestions : [],
+        fuel_stations: Array.isArray(json.fuel_stations) ? json.fuel_stations : [],
+        cols: Array.isArray(json.cols_suggestions) ? json.cols_suggestions : [],
+        sightseeing: Array.isArray(json.sightseeing_suggestions) ? json.sightseeing_suggestions : [],
+      };
+      bookingUrl = json.booking_url || "";
+      transportUrl = json.transport_url || "";
 
       renderProposals();
 
