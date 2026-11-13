@@ -30,6 +30,7 @@ Deno.serve(async (req) => {
         venue_name: body.venue_name,
         address: body.address,
         event_date: body.event_date,
+        event_end_date: body.event_end_date || null,
         phone: body.phone,
         contact_email: body.contact_email,
         poster_url: body.poster_url,

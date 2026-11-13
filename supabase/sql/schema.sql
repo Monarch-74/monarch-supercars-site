@@ -25,6 +25,18 @@ create table if not exists public.partners (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.associations (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  cause text,
+  description text,
+  logo_url text,
+  website_url text,
+  donation_url text,
+  contact_email text,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.events (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete set null,
@@ -34,6 +46,7 @@ create table if not exists public.events (
   venue_name text,
   address text,
   event_date date,
+  event_end_date date,
   phone text,
   contact_email text,
   poster_url text,
@@ -106,6 +119,7 @@ after insert on auth.users
 for each row execute procedure public.handle_new_user();
 
 alter table public.partners enable row level security;
+alter table public.associations enable row level security;
 alter table public.events enable row level security;
 alter table public.contact_messages enable row level security;
 alter table public.roadtrip_requests enable row level security;
@@ -119,6 +133,11 @@ create policy "profiles_self_update" on public.profiles for update using (auth.u
 create policy "partners_public_read_approved" on public.partners for select using (status = 'approved');
 create policy "partners_owner_insert" on public.partners for insert with check (auth.uid() = user_id or user_id is null);
 create policy "partners_owner_read" on public.partners for select using (auth.uid() = user_id);
+
+create policy "associations_public_read" on public.associations for select using (true);
+create policy "associations_admin_all" on public.associations for all
+  using (exists (select 1 from public.profiles where profiles.id = auth.uid() and profiles.role = 'admin'))
+  with check (exists (select 1 from public.profiles where profiles.id = auth.uid() and profiles.role = 'admin'));
 
 create policy "events_public_read_approved" on public.events for select using (status = 'approved');
 create policy "events_owner_insert" on public.events for insert with check (auth.uid() = user_id or user_id is null);

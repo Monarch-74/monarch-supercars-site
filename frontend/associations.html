@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Associations soutenues | MONARCH SUPERCARS</title>
+  <meta name="description" content="Découvrez les associations automobiles caritatives soutenues par MONARCH SUPERCARS et faites un don directement sur leur plateforme officielle." />
+  <link rel="canonical" href="https://www.monarch-apps.fr/associations.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="MONARCH SUPERCARS" />
+  <meta property="og:title" content="Associations soutenues | MONARCH SUPERCARS" />
+  <meta property="og:description" content="Découvrez les associations automobiles caritatives soutenues par MONARCH SUPERCARS." />
+  <meta property="og:url" content="https://www.monarch-apps.fr/associations.html" />
+  <meta property="og:image" content="https://www.monarch-apps.fr/assets/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Associations soutenues | MONARCH SUPERCARS" />
+  <meta name="twitter:description" content="Découvrez les associations automobiles caritatives soutenues par MONARCH SUPERCARS." />
+  <meta name="twitter:image" content="https://www.monarch-apps.fr/assets/icons/icon-512.png" />
+
+  <link rel="stylesheet" href="assets/styles.css" />
+
+  <style>
+    body{
+      background:#050505;
+      color:#fff;
+      font-family:Arial,sans-serif;
+      margin:0;
+    }
+
+    header{
+      background:#000;
+      border-bottom:1px solid #222;
+      padding:15px 30px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:18px;
+    }
+
+    .logo{
+      width:115px;
+      height:115px;
+      border:2px solid #d4af37;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#000;
+      flex-shrink:0;
+    }
+
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      border-radius:50%;
+      display:block;
+    }
+
+    nav{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    nav a{
+      color:white;
+      text-decoration:none;
+      padding:10px 16px;
+      border-radius:10px;
+      border:1px solid transparent;
+      transition:0.3s;
+    }
+
+    nav a:hover{
+      border-color:#d4af37;
+      color:#d4af37;
+    }
+
+    nav a.active{
+      color:#000 !important;
+      background:#d4af37;
+      border-color:#d4af37;
+      font-weight:bold;
+      box-shadow:0 0 12px rgba(212,175,55,0.45);
+    }
+
+    .container{
+      width:90%;
+      max-width:1300px;
+      margin:auto;
+      padding:30px 0;
+    }
+
+    .card{
+      background:#111;
+      border:1px solid #333;
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 0 25px rgba(0,0,0,0.4);
+      margin-bottom:25px;
+    }
+
+    .card h2,
+    .card h3{
+      margin-top:0;
+      color:#fff;
+    }
+
+    .muted{
+      color:#aaa;
+      line-height:1.6;
+    }
+
+    .btn{
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:8px;
+      text-decoration:none;
+      border:1px solid #333;
+      cursor:pointer;
+      margin-top:10px;
+      transition:0.3s;
+      font-weight:bold;
+    }
+
+    .btn.primary{
+      background:#d4af37;
+      color:#000;
+      border-color:#d4af37;
+    }
+
+    .btn.secondary{
+      background:#222;
+      color:#fff;
+    }
+
+    .assoc-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:18px;
+      margin-top:22px;
+    }
+
+    .assoc-card{
+      background:#151515;
+      border:1px solid #333;
+      border-radius:18px;
+      padding:24px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      box-shadow:0 0 18px rgba(0,0,0,0.35);
+    }
+
+    .assoc-logo{
+      width:100px;
+      height:100px;
+      border-radius:16px;
+      border:1px solid #d4af37;
+      background:#000;
+      object-fit:contain;
+      padding:8px;
+      margin-bottom:14px;
+    }
+
+    .assoc-card h3{
+      color:#d4af37;
+      margin-bottom:4px;
+    }
+
+    .assoc-cause{
+      display:inline-block;
+      font-size:.8rem;
+      color:#d4af37;
+      border:1px solid rgba(212,175,55,.4);
+      border-radius:999px;
+      padding:3px 10px;
+      margin-bottom:10px;
+    }
+
+    .assoc-card p{
+      color:#ccc;
+      line-height:1.5;
+    }
+
+    .assoc-links{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .notice{
+      padding:15px;
+      border-radius:10px;
+      margin-top:15px;
+      background:rgba(212,175,55,.1);
+      color:#d4af37;
+      border:1px solid rgba(212,175,55,.3);
+    }
+
+    .notice.error{
+      background:rgba(255,100,100,.1);
+      color:#ff8a8a;
+      border-color:rgba(255,100,100,.3);
+    }
+
+    .footer{
+      padding:30px;
+      text-align:center;
+      border-top:1px solid #222;
+      margin-top:50px;
+      color:#888;
+    }
+
+    .footer a{
+      color:#d4af37;
+      text-decoration:none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="brand">
+    <div class="logo">
+      <img src="assets/Logo Monarch.jpeg" alt="MONARCH SUPERCARS">
+    </div>
+
+    <div>
+      <h1>MONARCH SUPERCARS</h1>
+      <small>Road trips • Events • Partners</small>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="partners.html">Partenaires</a>
+    <a href="events.html">Event</a>
+    <a href="roadtrip.html">Road Trip</a>
+    <a href="associations.html" class="active">Associations</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <button type="button" class="menu-toggle" aria-label="Menu" aria-expanded="false" >☰</button>
+
+  <div class="auth-links">
+    <div class="lang-select" data-no-translate>
+      <button id="translateHintBtn" type="button" class="lang-current" aria-haspopup="true" aria-expanded="false">
+        🌐 Traduire
+      </button>
+      <div id="translateHintPanel" class="lang-menu hide" role="menu">
+        <button type="button" class="lang-option active" data-lang="fr">Français</button>
+        <button type="button" class="lang-option" data-lang="en">English</button>
+        <button type="button" class="lang-option" data-lang="it">Italiano</button>
+        <button type="button" class="lang-option" data-lang="de">Deutsch</button>
+        <button type="button" class="lang-option" data-lang="es">Español</button>
+        <button type="button" class="lang-option" data-lang="pt">Português</button>
+        <button type="button" class="lang-option" data-lang="nl">Nederlands</button>
+      </div>
+    </div>
+    <button id="soundToggle" class="btn secondary">🔊</button>
+    <a class="btn secondary" href="login.html">Connexion</a>
+    <a class="btn primary" href="register.html">Inscription</a>
+  </div>
+
+</header>
+
+<section class="container">
+
+  <div class="card">
+    <h2>Associations soutenues par MONARCH SUPERCARS</h2>
+    <p class="muted">
+      MONARCH SUPERCARS met en lumière des associations automobiles qui agissent pour de belles causes.
+      Les dons sont versés directement sur la plateforme officielle de chaque association —
+      MONARCH ne collecte ni ne gère aucun don.
+    </p>
+  </div>
+
+  <div id="associationList" class="assoc-grid">
+    <div class="notice">Chargement des associations...</div>
+  </div>
+
+</section>
+
+<div class="footer">
+
+  <div class="container">
+    <p>© MONARCH SUPERCARS, plateforme premium automobile.</p>
+
+    <p>
+      <a href="legal/mentions-legales.html">Mentions légales</a> •
+      <a href="legal/privacy.html">Confidentialité</a> •
+      <a href="legal/cgu-cgv.html">CGU / CGV</a> •
+      <a href="legal/cookies.html">Cookies</a>
+    </p>
+  </div>
+
+</div>
+
+<audio id="backgroundMusic" loop preload="metadata">
+ <source src="assets/audio/paulyudin-background-music-478744.mp3" type="audio/mpeg">
+</audio>
+
+<script src="config.runtime.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/main.js"></script>
+<script src="js/analytics.js"></script>
+
+<script>
+  function escapeHtml(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function fallbackLogo() {
+    return "assets/Logo Monarch.jpeg";
+  }
+
+  async function loadAssociations() {
+    const list = document.getElementById("associationList");
+
+    try {
+      if (!window.supabase || !window.MONARCH_CONFIG?.SUPABASE_URL) {
+        list.innerHTML = '<div class="notice">Supabase non configuré.</div>';
+        return;
+      }
+
+      const client = window.supabase.createClient(
+        window.MONARCH_CONFIG.SUPABASE_URL,
+        window.MONARCH_CONFIG.SUPABASE_ANON_KEY
+      );
+
+      const { data, error } = await client
+        .from("associations")
+        .select("*")
+        .order("created_at", { ascending:false });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="notice">Aucune association publiée pour le moment.</div>';
+        return;
+      }
+
+      let html = "";
+
+      data.forEach(assoc => {
+        html += '<div class="assoc-card">';
+        html += '<div>';
+
+        html += '<img class="assoc-logo" src="' +
+          escapeHtml(assoc.logo_url || fallbackLogo()) +
+          '" alt="' + escapeHtml(assoc.name || "Association") + '">';
+
+        html += '<h3>' + escapeHtml(assoc.name || "Association") + '</h3>';
+
+        if (assoc.cause) {
+          html += '<span class="assoc-cause">' + escapeHtml(assoc.cause) + '</span>';
+        }
+
+        if (assoc.description) {
+          html += '<p>' + escapeHtml(assoc.description) + '</p>';
+        }
+
+        html += '</div>';
+
+        html += '<div class="assoc-links">';
+
+        if (assoc.donation_url) {
+          html += '<a class="btn primary" target="_blank" href="' +
+            escapeHtml(assoc.donation_url) + '">❤ Faire un don</a>';
+        }
+
+        if (assoc.website_url) {
+          html += '<a class="btn secondary" target="_blank" href="' +
+            escapeHtml(assoc.website_url) + '">Site web</a>';
+        }
+
+        if (assoc.contact_email) {
+          html += '<a class="btn secondary" href="mailto:' +
+            escapeHtml(assoc.contact_email) + '">Contacter</a>';
+        }
+
+        html += '</div>';
+        html += '</div>';
+      });
+
+      list.innerHTML = html;
+
+    } catch (err) {
+      list.innerHTML =
+        '<div class="notice error">Erreur chargement associations : ' +
+        escapeHtml(err.message) +
+        '</div>';
+    }
+  }
+
+  loadAssociations();
+</script>
+
+</body>
+</html>

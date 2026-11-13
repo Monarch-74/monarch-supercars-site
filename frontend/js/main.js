@@ -253,6 +253,16 @@ function formatEventDate(value) {
   return d;
 }
 
+// Affiche "jj/mm/aaaa" pour un événement d'un jour, ou "jj/mm/aaaa au jj/mm/aaaa"
+// quand une date de fin différente est renseignée (événements sur plusieurs jours).
+function formatEventDateRange(startValue, endValue) {
+  var start = formatEventDate(startValue);
+  if (!endValue || String(endValue).slice(0, 10) === String(startValue || "").slice(0, 10)) {
+    return start;
+  }
+  return start + " au " + formatEventDate(endValue);
+}
+
 function getEventTimestamp(value) {
   if (!value) return 9999999999999;
 
@@ -322,6 +332,7 @@ function injectEventsJsonLd(events) {
         "@type": "Event",
         "name": ev.title,
         "startDate": ev.event_date,
+        "endDate": ev.event_end_date || ev.event_date,
         "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
         "eventStatus": "https://schema.org/EventScheduled",
         "location": {
@@ -406,7 +417,7 @@ function initFeaturedEvents() {
             html += '<p>' + escapeHtml(ev.description).replaceAll("\n", "<br>") + '</p>';
           }
           html += '<p class="event-meta">📍 <strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || ev.address || "-") + '</p>';
-          html += '<p class="event-meta">🗓 <strong>Date :</strong> ' + formatEventDate(ev.event_date) + '</p>';
+          html += '<p class="event-meta">🗓 <strong>Date :</strong> ' + formatEventDateRange(ev.event_date, ev.event_end_date) + '</p>';
           if (ev.department) {
             html += '<p class="event-meta">📌 <strong>Département :</strong> ' + escapeHtml(ev.department) + '</p>';
           }
@@ -474,7 +485,7 @@ function initCommunityEvents() {
         }
 
         html += '<p class="event-meta">📍 <strong>Lieu :</strong> ' + escapeHtml(ev.venue_name || ev.address || "-") + "</p>";
-        html += '<p class="event-meta">🗓 <strong>Date :</strong> ' + formatEventDate(ev.event_date) + "</p>";
+        html += '<p class="event-meta">🗓 <strong>Date :</strong> ' + formatEventDateRange(ev.event_date, ev.event_end_date) + "</p>";
 
         if (ev.external_url) {
           html +=
@@ -551,7 +562,7 @@ function initEventSearch() {
 
         events.forEach(function (ev) {
           var region = getRegionFromEvent(ev, department);
-          var date = formatEventDate(ev.event_date);
+          var date = formatEventDateRange(ev.event_date, ev.event_end_date);
 
           if (!grouped[region]) grouped[region] = {};
           if (!grouped[region][date]) grouped[region][date] = [];
@@ -1176,7 +1187,7 @@ function initNextEventCountdown() {
         '<div class="card countdown-card">' +
         '<h3>⏳ Prochain événement</h3>' +
         '<p class="event-title">' + escapeHtml(ev.title || "Événement automobile") + '</p>' +
-        '<p class="muted">📍 ' + escapeHtml(ev.venue_name || ev.address || "-") + ' — 🗓 ' + formatEventDate(ev.event_date) + '</p>' +
+        '<p class="muted">📍 ' + escapeHtml(ev.venue_name || ev.address || "-") + ' — 🗓 ' + formatEventDateRange(ev.event_date, ev.event_end_date) + '</p>' +
         '<div class="countdown">' +
         '<div class="countdown-box"><span class="countdown-value" id="cdDays">00</span><span class="countdown-label">Jours</span></div>' +
         '<div class="countdown-box"><span class="countdown-value" id="cdHours">00</span><span class="countdown-label">Heures</span></div>' +
@@ -1243,8 +1254,24 @@ function renderEventsCalendar(events) {
   var byDate = {};
   events.forEach(function (ev) {
     if (!ev.event_date) return;
-    var key = String(ev.event_date).slice(0, 10);
-    (byDate[key] = byDate[key] || []).push(ev);
+    var startKey = String(ev.event_date).slice(0, 10);
+    var endKey = ev.event_end_date ? String(ev.event_end_date).slice(0, 10) : startKey;
+
+    if (endKey <= startKey) {
+      (byDate[startKey] = byDate[startKey] || []).push(ev);
+      return;
+    }
+
+    // Événement sur plusieurs jours : marque chaque jour de la plage dans le calendrier.
+    var cursor = new Date(startKey + "T00:00:00");
+    var end = new Date(endKey + "T00:00:00");
+    var guard = 0;
+    while (cursor <= end && guard < 60) {
+      var key = cursor.toISOString().slice(0, 10);
+      (byDate[key] = byDate[key] || []).push(ev);
+      cursor.setDate(cursor.getDate() + 1);
+      guard++;
+    }
   });
 
   var year = calendarViewDate.getFullYear();
@@ -1326,7 +1353,7 @@ var monarchMapInstance = null;
 function buildMapPopupHtml(ev) {
   var html = "<strong>" + escapeHtml(ev.title || "Événement automobile") + "</strong><br>" +
     "📍 " + escapeHtml(ev.venue_name || ev.address || "-") + "<br>" +
-    "🗓 " + formatEventDate(ev.event_date);
+    "🗓 " + formatEventDateRange(ev.event_date, ev.event_end_date);
   if (ev.external_url) {
     html += '<br><a target="_blank" rel="noopener" href="' + escapeHtml(ev.external_url) + '">Plus d\'informations</a>';
   }
