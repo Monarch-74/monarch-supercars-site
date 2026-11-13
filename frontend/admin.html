@@ -491,7 +491,7 @@
         <input name="address" placeholder="Ex : 41 Boulevard Ampère, 38230 Tignieu" />
 
         <label>Date *</label>
-        <input name="event_date" type="date" required />
+        <input name="event_date" type="date" lang="fr" required />
 
         <label>Description</label>
         <textarea name="description" placeholder="Détails de l'événement..."></textarea>
@@ -1159,7 +1159,7 @@ function eventCard(item, mode) {
         <input name="department" value="${escapeHtml(item.department || "")}" required />
 
         <label>Date</label>
-        <input type="date" name="event_date" value="${escapeHtml(item.event_date || "")}" />
+        <input type="date" name="event_date" lang="fr" value="${escapeHtml(item.event_date || "")}" />
 
         <label>Lien externe</label>
         <input name="external_url" value="${escapeHtml(item.external_url || "")}" />

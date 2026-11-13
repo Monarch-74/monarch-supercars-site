@@ -396,7 +396,7 @@ async function analyzeImage(imageUrl: string): Promise<any | null> {
               {
                 type: "text",
                 text: `Aujourd'hui nous sommes le ${today}.
-Lis cette affiche d'événement automobile.
+Lis attentivement TOUT le texte visible sur cette affiche d'événement automobile, y compris les dates imprimées en gros caractères (ex: "DIMANCHE 27 SEPTEMBRE 2026") et les dates écrites sous forme de plage (ex: "du 28 au 30 Août 2026" → retiens le dernier jour de la plage, soit "30 Août 2026").
 Retourne uniquement un JSON valide :
 {
   "title": "",
@@ -405,7 +405,7 @@ Retourne uniquement un JSON valide :
   "description": "",
   "isfuture": true
 }
-Si tu ne peux pas déterminer la date, mets "date": null et "isfuture": true.`,
+Mets le texte de la date trouvée tel quel dans "date" (ex: "30 Août 2026" ou "27/09/2026"). Si et seulement si aucune date n'est visible nulle part sur l'affiche, mets "date": null et "isfuture": true.`,
               },
               {
                 type: "image_url",
@@ -1443,6 +1443,12 @@ Deno.serve(async (req: Request): Promise<Response> => {
           }
         }
       }
+      // Fallback : la date est souvent présente en toutes lettres dans la légende/description
+      // ou le titre (ex: "du 28 au 30 Août 2026") même quand le champ "date" renvoyé par
+      // l'IA vision est vide — on réutilise le même parseur texte que pour les résultats web.
+      if (!parsedDate) {
+        parsedDate = parseEventDate(analyzed?.description) || parseEventDate(analyzed?.title) || parseEventDate(img.title);
+      }
       if (parsedDate && !isFutureOrToday(parsedDate)) {
         console.log("SKIPPED IMAGE PARSED PAST:", analyzed?.title, analyzed?.date);
         continue;
@@ -1455,7 +1461,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         title: imageTitle,
         summary: analyzed?.description || img.title || "Affiche trouvée via Google Images.",
         venue_name: imageVenue || "Source web",
-        event_date: analyzed?.date || null,
+        event_date: analyzed?.date || (parsedDate ? parsedDate.toLocaleDateString("fr-FR") : null),
         poster_url: imageUrl || null,
         source_url: isValidHttpUrl(img.link)
           ? img.link
