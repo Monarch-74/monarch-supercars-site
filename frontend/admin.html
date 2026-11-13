@@ -148,6 +148,78 @@
       font-size:26px;
     }
 
+    .page-freq-row{
+      display:grid;
+      grid-template-columns:160px 1fr 70px;
+      align-items:center;
+      gap:12px;
+      padding:7px 0;
+    }
+
+    .page-freq-label{
+      font-size:14px;
+      color:#ddd;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .page-freq-track{
+      background:#151515;
+      border:1px solid #333;
+      border-radius:6px;
+      height:18px;
+      overflow:hidden;
+    }
+
+    .page-freq-bar{
+      height:100%;
+      background:#d4af37;
+      border-radius:6px;
+      min-width:4px;
+      transition:filter .15s ease;
+    }
+
+    .page-freq-row:hover .page-freq-bar{
+      filter:brightness(1.2);
+    }
+
+    .page-freq-count{
+      text-align:right;
+      font-weight:700;
+      color:#d4af37;
+      font-size:14px;
+    }
+
+    .marketing-week-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:14px;
+      margin-top:14px;
+    }
+
+    .marketing-week-card{
+      background:#151515;
+      border:1px solid #333;
+      border-radius:12px;
+      padding:16px;
+    }
+
+    .marketing-week-label{
+      color:#d4af37;
+      font-weight:700;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-bottom:8px;
+    }
+
+    .marketing-week-card p{
+      font-size:13.5px;
+      margin:6px 0;
+      color:#ddd;
+    }
+
     .tabs{
       display:flex;
       flex-wrap:wrap;
@@ -361,12 +433,10 @@
         <strong id="roadtripsCount">0</strong>
       </div>
 
-      <div class="stat">
-        <h3>Durée de consultation (min / moy / max)</h3>
-        <strong id="durationStats">—</strong>
-      </div>
-
     </div>
+
+    <h3 class="section-spaced">Fréquence par page</h3>
+    <div id="pageFrequencyChart" class="notice">Chargement...</div>
   </section>
 
   <section class="card">
@@ -378,6 +448,7 @@
       <button class="tab-btn" onclick="showPanel('addPartnerPanel', this)">+ Ajouter un partenaire</button>
       <button class="tab-btn" onclick="showPanel('membersPanel', this)">👥 Membres</button>
       <button class="tab-btn" onclick="showPanel('messagesPanel', this)">Messages</button>
+      <button class="tab-btn" onclick="showPanel('marketingPanel', this)">📣 Marketing</button>
     </div>
 
     <div id="partnersPanel" class="panel active">
@@ -497,6 +568,54 @@
     <div id="messagesPanel" class="panel">
       <h3>Messages reçus</h3>
       <div id="messagesList" class="notice">Chargement...</div>
+    </div>
+
+    <div id="marketingPanel" class="panel">
+      <h3>Vidéo promotionnelle</h3>
+      <p class="muted panel-hint">Séquence animée 20s en boucle (ouverture, agenda automobile, road trips, communauté/partenaires, appel à l'action) — à enregistrer à l'écran pour en faire un fichier vidéo publiable.</p>
+      <a class="btn primary" target="_blank" href="https://claude.ai/artifact/GL7WVtUEj1nZae5FHdR6EQ">▶ Ouvrir la vidéo promotionnelle</a>
+
+      <h3 class="section-spaced">Visuels Reels Instagram (9:16)</h3>
+      <p class="muted panel-hint">5 visuels prêts (1080×1920), un par semaine du plan éditorial ci-dessous. Capturer chaque planche en image pour publier sur Instagram/TikTok.</p>
+      <a class="btn secondary" target="_blank" href="https://claude.ai/artifact/VGJ74M69r8GgR6G7Lncxq4">🖼 Ouvrir les visuels Reels</a>
+
+      <h3 class="section-spaced">Plan éditorial mensuel</h3>
+      <p class="muted panel-hint">Une campagne par semaine, déclinée sur Instagram (Reel), Facebook (vidéo + texte commercial) et TikTok (vidéo dynamique). Vidéo verticale 9:16, 15-30s, sous-titres FR, appel à l'action vers le site.</p>
+
+      <div class="marketing-week-grid">
+        <div class="marketing-week-card">
+          <div class="marketing-week-label">Semaine 1 — Découverte</div>
+          <p><strong>Objectif :</strong> faire découvrir la plateforme.</p>
+          <p><strong>Message :</strong> « Votre passion automobile mérite des expériences exceptionnelles. »</p>
+        </div>
+        <div class="marketing-week-card">
+          <div class="marketing-week-label">Semaine 2 — Road trips</div>
+          <p><strong>Objectif :</strong> attirer organisateurs et clubs automobiles.</p>
+          <p><strong>Message :</strong> « Imaginez votre prochain road trip. Organisez-le avec MONARCH. »</p>
+        </div>
+        <div class="marketing-week-card">
+          <div class="marketing-week-label">Semaine 3 — Communauté</div>
+          <p><strong>Objectif :</strong> créer le désir, susciter des inscriptions.</p>
+          <p><strong>Message :</strong> « Les plus belles routes se partagent entre passionnés. »</p>
+        </div>
+        <div class="marketing-week-card">
+          <div class="marketing-week-label">Semaine 4 — Conversion</div>
+          <p><strong>Objectif :</strong> générer inscriptions, demandes et ventes.</p>
+          <p><strong>Message :</strong> « Passez de l'idée à l'expérience. Découvrez MONARCH. »</p>
+        </div>
+        <div class="marketing-week-card">
+          <div class="marketing-week-label">Semaine 5 — Clubs & partage</div>
+          <p><strong>Objectif :</strong> inciter les clubs automobiles et organisateurs à republier/partager le contenu MONARCH pour amplifier la portée organique.</p>
+          <p><strong>Message :</strong> « Votre club a une histoire à raconter. Partagez-la avec MONARCH. »</p>
+        </div>
+      </div>
+
+      <h3 class="section-spaced">Indicateurs à suivre chaque semaine</h3>
+      <p class="muted panel-hint">Vues et portée · Clics vers le site · Coût par clic (si pub payante) · Inscriptions · Prospects qualifiés · Clients payants · Chiffre d'affaires attribuable · Coût d'acquisition client · ROI publicitaire.</p>
+
+      <div class="notice warning notice-top-margin">
+        ⚠ Cette page est un pense-bête de référence, pas un outil automatisé : la création des vidéos, leur publication sur les réseaux et le suivi des performances restent à faire manuellement (aucun compte Instagram/Facebook/TikTok n'est connecté au site).
+      </div>
     </div>
 
     <div id="eventsPanel" class="panel">
@@ -1238,6 +1357,49 @@ function formatDuration(seconds) {
   return minutes + "min " + remaining + "s";
 }
 
+// Libellés lisibles pour les chemins de page les plus courants ; les autres
+// chemins (ex: /legal/cgu-cgv.html) s'affichent tels quels.
+const PAGE_LABELS = {
+  "/": "Accueil",
+  "/index.html": "Accueil",
+  "/events.html": "Événements",
+  "/roadtrip.html": "Road Trip",
+  "/partners.html": "Partenaires",
+  "/partner-register.html": "Inscription partenaire",
+  "/event-submit.html": "Soumission événement",
+  "/contact.html": "Contact",
+  "/login.html": "Connexion",
+  "/register.html": "Inscription",
+  "/admin.html": "Admin",
+};
+
+function renderPageFrequencyChart(rows) {
+  const container = document.getElementById("pageFrequencyChart");
+  if (!container) return;
+
+  if (!rows || rows.length === 0) {
+    container.className = "notice";
+    container.textContent = "Aucune donnée de fréquentation pour le moment.";
+    return;
+  }
+
+  const maxViews = Math.max(...rows.map(r => Number(r.page_views) || 0), 1);
+
+  container.className = "";
+  container.innerHTML = rows.map(function (r) {
+    const label = PAGE_LABELS[r.path] || r.path || "(inconnu)";
+    const views = Number(r.page_views) || 0;
+    const widthPct = Math.round((views / maxViews) * 100);
+    const avgDuration = r.duration_avg != null ? formatDuration(r.duration_avg) : "—";
+
+    return '<div class="page-freq-row" title="Durée moyenne : ' + avgDuration + '">' +
+      '<span class="page-freq-label">' + label + '</span>' +
+      '<span class="page-freq-track"><span class="page-freq-bar" style="width:' + widthPct + '%"></span></span>' +
+      '<span class="page-freq-count">' + views + '</span>' +
+      '</div>';
+  }).join("");
+}
+
 async function loadAnalytics() {
 
   try {
@@ -1249,11 +1411,10 @@ async function loadAnalytics() {
     document.getElementById("registrationsCount").textContent = kpis.registrations || 0;
     document.getElementById("roadtripsCount").textContent = kpis.roadtrips || 0;
 
-    document.getElementById("durationStats").textContent =
-      formatDuration(kpis.durationMin) + " / " + formatDuration(kpis.durationAvg) + " / " + formatDuration(kpis.durationMax);
+    renderPageFrequencyChart(data.analyticsByPage || []);
 
   } catch (err) {
-    document.getElementById("durationStats").textContent = "—";
+    document.getElementById("pageFrequencyChart").textContent = "—";
     console.error("Statistiques de fréquentation indisponibles :", err.message);
   }
 }

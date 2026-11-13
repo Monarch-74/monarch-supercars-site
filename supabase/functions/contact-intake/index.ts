@@ -19,6 +19,20 @@ Deno.serve(async (req: Request) => {
   try {
     const body = await req.json();
 
+    // Piège à robots : un bot remplit tous les champs du formulaire, y compris
+    // le champ "hp_field" invisible pour un humain. On répond un faux succès
+    // (sans rien enregistrer) pour ne pas indiquer au bot qu'il a été repéré.
+    if (String(body.hp_field || "").trim() !== "") {
+      return Response.json({ ok: true, message: "Message envoyé !" }, { headers: cors });
+    }
+
+    // Un humain met toujours plus de 2 secondes à remplir le formulaire ;
+    // un remplissage quasi instantané trahit un robot.
+    const elapsedMs = Number(body.elapsed_ms || 0);
+    if (elapsedMs > 0 && elapsedMs < 2000) {
+      return Response.json({ ok: true, message: "Message envoyé !" }, { headers: cors });
+    }
+
     const supabaseUrl = (Deno.env.get("SUPABASE_URL") ?? "").trim();
     const supabaseServiceRole = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "").trim();
     if (!supabaseUrl || !supabaseServiceRole) throw new Error("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY non configurés");
@@ -31,6 +45,31 @@ Deno.serve(async (req: Request) => {
       subject: body.subject || "",
       message: body.message || "",
     };
+
+    // Filtre anti-spam : les messages légitimes n'ont normalement pas besoin
+    // de lien externe ; le spam reçu sur ce formulaire en contient toujours un.
+    if (/https?:\/\//i.test(payload.message)) {
+      return Response.json(
+        { error: "Merci de ne pas inclure de lien dans votre message. Décrivez votre demande, nous reviendrons vers vous." },
+        { status: 400, headers: cors }
+      );
+    }
+
+    // Limite anti-abus : au-delà de 3 messages en 24h pour le même email, on
+    // bloque (évite qu'un même expéditeur sature la boîte admin).
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count: recentCount } = await supabase
+      .from("contact_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("email", payload.email)
+      .gte("created_at", since);
+
+    if ((recentCount || 0) >= 3) {
+      return Response.json(
+        { error: "Trop de messages envoyés récemment avec cet email. Réessayez plus tard." },
+        { status: 429, headers: cors }
+      );
+    }
 
     const { error } = await supabase
       .from("contact_messages")

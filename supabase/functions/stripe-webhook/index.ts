@@ -29,6 +29,19 @@ Deno.serve(async (req) => {
       const targetType = session.metadata?.target_type;
       const targetId = session.metadata?.target_id;
 
+      // Idempotence : Stripe peut renvoyer le même événement plusieurs fois
+      // (retry après timeout, etc.). Si ce paiement a déjà été marqué "paid",
+      // on ne retraite pas (évite doublons dans audit_logs et ré-écritures inutiles).
+      const { data: existingPayment } = await supabase
+        .from("payments")
+        .select("payment_status")
+        .eq("stripe_checkout_session_id", session.id)
+        .maybeSingle();
+
+      if (existingPayment?.payment_status === "paid") {
+        return new Response(JSON.stringify({ received: true, already_processed: true }), { headers: { "content-type": "application/json" } });
+      }
+
       if (targetType === "partner" && targetId) {
         await supabase.from("partners")
           .update({

@@ -19,6 +19,20 @@ Deno.serve(async (req: Request) => {
   try {
     const body = await req.json();
 
+    // Piège à robots : un bot remplit tous les champs du formulaire, y compris
+    // le champ "hp_field" invisible pour un humain. On répond un faux succès
+    // (sans rien enregistrer) pour ne pas indiquer au bot qu'il a été repéré.
+    if (String(body.hp_field || "").trim() !== "") {
+      return Response.json({ ok: true, message: "Demande partenaire envoyée avec succès." }, { headers: cors });
+    }
+
+    // Un humain met toujours plus de 2 secondes à remplir le formulaire ;
+    // un remplissage quasi instantané trahit un robot.
+    const elapsedMs = Number(body.elapsed_ms || 0);
+    if (elapsedMs > 0 && elapsedMs < 2000) {
+      return Response.json({ ok: true, message: "Demande partenaire envoyée avec succès." }, { headers: cors });
+    }
+
     const supabaseUrl = (Deno.env.get("SUPABASE_URL") ?? "").trim();
     const supabaseServiceRole = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "").trim();
     if (!supabaseUrl || !supabaseServiceRole) throw new Error("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY non configurés");
@@ -39,6 +53,25 @@ Deno.serve(async (req: Request) => {
 
     if (!payload.company_name || !payload.email) {
       throw new Error("Le nom de la société et l'email sont obligatoires.");
+    }
+
+    // Filtre anti-spam : le champ "site web" dédié peut légitimement contenir
+    // un lien, mais la description libre n'en a normalement pas besoin — c'est
+    // là que le spam injecte ses liens.
+    if (/https?:\/\//i.test(payload.description)) {
+      throw new Error("Merci de ne pas inclure de lien dans la description. Utilisez le champ \"Site web\" prévu à cet effet.");
+    }
+
+    // Limite anti-abus : au-delà de 3 demandes en 24h pour le même email.
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count: recentCount } = await supabase
+      .from("partners")
+      .select("id", { count: "exact", head: true })
+      .eq("email", payload.email)
+      .gte("created_at", since);
+
+    if ((recentCount || 0) >= 3) {
+      throw new Error("Trop de demandes envoyées récemment avec cet email. Réessayez plus tard.");
     }
 
     const { data: partner, error } = await supabase

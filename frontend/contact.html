@@ -322,6 +322,13 @@
       <label>Message</label>
       <textarea name="message" required></textarea>
 
+      <!-- Piège à robots : champ invisible pour un visiteur humain, que les
+           bots de spam remplissent automatiquement. Ne pas retirer. -->
+      <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
+        <label for="hpField">Laisser ce champ vide</label>
+        <input type="text" id="hpField" name="hp_field" tabindex="-1" autocomplete="off" />
+      </div>
+
       <button type="submit" class="btn primary">Envoyer</button>
     </form>
 

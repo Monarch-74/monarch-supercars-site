@@ -798,6 +798,10 @@ function initContact() {
 
   if (!form) return;
 
+  // Horodatage du chargement du formulaire : un remplissage en moins de 2s
+  // trahit un robot (vérifié côté serveur dans contact-intake).
+  var formLoadedAt = Date.now();
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
@@ -807,6 +811,8 @@ function initContact() {
     formData.forEach(function (value, key) {
       data[key] = value;
     });
+
+    data.elapsed_ms = Date.now() - formLoadedAt;
 
     callEdge("contact-intake", data)
       .then(function () {
@@ -1437,6 +1443,25 @@ function initEventAlertsForm() {
   });
 }
 
+// Compteur visiteur discret dans le pied de page (total agrégé, aucune donnée
+// individuelle). Repose sur la fonction publique public_visitor_count().
+function initVisitorCounter() {
+  var footer = document.querySelector(".footer");
+  if (!footer || !supabaseClient) return;
+
+  supabaseClient
+    .rpc("public_visitor_count")
+    .then(function (res) {
+      if (res.error || res.data == null) return;
+
+      var span = document.createElement("div");
+      span.style.cssText = "margin-top:6px;font-size:.72rem;color:#555;";
+      span.textContent = Number(res.data).toLocaleString("fr-FR") + " visiteurs";
+      footer.appendChild(span);
+    })
+    .catch(function () {});
+}
+
 // Agrandit l'affiche d'un événement en plein écran au clic (délégation d'événement
 // car les cartes sont injectées dynamiquement après le chargement de la page).
 function initPosterLightbox() {
@@ -1480,6 +1505,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initEventAlertsForm();
   initCalendarNav();
   initNextEventCountdown();
+  initVisitorCounter();
   initPosterLightbox();
   initRegister();
   initLogin();

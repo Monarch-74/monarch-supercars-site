@@ -27,6 +27,7 @@ Deno.serve(async (req) => {
       { data: pendingEvents },
       { data: audit },
       { data: analyticsSummary },
+      { data: analyticsByPage },
     ] = await Promise.all([
       supabase.from("partners").select("*", { count: "exact", head: true }),
       supabase.from("events").select("*", { count: "exact", head: true }),
@@ -38,6 +39,7 @@ Deno.serve(async (req) => {
       supabase.from("events").select("*").in("status", ["pending_review", "paid", "draft"]).order("created_at", { ascending: false }).limit(20),
       supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(20),
       supabase.rpc("admin_analytics_summary"),
+      supabase.rpc("admin_analytics_by_page"),
     ]);
 
     // Liste des membres inscrits (email + nom + date + rôle)
@@ -67,10 +69,8 @@ Deno.serve(async (req) => {
         roadtrips: roadtrips || 0,
         pageViews: Number(analytics.page_views || 0),
         visits: Number(analytics.unique_visits || 0),
-        durationMin: analytics.duration_min ?? null,
-        durationMax: analytics.duration_max ?? null,
-        durationAvg: analytics.duration_avg ?? null,
       },
+      analyticsByPage: analyticsByPage || [],
       members,
       pendingPartners: pendingPartners || [],
       pendingEvents: pendingEvents || [],
