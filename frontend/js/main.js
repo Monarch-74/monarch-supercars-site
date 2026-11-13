@@ -1504,7 +1504,7 @@ function initPosterLightbox() {
   }
 
   document.addEventListener("click", function (e) {
-    var poster = e.target.closest(".event-card img.poster");
+    var poster = e.target.closest("img.poster");
     if (poster) {
       lightboxImg.src = poster.src;
       lightboxImg.alt = poster.alt || "";

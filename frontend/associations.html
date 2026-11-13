@@ -67,14 +67,15 @@
 
     nav{
       display:flex;
-      gap:16px;
+      gap:8px;
       flex-wrap:wrap;
     }
 
     nav a{
       color:white;
       text-decoration:none;
-      padding:10px 16px;
+      padding:8px 12px;
+      font-size:.92rem;
       border-radius:10px;
       border:1px solid transparent;
       transition:0.3s;
@@ -170,6 +171,55 @@
       object-fit:contain;
       padding:8px;
       margin-bottom:14px;
+      cursor:zoom-in;
+    }
+
+    .poster-lightbox{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.92);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:40px;
+      z-index:1000;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease;
+    }
+
+    .poster-lightbox.active{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    .poster-lightbox img{
+      max-width:92vw;
+      max-height:90vh;
+      border-radius:10px;
+      box-shadow:0 20px 60px rgba(0,0,0,.6);
+      cursor:zoom-out;
+    }
+
+    .poster-lightbox-close{
+      position:absolute;
+      top:22px;
+      right:28px;
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      border:1px solid #444;
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      font-size:1.1rem;
+      cursor:pointer;
+      transition:background .2s ease, border-color .2s ease;
+    }
+
+    .poster-lightbox-close:hover{
+      background:#d4af37;
+      color:#000;
+      border-color:#d4af37;
     }
 
     .assoc-card h3{
@@ -364,7 +414,7 @@
         html += '<div class="assoc-card">';
         html += '<div>';
 
-        html += '<img class="assoc-logo" src="' +
+        html += '<img class="assoc-logo poster" src="' +
           escapeHtml(assoc.logo_url || fallbackLogo()) +
           '" alt="' + escapeHtml(assoc.name || "Association") + '">';
 
