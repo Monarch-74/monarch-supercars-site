@@ -34,6 +34,7 @@ create table if not exists public.associations (
   website_url text,
   donation_url text,
   contact_email text,
+  sort_order integer,
   created_at timestamptz not null default now()
 );
 
